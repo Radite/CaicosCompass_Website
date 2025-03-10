@@ -1,0 +1,539 @@
+:root {
+  --primary-color: #0066CC;
+  --secondary-color: #00A699;
+  --dark-color: #333333;
+  --light-color: #767676;
+  --bg-color: #f8f9fa;
+  --white: #ffffff;
+  --border-color: #e0e0e0;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  --radius: 12px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto 50px;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1500px;
+  }
+}
+
+/* Main filter section - simplified without search */
+.searchContainer {
+  position: relative;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+  padding: 20px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  width: 100%;
+}
+
+.searchFields {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  width: 100%;
+}
+
+.searchField {
+  flex: 1;
+}
+
+.searchField label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--dark-color);
+}
+
+.searchField input,
+.searchField select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--white);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchField input:focus,
+.searchField select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+  outline: none;
+}
+
+.islandSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8.825L1.175 4 2.238 2.938 6 6.7 9.762 2.938 10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 35px;
+}
+
+.dateFields {
+  display: flex;
+  gap: 15px;
+  flex: 2;
+}
+
+.searchButton {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 120px;
+  height: 45px;
+}
+
+.searchButton:hover {
+  background-color: #0055b3;
+}
+
+/* Filter bar styles */
+.filtersContainer {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+.typeFilter {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.typeSelect {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--white);
+  color: var(--dark-color);
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 150px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8.825L1.175 4 2.238 2.938 6 6.7 9.762 2.938 10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 35px;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 15px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--light-color) transparent;
+}
+
+.filterBar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filterBar::-webkit-scrollbar-thumb {
+  background-color: var(--light-color);
+  border-radius: 4px;
+}
+
+.filterItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  color: var(--dark-color);
+}
+
+.filterItem:hover {
+  background-color: #f0f0f0;
+}
+
+.filterItem.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.filterName {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Listings grid styles */
+.listings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  padding: 10px 0;
+}
+
+.listingCard {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background-color: var(--white);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.listingCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.listingImage {
+  position: relative;
+  padding-top: 66.67%;
+  overflow: hidden;
+}
+
+.listingImage img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.listingCard:hover .listingImage img {
+  transform: scale(1.05);
+}
+
+.likeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff5a5f;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+}
+
+.likeButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.listingDetails {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.listingLocation {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.locationName {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.islandTag {
+  color: var(--light-color);
+  font-weight: normal;
+}
+
+.listingRating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--dark-color);
+  font-weight: 600;
+}
+
+.listingRating span {
+  display: flex;
+  align-items: center;
+}
+
+.listingName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--dark-color);
+}
+
+.listingType {
+  color: var(--light-color);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.listingAmenities {
+  color: var(--light-color);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listingPrice {
+  font-weight: 700;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 1.1rem;
+  color: var(--dark-color);
+}
+
+.priceTotal {
+  font-weight: 400;
+  color: var(--light-color);
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+/* Loading and error states */
+.loadingState, 
+.errorState,
+.emptyState {
+  text-align: center;
+  padding: 4rem;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin: 2rem 0;
+}
+
+.loadingState {
+  position: relative;
+  min-height: 150px;
+}
+
+.loadingState:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorState {
+  color: #d32f2f;
+}
+
+.errorState button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.emptyState {
+  color: var(--light-color);
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .searchFields {
+    flex-direction: column;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dateFields {
+    flex-direction: column;
+  }
+  
+  .listings {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 580px) {
+  .listings {
+    grid-template-columns: 1fr;
+  }
+  
+  .searchButton {
+    width: 100%;
+  }
+}
+
+/* Add these styles to your existing stayspage.module.css */
+
+/* Main layout with map */
+.mainLayout {
+  display: flex;
+  margin: 20px 0;
+  gap: 20px;
+  height: calc(100vh - 200px);
+  min-height: 600px;
+}
+
+.listingsContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+
+.listingsContainer.withMap {
+  flex: 0.6;
+}
+
+.mapSection {
+  flex: 0.4;
+  position: sticky;
+  top: 80px;
+  height: calc(100vh - 200px);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.closeMapButton {
+  display: none;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: white;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Make listing cards clickable */
+.listingCard {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.listingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.selectedListing {
+  box-shadow: 0 0 0 2px #f27a1a, 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Highlight animation for when a marker is clicked */
+.highlighted {
+  animation: highlight 2s;
+}
+
+@keyframes highlight {
+  0% { box-shadow: 0 0 0 2px #f27a1a; }
+  50% { box-shadow: 0 0 0 6px #f27a1a; }
+  100% { box-shadow: 0 0 0 2px transparent; }
+}
+
+/* Map toggle button for mobile */
+.mapToggle {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #f27a1a;
+  color: white;
+  border-radius: 24px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .mainLayout {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .listingsContainer.withMap {
+    flex: 1;
+  }
+  
+  .mapSection {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    border-radius: 0;
+  }
+  
+  .mapSection.visibleOnMobile {
+    display: block;
+  }
+  
+  .closeMapButton {
+    display: block;
+  }
+  
+  .mapToggle {
+    display: flex;
+  }
+}

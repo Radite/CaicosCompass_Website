@@ -1,0 +1,621 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 100px auto 50px;
+    padding: 0 2rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #333;
+  }
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0C54CF, #1976D2);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(12, 84, 207, 0.2);
+    margin-bottom: 30px;
+  }
+  
+  .backButton:hover {
+    background: linear-gradient(135deg, #0C54CF, #D4AF37);
+    box-shadow: 0 6px 15px rgba(12, 84, 207, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .backIcon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+  }
+  
+  .heroSection {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+  
+  .mainImageContainer {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mainImage {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .mainImage:hover {
+    transform: scale(1.02);
+  }
+  
+  .imageThumbnails {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding: 5px 0;
+  }
+  
+  .thumbnailImage {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    border: 2px solid transparent;
+  }
+  
+  .thumbnailImage:hover {
+    opacity: 1;
+  }
+  
+  .activeThumbnail {
+    opacity: 1;
+    border-color: #0C54CF;
+    box-shadow: 0 4px 8px rgba(12, 84, 207, 0.2);
+  }
+  
+  .heroContent {
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0C54CF;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 1rem;
+  }
+  
+  .title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #0C54CF, #D4AF37);
+    border-radius: 2px;
+  }
+  
+  .description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 1.5rem;
+  }
+  
+  .infoBox {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .infoItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+  }
+  
+  .infoIcon {
+    font-size: 1.2rem;
+  }
+  
+  .contentWrapper {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 30px;
+  }
+  
+  .section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .section:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.2rem;
+    position: relative;
+    padding-bottom: 0.8rem;
+  }
+  
+  .sectionTitle::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #0C54CF, #D4AF37);
+    border-radius: 2px;
+  }
+  
+  .hourRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .day {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .time {
+    color: #555;
+  }
+  
+  .closure {
+    background-color: #fff0f0;
+    border-left: 3px solid #d4af37;
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 15px;
+  }
+  
+  .closureDate {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .closureReason {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .policyText {
+    color: #555;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+  
+  .servicesSection {
+    margin-bottom: 40px;
+  }
+  
+  .servicesTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .serviceTab {
+    padding: 12px 20px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  }
+  
+  .serviceTab:hover {
+    border-color: #0C54CF;
+    box-shadow: 0 4px 15px rgba(12, 84, 207, 0.15);
+  }
+  
+  .activeTab {
+    background: linear-gradient(135deg, #0C54CF, #1976D2);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(12, 84, 207, 0.3);
+  }
+  
+  .activeTab:hover {
+    background: linear-gradient(135deg, #0C54CF, #D4AF37);
+  }
+  
+  .serviceDetails {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+  }
+  
+  .serviceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .serviceName {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 5px 0;
+  }
+  
+  .serviceCategory {
+    color: #0C54CF;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .serviceMeta {
+    text-align: right;
+  }
+  
+  .serviceDuration {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    margin-bottom: 8px;
+    color: #555;
+  }
+  
+  .servicePrice {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #0C54CF;
+  }
+  
+  .discountedPrice {
+    margin-right: 8px;
+  }
+  
+  .originalPrice {
+    font-size: 1rem;
+    color: #999;
+    text-decoration: line-through;
+  }
+  
+  .metaIcon {
+    margin-right: 5px;
+  }
+  
+  .serviceDescription {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .serviceImages {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    margin-bottom: 25px;
+  }
+  
+  .serviceImage {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .serviceImage:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .bookingSection {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .bookingTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+  }
+  
+  .dateSelector, .timeSelector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .dateButton, .timeButton {
+    padding: 10px 16px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+  
+  .dateButton:hover, .timeButton:hover {
+    border-color: #0C54CF;
+    box-shadow: 0 4px 10px rgba(12, 84, 207, 0.15);
+  }
+  
+  .selectedDate {
+    background: linear-gradient(135deg, #0C54CF, #1976D2);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(12, 84, 207, 0.3);
+  }
+  
+  .selectedDate:hover {
+    background: linear-gradient(135deg, #0C54CF, #D4AF37);
+  }
+  
+  .noAvailability {
+    padding: 10px;
+    color: #777;
+    font-size: 0.95rem;
+    background: #f8f8f8;
+    border-radius: 6px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .programsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .programCard {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .programCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .programTitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 10px 0;
+  }
+  
+  .programDescription {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  .programMeta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .programDuration, .programPrice {
+    display: flex;
+    align-items: center;
+  }
+  
+  .inquireButton {
+    background: linear-gradient(135deg, #D4AF37, #DAA520);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(218, 165, 32, 0.3);
+    width: 100%;
+  }
+  
+  .inquireButton:hover {
+    background: linear-gradient(135deg, #DAA520, #0C54CF);
+    box-shadow: 0 6px 15px rgba(218, 165, 32, 0.4);
+  }
+  
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .heroSection {
+      flex-direction: row;
+    }
+    
+    .mainImageContainer {
+      flex: 1;
+    }
+    
+    .heroContent {
+      flex: 1;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .contentWrapper {
+      grid-template-columns: 1fr;
+    }
+    
+    .sidebarSection {
+      order: 2;
+    }
+    
+    .mainContent {
+      order: 1;
+    }
+    
+    .title {
+      font-size: 2rem;
+    }
+    
+    .serviceHeader {
+      flex-direction: column;
+    }
+    
+    .serviceMeta {
+      text-align: left;
+      margin-top: 10px;
+    }
+    
+    .serviceDuration {
+      justify-content: flex-start;
+    }
+  }
+
+  /* Add these styles to your wellnessspadetails.module.css file */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmationModal {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.confirmationTitle {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: #333;
+  text-align: center;
+}
+
+.confirmationDetails {
+  margin-bottom: 24px;
+}
+
+.confirmationRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.confirmationRow:last-child {
+  border-bottom: none;
+}
+
+.confirmationLabel {
+  font-weight: 600;
+  color: #555;
+}
+
+.confirmationValue {
+  text-align: right;
+}
+
+.confirmationActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.cancelButton {
+  padding: 12px 24px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: #f5f5f5;
+}
+
+.confirmButton {
+  padding: 12px 24px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmButton:hover {
+  background-color: #388E3C;
+}

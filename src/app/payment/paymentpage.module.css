@@ -1,0 +1,706 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: #0066cc;
+}
+
+.backIcon {
+  margin-right: 8px;
+}
+
+.pageTitle {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.pageTitle h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.pageTitle p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+/* Form Styles */
+.paymentForm {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.formSection {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.formSection:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.sectionIcon {
+  margin-right: 10px;
+  color: #0066cc;
+}
+
+.sectionDescription {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus, .textarea:focus {
+  border-color: #0066cc;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Payment Method Styles */
+.paymentMethods {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.paymentMethodButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.paymentMethodButton:hover {
+  background: #f0f0f0;
+}
+
+.selectedPaymentMethod {
+  border-color: #0066cc;
+  background: rgba(0, 102, 204, 0.05);
+  box-shadow: 0 0 0 1px #0066cc;
+}
+
+.paymentIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cardDetailsSection {
+  margin-top: 1.5rem;
+}
+
+.cardNumberInputWrapper {
+  position: relative;
+}
+
+.cardTypeIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.visa {
+  color: #1A1F71;
+}
+
+.mastercard {
+  color: #EB001B;
+}
+
+.amex {
+  color: #006FCF;
+}
+
+.discover {
+  color: #FF6600;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.checkbox {
+  margin-right: 0.5rem;
+}
+
+.transferInfo, .cashInfo {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+/* User Search and Selection */
+.userSearchContainer {
+  margin-top: 1rem;
+}
+
+.userSearchForm {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.userSearchInput {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+}
+
+.userSearchButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 0 1rem;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userSearchButton:hover {
+  background: #0055aa;
+}
+
+.searchResults {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.userResult {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.userResult:last-child {
+  border-bottom: none;
+}
+
+.userResult:hover {
+  background: #f5f5f5;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  background: #0066cc;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-weight: 500;
+}
+
+.userUsername {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.addUserButton, .removeUserButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.removeUserButton {
+  background: #ff3b30;
+}
+
+.selectedUsers {
+  margin-top: 1.5rem;
+}
+
+.selectedUser {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+/* Submit Section */
+.securePayment {
+  display: flex;
+  align-items: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.secureIcon {
+  color: #0066cc;
+  margin-right: 0.5rem;
+}
+
+.termsAgreement {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.termsAgreement label {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-left: 0.5rem;
+}
+
+.termsAgreement a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.termsAgreement a:hover {
+  text-decoration: underline;
+}
+
+.submitButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submitButton:hover {
+  background: #0055aa;
+}
+
+.submitButton:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+/* Booking Summary */
+.bookingSummary {
+  position: sticky;
+  top: 2rem;
+  align-self: start;
+}
+
+.summaryCard {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.summaryTitle {
+  background: #f5f5f5;
+  padding: 1rem;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.summaryContent {
+  padding: 1.5rem;
+}
+
+.activityName {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.summaryDetail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.summaryIcon {
+  color: #0066cc;
+  margin-right: 0.75rem;
+  min-width: 16px;
+}
+
+.summaryTag {
+  display: inline-block;
+  background: #e6f2ff;
+  color: #0066cc;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 1.5rem 0;
+}
+
+.priceSummary {
+  margin-bottom: 1.5rem;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.totalPrice {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.cancellationNote {
+  display: flex;
+  align-items: flex-start;
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.infoIcon {
+  color: #0066cc;
+  margin-right: 0.75rem;
+  min-width: 16px;
+  margin-top: 3px;
+}
+
+.supportInfo {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.supportInfo h3 {
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.supportInfo p {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+/* Confirmation Styles */
+.confirmationContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 2rem;
+}
+
+.confirmationBox {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.confirmationHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
+  flex-direction: column;
+}
+
+.confirmationIcon {
+  color: #4CAF50;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 50%;
+}
+
+.confirmationHeader h2 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.confirmationDetails {
+  margin-bottom: 2rem;
+}
+
+.confirmationNumber {
+  text-align: center;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.confirmationInfo {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.infoIcon {
+  margin-right: 1rem;
+  color: #0066cc;
+}
+
+.emailConfirmation {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.totalAmount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.amountValue {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.confirmationActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.primaryButton, .secondaryButton {
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+}
+
+.secondaryButton {
+  background: white;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+}
+
+/* Loading and Error States */
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.spinner, .miniSpinner {
+  border: 4px solid rgba(0, 102, 204, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #0066cc;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.miniSpinner {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  margin-bottom: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorIcon {
+  color: #ff3b30;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.errorContainer h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.returnButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+  }
+  
+  .bookingSummary {
+    position: static;
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .paymentMethods {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle h1 {
+    font-size: 1.75rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+  
+  .confirmationHeader h2 {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,410 @@
+/* login.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Wrapper for the login page */
+.loginPage {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Overlay that creates a luxury gradient effect */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(13, 76, 146, 0.85) 0%, rgba(8, 52, 98, 0.9) 100%);
+  z-index: 1;
+}
+
+/* Content container that holds both form and image */
+.contentContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 85%;
+  max-width: 1200px;
+  min-height: 600px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Form container */
+.formContainer {
+  flex: 1;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  position: relative;
+}
+
+/* Brand logo styling */
+.brandLogo {
+  margin-bottom: 2rem;
+}
+
+.brandLogo span {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #0D4C92;
+  letter-spacing: 1px;
+}
+
+/* Form wrapper to center content */
+.formWrapper {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Title styling for the form */
+.formTitle {
+  font-family: 'Cormorant Garamond', serif;
+  color: #222831;
+  font-weight: 600;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+/* Subtitle styling */
+.formSubtitle {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Input group styling */
+.inputGroup {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.inputGroup input:focus {
+  border-color: #0D4C92;
+  box-shadow: 0 0 0 2px rgba(13, 76, 146, 0.2);
+  outline: none;
+}
+
+/* Label row for password field with forgot password link */
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.forgotPassword {
+  color: #0D4C92;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.forgotPassword:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+/* Submit button styling */
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #0D4C92;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  background-color: #083462;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 76, 146, 0.25);
+}
+
+.submitButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Social Login Section */
+.socialLogin {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.socialText {
+  position: relative;
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.socialText::before,
+.socialText::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #e1e1e1;
+}
+
+.socialText::before {
+  margin-right: 1rem;
+}
+
+.socialText::after {
+  margin-left: 1rem;
+}
+
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.socialBtn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #e1e1e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.socialBtn:nth-child(1) {
+  color: #DB4437; /* Google color */
+}
+
+.socialBtn:nth-child(2) {
+  color: #4267B2; /* Facebook color */
+}
+
+.socialBtn:nth-child(3) {
+  color: #000; /* Apple color */
+}
+
+.socialBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form toggle section */
+.formToggle {
+  margin-top: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.toggleLink {
+  background: none;
+  border: none;
+  color: #0D4C92;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.toggleLink:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+/* Replace the current imageContainer styles with these */
+.imageContainer {
+  flex: 1;
+  position: relative;
+  /* Create a beach-inspired gradient background */
+  background: linear-gradient(
+    to bottom,
+    #87CEEB 0%,    /* Sky blue */
+    #00BFFF 30%,   /* Deep sky blue */
+    #1E90FF 50%,   /* Dodger blue - ocean */
+    #F5DEB3 85%,   /* Wheat - sand */
+    #DEB887 100%   /* Burlywood - darker sand */
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Keep the overlay for text readability */
+.imageContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+}
+
+/* Update mobile view to use the same gradient */
+@media (max-width: 480px) {
+  .imageContainer {
+    background: linear-gradient(
+      to bottom,
+      #87CEEB 0%,    /* Sky blue */
+      #00BFFF 30%,   /* Deep sky blue */
+      #1E90FF 50%,   /* Dodger blue - ocean */
+      #F5DEB3 85%,   /* Wheat - sand */
+      #DEB887 100%   /* Burlywood - darker sand */
+    );
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+  }
+}
+
+.imageText {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+  padding: 0 2rem;
+}
+
+.imageText h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.imageText p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Gold accent for luxury */
+.goldAccent {
+  color: #D4AF37;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .contentContainer {
+    width: 95%;
+  }
+}
+
+@media (max-width: 992px) {
+  .formContainer {
+    padding: 2rem;
+  }
+  
+  .imageText h1 {
+    font-size: 2.5rem;
+  }
+  
+  .imageText p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .contentContainer {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+  }
+  
+  .formContainer {
+    order: 2;
+    padding: 2rem 1.5rem;
+  }
+  
+  .imageContainer {
+    order: 1;
+    min-height: 250px;
+  }
+  
+  .formTitle {
+    font-size: 2rem;
+  }
+  
+  .imageText h1 {
+    font-size: 2rem;
+  }
+  
+  .imageText p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentContainer {
+    width: 100%;
+    border-radius: 0;
+  }
+  
+  .loginPage {
+    align-items: flex-start;
+  }
+  
+  .formContainer {
+    padding: 1.5rem;
+  }
+  
+  .brandLogo span {
+    font-size: 1.8rem;
+  }
+  
+  .formTitle {
+    font-size: 1.8rem;
+  }
+  
+  .imageContainer {
+    min-height: 200px;
+  }
+}

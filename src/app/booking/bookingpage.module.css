@@ -1,0 +1,650 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 100px auto 50px;
+  padding: 0 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(12, 84, 207, 0.2);
+  margin-bottom: 30px;
+}
+
+.backButton:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+  box-shadow: 0 6px 15px rgba(12, 84, 207, 0.3);
+  transform: translateY(-2px);
+}
+
+.backIcon {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Hero Section with Main Image and Content */
+.heroSection {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.mainImageContainer {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mainImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.mainImage:hover {
+  transform: scale(1.02);
+}
+
+.imageThumbnails {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding: 5px 0;
+}
+
+.thumbnailImage {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+  border: 2px solid transparent;
+}
+
+.thumbnailImage:hover {
+  opacity: 1;
+}
+
+.activeThumbnail {
+  opacity: 1;
+  border-color: #0C54CF;
+  box-shadow: 0 4px 8px rgba(12, 84, 207, 0.2);
+}
+
+.heroContent {
+  padding: 20px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0C54CF;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #0C54CF, #D4AF37);
+  border-radius: 2px;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.infoBox {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.infoIcon {
+  font-size: 1.2rem;
+}
+
+/* Main Content and Sidebar Layout */
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 30px;
+}
+
+.section {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+
+.section:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.2rem;
+  position: relative;
+  padding-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #0C54CF, #D4AF37);
+  border-radius: 2px;
+}
+
+.label {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  letter-spacing: 0.3px;
+}
+
+/* Date Selection Styles */
+.dateInput {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 15px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  margin-bottom: 15px;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #0C54CF;
+  box-shadow: 0 0 0 3px rgba(12, 84, 207, 0.1);
+}
+
+.upcomingDates {
+  margin-top: 15px;
+}
+
+.dateSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.dateButton {
+  padding: 10px 16px;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.dateButton:hover {
+  border-color: #0C54CF;
+  box-shadow: 0 4px 10px rgba(12, 84, 207, 0.15);
+}
+
+.selectedDate {
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(12, 84, 207, 0.3);
+}
+
+.selectedDate:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+}
+
+/* Time Slot Styles */
+.timeslotGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.timeslotButton {
+  padding: 12px 20px;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.timeslotButton:hover {
+  border-color: #0C54CF;
+  box-shadow: 0 4px 15px rgba(12, 84, 207, 0.15);
+}
+
+.selectedTimeslot {
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(12, 84, 207, 0.3);
+}
+
+.selectedTimeslot:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+}
+
+.noTimesText {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  color: #777;
+  padding: 1rem;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* Number of People selector */
+.numPeopleContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 200px;
+  margin-bottom: 20px;
+}
+
+.numButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(12, 84, 207, 0.2);
+}
+
+.numButton:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+  box-shadow: 0 6px 15px rgba(12, 84, 207, 0.3);
+}
+
+.numInput {
+  width: 70px;
+  text-align: center;
+  padding: 10px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Sidebar Booking Summary Section */
+.sidebarSection {
+  grid-column: 1;
+}
+
+.mainContent {
+  grid-column: 2;
+}
+
+.bookingSection {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 20px;
+}
+
+.bookingTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.bookingTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #0C54CF, #D4AF37);
+  border-radius: 2px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.summaryLabel {
+  font-weight: 500;
+  color: #666;
+}
+
+.summaryValue {
+  font-weight: 600;
+  color: #333;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  margin: 20px 0;
+  border-top: 2px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+.totalLabel {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.totalPrice {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #0C54CF;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(12, 84, 207, 0.3);
+  margin-top: 10px;
+}
+
+.continueButton:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(12, 84, 207, 0.4);
+}
+
+.continueButton:disabled {
+  background: linear-gradient(135deg, #a0a0a0, #c0c0c0);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tipContainer {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: rgba(12, 84, 207, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #0C54CF;
+}
+
+.tipText {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Service Options Tabs */
+.servicesTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.serviceTab {
+  padding: 12px 24px;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.serviceTab:hover {
+  border-color: #0C54CF;
+  box-shadow: 0 4px 12px rgba(12, 84, 207, 0.15);
+}
+
+.activeTab {
+  background: linear-gradient(135deg, #0C54CF, #1976D2);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(12, 84, 207, 0.3);
+}
+
+.activeTab:hover {
+  background: linear-gradient(135deg, #0C54CF, #D4AF37);
+}
+
+.optionDetails {
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.optionDescription {
+  margin-bottom: 15px;
+  line-height: 1.5;
+  color: #555;
+}
+
+.optionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.optionPrice, .optionCapacity {
+  font-size: 1rem;
+}
+
+.priceLabel, .capacityLabel {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Guest Options and Toggle buttons */
+.guestOption {
+  margin-top: 25px;
+}
+
+.toggleContainer {
+  display: flex;
+  width: fit-content;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 15px;
+}
+
+.toggleButton {
+  padding: 10px 25px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleButtonSelected {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #0C54CF;
+}
+
+/* Cancellation Policy */
+.policyText {
+  line-height: 1.8;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebarSection {
+    grid-row: 1;
+    grid-column: 1;
+    margin-bottom: 30px;
+  }
+  
+  .mainContent {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  
+  .bookingSection {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 60px;
+    padding: 0 1rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .heroSection {
+    gap: 20px;
+  }
+  
+  .mainImage {
+    height: 300px;
+  }
+  
+  .infoBox {
+    grid-template-columns: 1fr;
+  }
+  
+  .servicesTabs {
+    flex-direction: column;
+  }
+  
+  .serviceTab {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .dateSelector {
+    flex-direction: column;
+  }
+  
+  .dateButton {
+    width: 100%;
+  }
+  
+  .timeslotGrid {
+    flex-direction: column;
+  }
+  
+  .timeslotButton {
+    width: 100%;
+  }
+  
+  .numPeopleContainer {
+    max-width: 100%;
+  }
+}
+
+/* Price text formatting */
+.priceText {
+  font-weight: 600;
+  color: #0C54CF;
+}

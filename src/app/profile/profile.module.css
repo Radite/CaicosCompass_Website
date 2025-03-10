@@ -1,0 +1,635 @@
+/* Import the fonts used in the rest of the site */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary: #0C54CF;
+  --primary-dark: #083462;
+  --primary-light: #EBF2FA;
+  --accent: #D4AF37;
+  --dark: #222831;
+  --light: #FFFFFF;
+  --gray: #F8F9FA;
+  --gray-light: #f0f3f5;
+  --gray-medium: #e0e5ea;
+  --gray-dark: #adb5bd;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.05);
+  --shadow-dark: 0 15px 35px rgba(0, 0, 0, 0.18);
+  --transition: all 0.3s ease;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+/* Profile Container */
+.profileContainer {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--dark);
+  background-color: var(--gray-light);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* Profile Header */
+.profileHeader {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: var(--light);
+  padding: 80px 0 100px;
+  margin-bottom: -50px;
+  position: relative;
+}
+
+.profileHeader::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%23f8f9fa' fill-opacity='1' d='M0,32L80,37.3C160,43,320,53,480,58.7C640,64,800,64,960,58.7C1120,53,1280,43,1360,37.3L1440,32L1440,100L1360,100C1280,100,1120,100,960,100C800,100,640,100,480,100C320,100,160,100,80,100L0,100Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+}
+
+.profileHeaderContent {
+  padding-right: 30px;
+}
+
+.profileTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.profileSubtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  opacity: 0.9;
+}
+
+.profileHeaderCard {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.profileAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #E8C664);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 3px solid var(--light);
+  overflow: hidden;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--light);
+  margin-bottom: 5px;
+}
+
+.profileMeta {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
+}
+
+.loyaltyPoints {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(212, 175, 55, 0.2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.loyaltyIcon {
+  color: var(--accent);
+  margin-right: 6px;
+}
+
+.loyaltyValue {
+  font-weight: 500;
+}
+
+/* Profile Content */
+.profileContent {
+  position: relative;
+  padding-top: 50px;
+}
+
+.profileNav {
+  background-color: var(--light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.navItem:not(:last-child) {
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.navItem:hover {
+  background-color: var(--gray-light);
+}
+
+.navItem.active {
+  background-color: var(--primary-light);
+  border-left-color: var(--primary);
+}
+
+.navItem.active .navIcon,
+.navItem.active .navText {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.navIcon {
+  color: var(--gray-dark);
+  margin-right: 15px;
+  width: 20px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.navText {
+  color: var(--dark);
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.profileContentCard {
+  background-color: var(--light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
+  padding: 30px;
+  height: 100%;
+  min-height: 500px;
+}
+
+.sectionHeader {
+  margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.sectionTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.sectionDescription {
+  font-size: 0.95rem;
+  color: var(--gray-dark);
+}
+
+.profileInfoList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profileInfoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: var(--gray-light);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.profileInfoItem:hover {
+  background-color: var(--gray);
+  box-shadow: var(--shadow-light);
+  transform: translateY(-2px);
+}
+
+.in.infoContent {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.infoIcon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.infoDetails {
+  flex: 1;
+}
+
+.infoLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--dark);
+}
+
+.infoValue {
+  font-size: 0.95rem;
+  color: var(--gray-dark);
+  margin-bottom: 0;
+}
+
+.editButton {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 15px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.editButton:hover {
+  background-color: var(--primary);
+  color: var(--light);
+}
+
+/* Coming Soon Section */
+.comingSoonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 50px 20px;
+  height: 100%;
+}
+
+.comingSoonIcon {
+  font-size: 3rem;
+  color: var(--gray-dark);
+  margin-bottom: 20px;
+}
+
+.comingSoonTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+.comingSoonText {
+  font-size: 1rem;
+  color: var(--gray-dark);
+  max-width: 400px;
+}
+
+/* Loading Spinner */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--gray-medium);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .profileHeader {
+    padding: 60px 0 80px;
+  }
+  
+  .profileNav {
+    position: relative;
+    top: 0;
+    margin-bottom: 30px;
+  }
+  
+  .navItem {
+    padding: 12px 15px;
+  }
+  
+  .profileTitle {
+    font-size: 2.2rem;
+  }
+  
+  .profileContentCard {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .profileHeader {
+    padding: 40px 0 60px;
+  }
+  
+  .profileHeaderContent {
+    margin-bottom: 30px;
+    padding-right: 0;
+  }
+  
+  .profileTitle {
+    font-size: 2rem;
+  }
+  
+  .profileHeaderCard {
+    padding: 20px;
+  }
+  
+  .profileName {
+    font-size: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+}
+
+/* Form Styles for Edit Modals */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+  color: var(--dark);
+}
+
+.formControl {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--radius-sm);
+  background-color: var(--light);
+  transition: var(--transition);
+}
+
+.formControl:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(12, 84, 207, 0.1);
+}
+
+.selectControl {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23adb5bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  background-color: var(--gray-light);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.checkboxItem:hover {
+  background-color: var(--gray);
+}
+
+.checkboxItem.selected {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.checkboxItem input {
+  display: none;
+}
+
+/* Buttons */
+.btnPrimary {
+  background-color: var(--primary);
+  color: var(--light);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 10px 25px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btnPrimary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btnSecondary {
+  background-color: var(--gray-light);
+  color: var(--dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 10px 25px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btnSecondary:hover {
+  background-color: var(--gray);
+}
+
+/* Modal Styles */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: var(--light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-dark);
+  width: 90%;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 20px;
+  border-bottom: 1px solid var(--gray-medium);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+}
+
+.modalCloseBtn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modalCloseBtn:hover {
+  color: var(--dark);
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.modalFooter {
+  padding: 15px 20px;
+  border-top: 1px solid var(--gray-medium);
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+/* Profile Completion */
+.completionContainer {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: var(--gray-light);
+  border-radius: var(--radius);
+}
+
+.completionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.completionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.completionPercentage {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.completionBar {
+  height: 10px;
+  background-color: var(--gray-medium);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.completionProgress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+/* Alerts and notifications */
+.alert {
+  padding: 15px 20px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+
+.alertSuccess {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-left: 4px solid #28a745;
+  color: #155724;
+}
+
+.alertDanger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.alertInfo {
+  background-color: rgba(13, 202, 240, 0.1);
+  border-left: 4px solid #0dcaf0;
+  color: #055160;
+}
