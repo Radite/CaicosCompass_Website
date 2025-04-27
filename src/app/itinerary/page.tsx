@@ -152,6 +152,18 @@ export default function BookingsPage() {
     return true;
   });
 
+  // Helper function to check if a booking is in the past
+  const isBookingInPast = (booking: Booking): boolean => {
+    const today = new Date();
+    if (booking.category === 'activity' || booking.category === 'transportation') {
+      return booking.date ? new Date(booking.date) < today : false;
+    }
+    if (booking.category === 'stay') {
+      return booking.endDate ? new Date(booking.endDate) < today : false;
+    }
+    return false;
+  };
+
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-US', {
@@ -422,7 +434,9 @@ export default function BookingsPage() {
                   View Details
                 </button>
                 
-                {booking.status !== 'canceled' && !(booking.cancellation && booking.cancellation.isCanceled) && (
+                {booking.status !== 'canceled' && 
+                  !(booking.cancellation && booking.cancellation.isCanceled) && 
+                  !isBookingInPast(booking) && (
                   <button 
                     className={styles.cancelButton}
                     onClick={() => handleCancelBooking(booking._id)}
@@ -474,7 +488,9 @@ export default function BookingsPage() {
             </div>
             
             <div className={styles.modalActions}>
-              {selectedBooking.status !== 'canceled' && !(selectedBooking.cancellation && selectedBooking.cancellation.isCanceled) && (
+              {selectedBooking.status !== 'canceled' && 
+                !(selectedBooking.cancellation && selectedBooking.cancellation.isCanceled) && 
+                !isBookingInPast(selectedBooking) && (
                 <button 
                   className={styles.modalCancelButton}
                   onClick={() => {

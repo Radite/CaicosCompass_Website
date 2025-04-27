@@ -4,37 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./wellnessspadetails.module.css";
 
-interface Image {
-  url: string;
-  isMain?: boolean;
-}
-
-interface AvailableTimeSlot {
-  startTime: string;
-  endTime: string;
-  _id?: string;
-}
-
-interface AvailableSlot {
-  date: string;
-  timeSlots: AvailableTimeSlot[];
-  _id?: string;
-}
-
-interface WeeklyAvailability {
-  day: string;
-  isAvailable: boolean;
-  timeSlots: AvailableTimeSlot[];
-  _id?: string;
-}
-
-interface DateException {
-  date: string;
-  isAvailable: boolean;
-  _id?: string;
-}
-
-interface ServiceOffered {
+// Simplified interfaces
+interface Image { url: string; isMain?: boolean; }
+interface TimeSlot { startTime: string; endTime: string; _id?: string; }
+interface AvailableSlot { date: string; timeSlots: TimeSlot[]; _id?: string; }
+interface WeeklyDay { day: string; isAvailable: boolean; timeSlots: TimeSlot[]; _id?: string; }
+interface DateException { date: string; isAvailable: boolean; _id?: string; }
+interface Service {
   _id: string;
   name: string;
   description?: string;
@@ -44,62 +20,35 @@ interface ServiceOffered {
   category: string;
   availableSlots?: AvailableSlot[];
   images: Image[];
-  weeklyAvailability?: WeeklyAvailability[];
+  weeklyAvailability?: WeeklyDay[];
   dateExceptions?: DateException[];
 }
-
-interface OpeningHour {
-  day: string;
-  openTime: string;
-  closeTime: string;
-  _id?: string;
-}
-
-interface CustomClosure {
-  date: string;
-  reason?: string;
-  _id?: string;
-}
-
-interface WellnessProgram {
-  title: string;
-  description?: string;
-  durationDays: number;
-  price: number;
-  _id?: string;
-}
-
-interface WellnessSpaItem {
+interface OpeningHour { day: string; openTime: string; closeTime: string; _id?: string; }
+interface CustomClosure { date: string; reason?: string; _id?: string; }
+interface WellnessProgram { title: string; description?: string; durationDays: number; price: number; _id?: string; }
+interface SpaItem {
   _id: string;
   name: string;
   description: string;
   location: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
+  coordinates: { latitude: number; longitude: number; };
   images: Image[];
   island: string;
   spaType: string;
-  servicesOffered: ServiceOffered[];
-  ageRestrictions: {
-    minAge: number;
-    maxAge: number;
-  };
+  servicesOffered: Service[];
+  ageRestrictions: { minAge: number; maxAge: number; };
   openingHours: OpeningHour[];
   customClosures?: CustomClosure[];
   wellnessPrograms: WellnessProgram[];
   cancellationPolicy: string;
   paymentOptions: string[];
-  hostId?: string; // Added hostId field
+  hostId?: string;
 }
-
-// New interface for booking confirmation
-interface BookingConfirmation {
+interface BookingDetails {
   serviceId: string;
   serviceName: string;
   date: string;
-  timeSlot: AvailableTimeSlot;
+  timeSlot: TimeSlot;
   price: number;
   discountedPrice?: number;
 }
@@ -107,49 +56,41 @@ interface BookingConfirmation {
 export default function WellnessSpaDetailsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [item, setItem] = useState<WellnessSpaItem | null>(null);
+  const [item, setItem] = useState<SpaItem | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hostEmail, setHostEmail] = useState<string | null>(null);
-  
-  // New states for booking confirmation
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<BookingConfirmation | null>(null);
+  const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
 
-  // Function to generate available slots from weekly availability
-  const generateAvailableSlotsFromWeekly = (
-    weeklyAvailability?: WeeklyAvailability[], 
-    dateExceptions?: DateException[]
-  ) => {
+  // Generate available slots from weekly availability
+  const generateAvailableSlots = (weeklyAvailability?: WeeklyDay[], dateExceptions?: DateException[]) => {
     if (!weeklyAvailability) return [];
     
-    const availableSlots = [];
+    const slots = [];
     const today = new Date();
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-    // Generate slots for the next 14 days
     for (let i = 0; i < 14; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      const dayName = daysOfWeek[date.getDay()];
-      const daySchedule = weeklyAvailability.find(day => day.day === dayName);
+      const dayName = days[date.getDay()];
+      const schedule = weeklyAvailability.find(day => day.day === dayName);
       
-      if (daySchedule && daySchedule.isAvailable) {
+      if (schedule?.isAvailable) {
         const dateString = date.toISOString().split('T')[0];
-        
-        // Check if this date is in exceptions list
         const isException = dateExceptions?.some(ex => 
           new Date(ex.date).toISOString().split('T')[0] === dateString && !ex.isAvailable
         );
         
         if (!isException) {
-          availableSlots.push({
+          slots.push({
             date: dateString,
-            timeSlots: daySchedule.timeSlots.map(slot => ({
+            timeSlots: schedule.timeSlots.map(slot => ({
               startTime: slot.startTime,
               endTime: slot.endTime
             }))
@@ -157,19 +98,17 @@ export default function WellnessSpaDetailsPage() {
         }
       }
     }
-    
-    return availableSlots;
+    return slots;
   };
 
-  // Function to fetch host's email
+  // Fetch host's email
   const fetchHostEmail = async (hostId: string) => {
     try {
       const response = await fetch(`http://localhost:5000/api/users/${hostId}/email`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch host email');
+      if (response.ok) {
+        const data = await response.json();
+        setHostEmail(data.email);
       }
-      const data = await response.json();
-      setHostEmail(data.email);
     } catch (error) {
       console.error('Error fetching host email:', error);
     }
@@ -177,94 +116,84 @@ export default function WellnessSpaDetailsPage() {
 
   useEffect(() => {
     const itemParam = searchParams.get("item");
-    if (itemParam) {
-      try {
-        // Try parsing directly first
-        let parsed: WellnessSpaItem;
-        try {
-          parsed = JSON.parse(itemParam);
-        } catch (parseError) {
-          // If direct parsing fails, try decoding first
-          parsed = JSON.parse(decodeURIComponent(itemParam));
-        }
-
-        // Process services and generate slots before setting the item state
-        if (parsed.servicesOffered) {
-          parsed.servicesOffered = parsed.servicesOffered.map(service => {
-            if (!service.availableSlots && service.weeklyAvailability) {
-              const availableSlots = generateAvailableSlotsFromWeekly(
-                service.weeklyAvailability,
-                service.dateExceptions
-              );
-              return { ...service, availableSlots };
-            }
-            return service;
-          });
-        }
-        
-        setItem(parsed);
-        if (parsed.servicesOffered && parsed.servicesOffered.length > 0) {
-          setSelectedService(parsed.servicesOffered[0]._id);
-        }
-        
-        // Fetch host email if hostId is available
-        if (parsed.hostId) {
-          fetchHostEmail(parsed.hostId);
-        } else {
-          // Use a default hostId if not provided in the data
-          // This is temporary - in a real app, the hostId should be part of the spa data
-          fetchHostEmail("6789cf36bd1c2a7c2ef540a7");
-        }
-        
-        setError(null);
-      } catch (error) {
-        console.error("Error parsing wellness spa item:", error);
-        setError("Unable to load spa details. Invalid data format.");
-      } finally {
-        setLoading(false);
-      }
-    } else {
+    if (!itemParam) {
       setLoading(false);
       setError("No spa information provided");
+      return;
+    }
+
+    try {
+      // Parse the item data
+      let parsed: SpaItem;
+      try {
+        parsed = JSON.parse(itemParam);
+      } catch {
+        parsed = JSON.parse(decodeURIComponent(itemParam));
+      }
+
+      // Process services
+      if (parsed.servicesOffered) {
+        parsed.servicesOffered = parsed.servicesOffered.map(service => {
+          if (!service.availableSlots && service.weeklyAvailability) {
+            return { 
+              ...service, 
+              availableSlots: generateAvailableSlots(service.weeklyAvailability, service.dateExceptions)
+            };
+          }
+          return service;
+        });
+      }
+      
+      setItem(parsed);
+      if (parsed.servicesOffered?.length > 0) {
+        setSelectedService(parsed.servicesOffered[0]._id);
+      }
+      
+      // Fetch host email
+      if (parsed.hostId) {
+        fetchHostEmail(parsed.hostId);
+      } else {
+        fetchHostEmail("6789cf36bd1c2a7c2ef540a7");
+      }
+    } catch (error) {
+      console.error("Error parsing wellness spa item:", error);
+      setError("Unable to load spa details. Invalid data format.");
+    } finally {
+      setLoading(false);
     }
   }, [searchParams]);
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric'
+    });
+  };
+
+  const getSelectedService = () => item?.servicesOffered.find(s => s._id === selectedService);
+  const getAvailableDates = () => getSelectedService()?.availableSlots?.map(slot => slot.date) || [];
+  const getTimeSlots = () => {
+    const service = getSelectedService();
+    if (!service || !selectedDate) return [];
+    return service.availableSlots?.find(slot => slot.date === selectedDate)?.timeSlots || [];
+  };
+
+  // Handle user interactions
   const handleServiceSelect = (serviceId: string) => {
     setSelectedService(serviceId);
     setSelectedDate(null);
   };
 
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-  };
-
-  // Function to handle inquire button click
   const handleInquireNow = (program: WellnessProgram) => {
     if (!item) return;
     
-    // Create subject line with program details
     const subject = `Inquiry about ${program.title} at ${item.name}`;
+    const body = `Hello,\n\nI'm interested in the ${program.title} wellness program at ${item.name} (${program.durationDays} days, $${program.price}).\n\nCould you please provide me with more information?\n\nThank you.`;
+    const email = hostEmail || "contact@wellnessspa.com";
     
-    // Create email body
-    const body = `Hello,
-
-I'm interested in the ${program.title} wellness program at ${item.name} (${program.durationDays} days, $${program.price}).
-
-Could you please provide me with more information?
-
-Thank you.`;
-    
-    // Determine the email to send to
-    const email = hostEmail || "contact@wellnessspa.com"; // Fallback email if host email is not available
-    
-    // Open Gmail compose with pre-filled fields
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    window.open(gmailUrl, '_blank');
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
   };
 
-  // Modified to show confirmation instead of alert
-  const handleBookNow = (serviceId: string, timeSlot: AvailableTimeSlot) => {
+  const handleBookNow = (serviceId: string, timeSlot: TimeSlot) => {
     const service = item?.servicesOffered.find(s => s._id === serviceId);
     if (service && selectedDate) {
       setBookingDetails({
@@ -279,30 +208,19 @@ Thank you.`;
     }
   };
 
-  // New function to handle proceeding to payment
   const handleProceedToPayment = () => {
-    if (!bookingDetails) return;
+    if (!bookingDetails || !item) return;
     
-    // Here you would navigate to the payment page with booking details
-    // For now, let's create a URL with encoded booking information
     const bookingInfo = encodeURIComponent(JSON.stringify({
-      spaId: item?._id,
-      spaName: item?.name,
+      spaId: item._id,
+      spaName: item.name,
       ...bookingDetails
     }));
     
     router.push(`/payment?booking=${bookingInfo}`);
   };
 
-  // Close confirmation modal
-  const handleCloseConfirmation = () => {
-    setShowConfirmation(false);
-    setBookingDetails(null);
-  };
-
-  if (loading) {
-    return <div className={styles.container}>Loading wellness spa details...</div>;
-  }
+  if (loading) return <div className={styles.container}>Loading wellness spa details...</div>;
 
   if (error) {
     return (
@@ -315,34 +233,7 @@ Thank you.`;
     );
   }
 
-  if (!item) {
-    return <div className={styles.container}>No spa details found</div>;
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getSelectedService = () => {
-    return item.servicesOffered.find(service => service._id === selectedService);
-  };
-
-  const getAvailableDates = () => {
-    const service = getSelectedService();
-    if (!service || !service.availableSlots) return [];
-    return service.availableSlots.map(slot => slot.date);
-  };
-
-  const getTimeSlots = () => {
-    const service = getSelectedService();
-    if (!service || !selectedDate || !service.availableSlots) return [];
-    const slot = service.availableSlots.find(slot => slot.date === selectedDate);
-    return slot ? slot.timeSlots : [];
-  };
+  if (!item) return <div className={styles.container}>No spa details found</div>;
 
   return (
     <div className={styles.container}>
@@ -350,6 +241,7 @@ Thank you.`;
         <span className={styles.backIcon}>←</span> Back
       </button>
 
+      {/* Hero Section */}
       <div className={styles.heroSection}>
         <div className={styles.mainImageContainer}>
           <img
@@ -375,27 +267,19 @@ Thank you.`;
           <p className={styles.description}>{item.description}</p>
           
           <div className={styles.infoBox}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>📍</span>
-              <span>{item.location}, {item.island}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>🧖</span>
-              <span>{item.spaType}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>💳</span>
-              <span>{item.paymentOptions.join(", ")}</span>
-            </div>
+            <div className={styles.infoItem}><span className={styles.infoIcon}>📍</span>{item.location}, {item.island}</div>
+            <div className={styles.infoItem}><span className={styles.infoIcon}>🧖</span>{item.spaType}</div>
+            <div className={styles.infoItem}><span className={styles.infoIcon}>💳</span>{item.paymentOptions.join(", ")}</div>
             <div className={styles.infoItem}>
               <span className={styles.infoIcon}>⚠️</span>
-              <span>Ages {item.ageRestrictions.minAge}{item.ageRestrictions.maxAge ? ` - ${item.ageRestrictions.maxAge}` : '+'}</span>
+              Ages {item.ageRestrictions.minAge}{item.ageRestrictions.maxAge ? ` - ${item.ageRestrictions.maxAge}` : '+'}
             </div>
           </div>
         </div>
       </div>
 
       <div className={styles.contentWrapper}>
+        {/* Sidebar */}
         <div className={styles.sidebarSection}>
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Operating Hours</h2>
@@ -407,7 +291,7 @@ Thank you.`;
             ))}
           </div>
 
-          {item.customClosures && item.customClosures.length > 0 && (
+          {item.customClosures?.length > 0 && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Custom Closures</h2>
               {item.customClosures.map((closure, index) => (
@@ -425,7 +309,9 @@ Thank you.`;
           </div>
         </div>
 
+        {/* Main Content */}
         <div className={styles.mainContent}>
+          {/* Services Section */}
           <div className={styles.servicesSection}>
             <h2 className={styles.sectionTitle}>Services</h2>
             <div className={styles.servicesTabs}>
@@ -478,6 +364,7 @@ Thank you.`;
                   ))}
                 </div>
 
+                {/* Booking Section */}
                 <div className={styles.bookingSection}>
                   <h4 className={styles.bookingTitle}>Select a Date</h4>
                   <div className={styles.dateSelector}>
@@ -486,7 +373,7 @@ Thank you.`;
                         <button
                           key={index}
                           className={`${styles.dateButton} ${selectedDate === date ? styles.selectedDate : ''}`}
-                          onClick={() => handleDateSelect(date)}
+                          onClick={() => setSelectedDate(date)}
                         >
                           {formatDate(date)}
                         </button>
@@ -521,6 +408,7 @@ Thank you.`;
             )}
           </div>
 
+          {/* Wellness Programs */}
           {item.wellnessPrograms.length > 0 && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Wellness Programs</h2>
@@ -531,12 +419,10 @@ Thank you.`;
                     <p className={styles.programDescription}>{program.description}</p>
                     <div className={styles.programMeta}>
                       <span className={styles.programDuration}>
-                        <span className={styles.metaIcon}>📅</span>
-                        {program.durationDays} days
+                        <span className={styles.metaIcon}>📅</span> {program.durationDays} days
                       </span>
                       <span className={styles.programPrice}>
-                        <span className={styles.metaIcon}>💰</span>
-                        ${program.price}
+                        <span className={styles.metaIcon}>💰</span> ${program.price}
                       </span>
                     </div>
                     <button 
@@ -592,7 +478,7 @@ Thank you.`;
             <div className={styles.confirmationActions}>
               <button 
                 className={styles.cancelButton}
-                onClick={handleCloseConfirmation}
+                onClick={() => setShowConfirmation(false)}
               >
                 Cancel
               </button>

@@ -51,14 +51,6 @@ const Footer: React.FC = () => {
             <FontAwesomeIcon icon={faFacebookF} />
           </a>
           <a
-            href="https://x.com/JMeghoo"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#fff', fontSize: '1.2rem' }}
-          >
-            <FontAwesomeIcon icon={faTwitter} />
-          </a>
-          <a
             href="https://www.instagram.com/caicoscompass/"
             target="_blank"
             rel="noopener noreferrer"

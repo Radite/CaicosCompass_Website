@@ -336,3 +336,13 @@
     text-align: left;
   }
 }
+
+.hostLink {
+  color: #0070f3;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.hostLink:hover {
+  text-decoration: none;
+}
