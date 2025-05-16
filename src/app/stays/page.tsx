@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './stayspage.module.css';
+import { useRouter } from 'next/navigation'; // Add this import at the top
 
 // Define types based on your MongoDB models
 interface Coordinates {
@@ -54,7 +55,7 @@ interface Stay {
   serviceType?: string;
   pricePerNight: number;
   maxGuests: number;
-  amenities: string[];
+  amenities: string[]; // This should be an array, but may not be in the data
   allowsDeposit: boolean;
   rooms: Room[];
   policies: Policy;
@@ -81,6 +82,12 @@ export default function StaysPage() {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [availableAmenities, setAvailableAmenities] = useState<string[]>([]);
   const [stayDuration, setStayDuration] = useState<number>(1); // Default 1 night
+  const router = useRouter();
+  
+  // New state for tracking which stay cards are being hovered
+  const [hoveredStayId, setHoveredStayId] = useState<string | null>(null);
+  // Track active image index for each stay
+  const [activeImageIndices, setActiveImageIndices] = useState<Record<string, number>>({});
   
   // List of islands
   const islands: IslandOption[] = [
@@ -88,6 +95,20 @@ export default function StaysPage() {
     'South Caicos', 'Grand Turk', 'Salt Cay'
   ];
 
+  const slideTransitionRef = useRef({});
+
+
+
+
+
+
+
+
+
+
+
+
+  
   // Calculate stay duration when dates change
   useEffect(() => {
     if (checkInDate && checkOutDate) {
@@ -106,6 +127,17 @@ export default function StaysPage() {
     }
   }, [checkInDate, checkOutDate]);
 
+  // Helper function to ensure amenities is always an array
+  const ensureArray = (value: any): string[] => {
+    if (Array.isArray(value)) {
+      return value;
+    } else if (value && typeof value === 'string') {
+      // If it's a string, split by commas or return as a single-item array
+      return value.includes(',') ? value.split(',').map(item => item.trim()) : [value];
+    }
+    return []; // Default to empty array if null, undefined, or other non-array type
+  };
+
   // Fetch stays from the API
   useEffect(() => {
     const fetchStays = async () => {
@@ -117,17 +149,30 @@ export default function StaysPage() {
         }
         const data: Stay[] = await response.json();
         
-        setStays(data);
-        setFilteredStays(data);
+        // Process the data to ensure amenities is always an array
+        const processedData = data.map(stay => ({
+          ...stay,
+          amenities: ensureArray(stay.amenities)
+        }));
+        
+        setStays(processedData);
+        setFilteredStays(processedData);
         
         // Extract all unique amenities from the data
         const allAmenities = new Set<string>();
-        data.forEach(stay => {
+        processedData.forEach(stay => {
           stay.amenities.forEach(amenity => {
             allAmenities.add(amenity);
           });
         });
         setAvailableAmenities(Array.from(allAmenities));
+        
+        // Initialize activeImageIndices with 0 for each stay
+        const initialIndices: Record<string, number> = {};
+        processedData.forEach(stay => {
+          initialIndices[stay._id] = 0;
+        });
+        setActiveImageIndices(initialIndices);
         
         setIsLoading(false);
       } catch (err) {
@@ -187,7 +232,11 @@ export default function StaysPage() {
     setFilteredStays(filtered);
   }, [searchQuery, selectedIsland, checkInDate, checkOutDate, typeFilter, selectedAmenities, stays]);
 
-  // Handle search form submission
+  // Add this function to handle card click
+const handleStayCardClick = (stayId: string) => {
+  router.push(`/staydetails?id=${stayId}`);};
+  
+  // Handle search form submissionZ
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearchExpanded(false);
@@ -218,20 +267,68 @@ export default function StaysPage() {
 
   // Calculate average rating
   const getAverageRating = (reviews: Review[]) => {
-    if (reviews.length === 0) return 0;
+    if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
     return (sum / reviews.length).toFixed(2);
   };
 
-  // Get image URL with fallback
-  const getImageUrl = (stay: Stay) => {
-    if (stay.images && stay.images.length > 0 && stay.images[0].url) {
-      // Check if the URL is a placeholder or a relative path
-      if (stay.images[0].url.startsWith('http')) {
-        return stay.images[0].url;
-      }
+  // Get all images for a stay
+  const getStayImages = (stay: Stay): string[] => {
+    if (stay.images && stay.images.length > 0) {
+      return stay.images.map(image => {
+        if (image.url && image.url.startsWith('http')) {
+          return image.url;
+        }
+        return '/api/placeholder/400/267';
+      });
     }
-    return '/api/placeholder/400/267';
+    return ['/api/placeholder/400/267']; // Default placeholder
+  };
+
+  // Get current image URL for a stay
+  const getCurrentImageUrl = (stay: Stay): string => {
+    const images = getStayImages(stay);
+    const activeIndex = activeImageIndices[stay._id] || 0;
+    return images[activeIndex];
+  };
+
+  // Handle image navigation
+  const handlePrevImage = (stayId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering parent click events
+    setActiveImageIndices(prev => {
+      const currentIndex = prev[stayId] || 0;
+      const stay = stays.find(s => s._id === stayId);
+      if (!stay) return prev;
+      
+      const imagesCount = stay.images?.length || 1;
+      // Go to last image if at the first image
+      const newIndex = (currentIndex - 1 + imagesCount) % imagesCount;
+      
+      return { ...prev, [stayId]: newIndex };
+    });
+  };
+
+  const handleNextImage = (stayId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering parent click events
+    setActiveImageIndices(prev => {
+      const currentIndex = prev[stayId] || 0;
+      const stay = stays.find(s => s._id === stayId);
+      if (!stay) return prev;
+      
+      const imagesCount = stay.images?.length || 1;
+      // Go to first image if at the last image
+      const newIndex = (currentIndex + 1) % imagesCount;
+      
+      return { ...prev, [stayId]: newIndex };
+    });
+  };
+
+  // Set active image directly
+  const setActiveImage = (stayId: string, index: number) => {
+    setActiveImageIndices(prev => ({
+      ...prev,
+      [stayId]: index
+    }));
   };
 
   // Calculate total price based on length of stay
@@ -340,10 +437,17 @@ export default function StaysPage() {
         ) : (
           <div className={styles.listings}>
             {filteredStays.map((stay) => (
-              <div key={stay._id} className={styles.listingCard}>
+              <div 
+  key={stay._id} 
+  className={styles.listingCard}
+  onMouseEnter={() => setHoveredStayId(stay._id)}
+  onMouseLeave={() => setHoveredStayId(null)}
+  onClick={() => handleStayCardClick(stay._id)}
+  style={{ cursor: 'pointer' }} // Add cursor pointer to indicate it's clickable
+>
                 <div className={styles.listingImage}>
                   <img 
-                    src={getImageUrl(stay)} 
+                    src={getCurrentImageUrl(stay)} 
                     alt={stay.name} 
                   />
                   <button 
@@ -352,6 +456,46 @@ export default function StaysPage() {
                   >
                     ♡
                   </button>
+                  
+                  {/* Image Carousel Controls - Only show when hovered */}
+                  {hoveredStayId === stay._id && stay.images && stay.images.length > 1 && (
+                    <>
+                      {/* Left Arrow */}
+                      <button 
+                        className={`${styles.carouselControl} ${styles.carouselPrev}`}
+                        onClick={(e) => handlePrevImage(stay._id, e)}
+                        aria-label="Previous image"
+                      >
+                        &lt;
+                      </button>
+                      
+                      {/* Right Arrow */}
+                      <button 
+                        className={`${styles.carouselControl} ${styles.carouselNext}`}
+                        onClick={(e) => handleNextImage(stay._id, e)}
+                        aria-label="Next image"
+                      >
+                        &gt;
+                      </button>
+                      
+                      {/* Pagination Indicators */}
+                      <div className={styles.paginationIndicators}>
+                        {stay.images.map((_, index) => (
+                          <button 
+                            key={index}
+                            className={`${styles.paginationDot} ${
+                              (activeImageIndices[stay._id] || 0) === index ? styles.activeDot : ''
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveImage(stay._id, index);
+                            }}
+                            aria-label={`Go to image ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className={styles.listingDetails}>
                   <div className={styles.listingLocation}>
