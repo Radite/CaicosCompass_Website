@@ -1,682 +1,553 @@
 // src/app/admin/page.tsx - Complete Admin Dashboard
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './admin.module.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  FaUsers,
-  FaCalendarCheck,
-  FaDollarSign,
-  FaChartLine,
-  FaSearch,
-  FaFilter,
-  FaDownload,
-  FaEdit,
-  FaTrash,
-  FaEye,
-  FaBan,
-  FaCheck,
-  FaExclamationTriangle,
-  FaSpinner
-} from 'react-icons/fa';
-
-// Types
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  isVerified: boolean;
-  createdAt: string;
-  lastLogin?: string;
-}
-
-interface Booking {
-  _id: string;
-  user: { name: string; email: string };
-  category: string;
-  status: string;
-  paymentDetails: {
-    totalAmount: number;
-    amountPaid: number;
-    remainingBalance: number;
-  };
-  date?: string;
-  startDate?: string;
-  createdAt: string;
-}
+  faUsers,
+  faCalendarCheck,
+  faDollarSign,
+  faChartLine,
+  faEye,
+  faEdit,
+  faTrash,
+  faPlus,
+  faSearch,
+  faFilter,
+  faDownload,
+  faBell,
+  faCog,
+  faSignOutAlt
+} from "@fortawesome/free-solid-svg-icons";
+import styles from "./admin.module.css";
 
 interface DashboardStats {
   totalUsers: number;
   totalBookings: number;
   totalRevenue: number;
-  pendingBookings: number;
-  newUsersThisMonth: number;
-  revenueThisMonth: number;
+  growthRate: number;
+  recentBookings: Booking[];
+  recentUsers: User[];
+}
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  loyaltyPoints: number;
+  isActive: boolean;
+}
+
+interface Booking {
+  _id: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  serviceName: string;
+  category: string;
+  status: string;
+  paymentDetails: {
+    totalAmount: number;
+    amountPaid: number;
+  };
+  date: string;
+  createdAt: string;
 }
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
-  
-  // Dashboard data
-  const [stats, setStats] = useState<DashboardStats>({
-    totalUsers: 0,
-    totalBookings: 0,
-    totalRevenue: 0,
-    pendingBookings: 0,
-    newUsersThisMonth: 0,
-    revenueThisMonth: 0,
-  });
-  
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
-  
-  // Filters and search
-  const [userSearch, setUserSearch] = useState('');
-  const [userFilter, setUserFilter] = useState('all');
-  const [bookingSearch, setBookingSearch] = useState('');
-  const [bookingFilter, setBookingFilter] = useState('all');
-
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
-    checkAdminAccess();
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'users' && users.length === 0) {
+    checkAuth();
+    if (activeTab === "dashboard") {
+      fetchDashboardStats();
+    } else if (activeTab === "users") {
       fetchUsers();
-    } else if (activeTab === 'bookings' && bookings.length === 0) {
+    } else if (activeTab === "bookings") {
       fetchBookings();
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    filterUsers();
-  }, [users, userSearch, userFilter]);
-
-  useEffect(() => {
-    filterBookings();
-  }, [bookings, bookingSearch, bookingFilter]);
-
-  const checkAdminAccess = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      const response = await fetch('/api/users/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const userData = await response.json();
-      
-      if (userData.role !== 'admin') {
-        router.push('/');
-        return;
-      }
-
-      setUser(userData);
-      await fetchDashboardStats();
-      setLoading(false);
-    } catch (error) {
-      console.error('Error checking admin access:', error);
-      setError('Access denied');
-      setLoading(false);
+  const checkAuth = () => {
+    const token = localStorage.getItem("authToken");
+    const userRole = localStorage.getItem("userRole");
+    
+    if (!token || userRole !== "admin") {
+      window.location.href = "/login";
+      return;
     }
+  };
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("authToken");
+    return { Authorization: `Bearer ${token}` };
   };
 
   const fetchDashboardStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/dashboard-stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      }
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/dashboard`,
+        { headers: getAuthHeaders() }
+      );
+      setStats(response.data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+      console.error("Error fetching dashboard stats:", error);
+      setLoading(false);
     }
   };
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/all-users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      }
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users`,
+        { headers: getAuthHeaders() }
+      );
+      setUsers(response.data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
+      setLoading(false);
     }
   };
 
   const fetchBookings = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/all-bookings', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setBookings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-    }
-  };
-
-  const filterUsers = () => {
-    let filtered = users;
-
-    if (userSearch) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-        user.email.toLowerCase().includes(userSearch.toLowerCase())
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/bookings`,
+        { headers: getAuthHeaders() }
       );
+      setBookings(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      setLoading(false);
     }
-
-    if (userFilter !== 'all') {
-      filtered = filtered.filter(user => {
-        switch (userFilter) {
-          case 'verified':
-            return user.isVerified;
-          case 'unverified':
-            return !user.isVerified;
-          case 'admin':
-            return user.role === 'admin';
-          case 'business-manager':
-            return user.role === 'business-manager';
-          case 'user':
-            return user.role === 'user';
-          default:
-            return true;
-        }
-      });
-    }
-
-    setFilteredUsers(filtered);
   };
 
-  const filterBookings = () => {
-    let filtered = bookings;
-
-    if (bookingSearch) {
-      filtered = filtered.filter(booking =>
-        booking._id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-        booking.user.name.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-        booking.user.email.toLowerCase().includes(bookingSearch.toLowerCase())
+  const handleUserStatusToggle = async (userId: string, currentStatus: boolean) => {
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}/status`,
+        { isActive: !currentStatus },
+        { headers: getAuthHeaders() }
       );
-    }
-
-    if (bookingFilter !== 'all') {
-      filtered = filtered.filter(booking => {
-        switch (bookingFilter) {
-          case 'confirmed':
-            return booking.status === 'confirmed';
-          case 'pending':
-            return booking.status === 'pending';
-          case 'cancelled':
-            return booking.status === 'cancelled';
-          case 'completed':
-            return booking.status === 'completed';
-          default:
-            return true;
-        }
-      });
-    }
-
-    setFilteredBookings(filtered);
-  };
-
-  const updateUserRole = async (userId: string, newRole: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/user/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ role: newRole })
-      });
-
-      if (response.ok) {
-        setUsers(users.map(user => 
-          user._id === userId ? { ...user, role: newRole } : user
-        ));
-      } else {
-        throw new Error('Failed to update user role');
-      }
+      fetchUsers();
     } catch (error) {
-      console.error('Error updating user role:', error);
-      alert('Failed to update user role');
+      console.error("Error updating user status:", error);
+      alert("Failed to update user status");
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
-
+  const handleBookingStatusUpdate = async (bookingId: string, status: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/user/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        setUsers(users.filter(user => user._id !== userId));
-      } else {
-        throw new Error('Failed to delete user');
-      }
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/bookings/${bookingId}/status`,
+        { status },
+        { headers: getAuthHeaders() }
+      );
+      fetchBookings();
     } catch (error) {
-      console.error('Error deleting user:', error);
-      alert('Failed to delete user');
+      console.error("Error updating booking status:", error);
+      alert("Failed to update booking status");
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, newStatus: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/bookings/${bookingId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
+    window.location.href = "/login";
+  };
 
-      if (response.ok) {
-        setBookings(bookings.map(booking => 
-          booking._id === bookingId ? { ...booking, status: newStatus } : booking
-        ));
-      } else {
-        throw new Error('Failed to update booking status');
-      }
-    } catch (error) {
-      console.error('Error updating booking status:', error);
-      alert('Failed to update booking status');
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return styles.statusConfirmed;
+      case 'pending':
+        return styles.statusPending;
+      case 'canceled':
+        return styles.statusCanceled;
+      default:
+        return styles.statusDefault;
     }
   };
 
-  const exportData = (type: string) => {
-    const data = type === 'users' ? filteredUsers : filteredBookings;
-    const headers = type === 'users' 
-      ? ['Name', 'Email', 'Role', 'Verified', 'Created At']
-      : ['ID', 'User', 'Category', 'Status', 'Amount', 'Date'];
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredBookings = bookings.filter(booking => {
+    const matchesSearch = 
+      booking.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.user.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const csvContent = [
-      headers.join(','),
-      ...data.map(item => {
-        if (type === 'users') {
-          const user = item as User;
-          return [
-            user.name,
-            user.email,
-            user.role,
-            user.isVerified ? 'Yes' : 'No',
-            new Date(user.createdAt).toLocaleDateString()
-          ].join(',');
-        } else {
-          const booking = item as Booking;
-          return [
-            booking._id,
-            booking.user.name,
-            booking.category,
-            booking.status,
-            booking.paymentDetails.totalAmount,
-            booking.date || booking.startDate || new Date(booking.createdAt).toLocaleDateString()
-          ].join(',');
-        }
-      })
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${type}_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+    const matchesFilter = filterStatus === "all" || booking.status === filterStatus;
+    
+    return matchesSearch && matchesFilter;
+  });
 
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
-        <FaSpinner className={styles.spinner} />
-        <p>Loading admin dashboard...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.errorContainer}>
-        <FaExclamationTriangle className={styles.errorIcon} />
-        <h2>Access Denied</h2>
-        <p>{error}</p>
+        <div className={styles.spinner}></div>
+        <h2>Loading Admin Dashboard...</h2>
       </div>
     );
   }
 
   return (
-    <div className={styles.adminDashboard}>
-      <div className={styles.header}>
-        <h1>Admin Dashboard</h1>
-        <p>Welcome back, {user?.name}</p>
+    <div className={styles.adminContainer}>
+      {/* Sidebar */}
+      <div className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>TurksExplorer</h2>
+          <p className={styles.sidebarSubtitle}>Admin Panel</p>
+        </div>
+
+        <nav className={styles.sidebarNav}>
+          <button
+            className={`${styles.navItem} ${activeTab === "dashboard" ? styles.active : ""}`}
+            onClick={() => setActiveTab("dashboard")}
+          >
+            <FontAwesomeIcon icon={faChartLine} className={styles.navIcon} />
+            Dashboard
+          </button>
+          <button
+            className={`${styles.navItem} ${activeTab === "users" ? styles.active : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            <FontAwesomeIcon icon={faUsers} className={styles.navIcon} />
+            Users
+          </button>
+          <button
+            className={`${styles.navItem} ${activeTab === "bookings" ? styles.active : ""}`}
+            onClick={() => setActiveTab("bookings")}
+          >
+            <FontAwesomeIcon icon={faCalendarCheck} className={styles.navIcon} />
+            Bookings
+          </button>
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <button className={styles.logoutBtn} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} className={styles.navIcon} />
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div className={styles.navigation}>
-        <button
-          className={`${styles.navButton} ${activeTab === 'overview' ? styles.active : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          <FaChartLine /> Overview
-        </button>
-        <button
-          className={`${styles.navButton} ${activeTab === 'users' ? styles.active : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          <FaUsers /> Users
-        </button>
-        <button
-          className={`${styles.navButton} ${activeTab === 'bookings' ? styles.active : ''}`}
-          onClick={() => setActiveTab('bookings')}
-        >
-          <FaCalendarCheck /> Bookings
-        </button>
-      </div>
-
-      {activeTab === 'overview' && (
-        <div className={styles.overview}>
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaUsers />
-              </div>
-              <div className={styles.statContent}>
-                <h3>{stats.totalUsers}</h3>
-                <p>Total Users</p>
-                <span className={styles.statChange}>
-                  +{stats.newUsersThisMonth} this month
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaCalendarCheck />
-              </div>
-              <div className={styles.statContent}>
-                <h3>{stats.totalBookings}</h3>
-                <p>Total Bookings</p>
-                <span className={styles.statChange}>
-                  {stats.pendingBookings} pending
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaDollarSign />
-              </div>
-              <div className={styles.statContent}>
-                <h3>${stats.totalRevenue.toLocaleString()}</h3>
-                <p>Total Revenue</p>
-                <span className={styles.statChange}>
-                  +${stats.revenueThisMonth.toLocaleString()} this month
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.recentActivity}>
-            <h3>Recent Activity</h3>
-            <div className={styles.activityList}>
-              {bookings.slice(0, 5).map(booking => (
-                <div key={booking._id} className={styles.activityItem}>
-                  <div className={styles.activityInfo}>
-                    <strong>{booking.user.name}</strong> booked {booking.category}
-                    <span className={styles.activityTime}>
-                      {new Date(booking.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className={`${styles.activityStatus} ${styles[booking.status]}`}>
-                    {booking.status}
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Main Content */}
+      <div className={styles.mainContent}>
+        {/* Header */}
+        <div className={styles.header}>
+          <h1 className={styles.pageTitle}>
+            {activeTab === "dashboard" && "Dashboard Overview"}
+            {activeTab === "users" && "User Management"}
+            {activeTab === "bookings" && "Booking Management"}
+          </h1>
+          <div className={styles.headerActions}>
+            <button className={styles.notificationBtn}>
+              <FontAwesomeIcon icon={faBell} />
+            </button>
+            <button className={styles.settingsBtn}>
+              <FontAwesomeIcon icon={faCog} />
+            </button>
           </div>
         </div>
-      )}
 
-      {activeTab === 'users' && (
-        <div className={styles.usersTab}>
-          <div className={styles.tabHeader}>
-            <h2>User Management</h2>
-            <div className={styles.tabActions}>
-              <div className={styles.searchBox}>
-                <FaSearch />
+        {/* Dashboard Tab */}
+        {activeTab === "dashboard" && stats && (
+          <div className={styles.dashboardContent}>
+            {/* Stats Cards */}
+            <div className={styles.statsGrid}>
+              <div className={styles.statsCard}>
+                <div className={styles.statsIcon}>
+                  <FontAwesomeIcon icon={faUsers} />
+                </div>
+                <div className={styles.statsContent}>
+                  <h3 className={styles.statsNumber}>{stats.totalUsers}</h3>
+                  <p className={styles.statsLabel}>Total Users</p>
+                </div>
+              </div>
+
+              <div className={styles.statsCard}>
+                <div className={styles.statsIcon}>
+                  <FontAwesomeIcon icon={faCalendarCheck} />
+                </div>
+                <div className={styles.statsContent}>
+                  <h3 className={styles.statsNumber}>{stats.totalBookings}</h3>
+                  <p className={styles.statsLabel}>Total Bookings</p>
+                </div>
+              </div>
+
+              <div className={styles.statsCard}>
+                <div className={styles.statsIcon}>
+                  <FontAwesomeIcon icon={faDollarSign} />
+                </div>
+                <div className={styles.statsContent}>
+                  <h3 className={styles.statsNumber}>{formatCurrency(stats.totalRevenue)}</h3>
+                  <p className={styles.statsLabel}>Total Revenue</p>
+                </div>
+              </div>
+
+              <div className={styles.statsCard}>
+                <div className={styles.statsIcon}>
+                  <FontAwesomeIcon icon={faChartLine} />
+                </div>
+                <div className={styles.statsContent}>
+                  <h3 className={styles.statsNumber}>+{stats.growthRate}%</h3>
+                  <p className={styles.statsLabel}>Growth Rate</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className={styles.recentActivity}>
+              <div className="row">
+                <div className="col-lg-6">
+                  <div className={styles.activityCard}>
+                    <h3 className={styles.cardTitle}>Recent Bookings</h3>
+                    <div className={styles.activityList}>
+                      {stats.recentBookings.map((booking) => (
+                        <div key={booking._id} className={styles.activityItem}>
+                          <div className={styles.activityInfo}>
+                            <h4>{booking.serviceName}</h4>
+                            <p>{booking.user.name}</p>
+                            <span className={styles.activityDate}>
+                              {formatDate(booking.createdAt)}
+                            </span>
+                          </div>
+                          <div className={`${styles.activityStatus} ${getStatusBadgeClass(booking.status)}`}>
+                            {booking.status}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-lg-6">
+                  <div className={styles.activityCard}>
+                    <h3 className={styles.cardTitle}>Recent Users</h3>
+                    <div className={styles.activityList}>
+                      {stats.recentUsers.map((user) => (
+                        <div key={user._id} className={styles.activityItem}>
+                          <div className={styles.activityInfo}>
+                            <h4>{user.name}</h4>
+                            <p>{user.email}</p>
+                            <span className={styles.activityDate}>
+                              {formatDate(user.createdAt)}
+                            </span>
+                          </div>
+                          <div className={`${styles.activityStatus} ${user.isActive ? styles.statusConfirmed : styles.statusCanceled}`}>
+                            {user.isActive ? 'Active' : 'Inactive'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === "users" && (
+          <div className={styles.tableContainer}>
+            <div className={styles.tableHeader}>
+              <div className={styles.searchBar}>
+                <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
                 <input
                   type="text"
                   placeholder="Search users..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
                 />
               </div>
-              <select
-                value={userFilter}
-                onChange={(e) => setUserFilter(e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Users</option>
-                <option value="verified">Verified</option>
-                <option value="unverified">Unverified</option>
-                <option value="admin">Admins</option>
-                <option value="business-manager">Business Managers</option>
-                <option value="user">Regular Users</option>
-              </select>
-              <button
-                onClick={() => exportData('users')}
-                className={styles.exportButton}
-              >
-                <FaDownload /> Export
-              </button>
+              <div className={styles.tableActions}>
+                <button className={styles.exportBtn}>
+                  <FontAwesomeIcon icon={faDownload} />
+                  Export
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className={styles.dataTable}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Loyalty Points</th>
+                    <th>Join Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((user) => (
+                    <tr key={user._id}>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>
+                        <span className={styles.roleBadge}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td>{user.loyaltyPoints || 0}</td>
+                      <td>{formatDate(user.createdAt)}</td>
+                      <td>
+                        <button
+                          className={`${styles.statusToggle} ${user.isActive ? styles.active : styles.inactive}`}
+                          onClick={() => handleUserStatusToggle(user._id, user.isActive)}
+                        >
+                          {user.isActive ? 'Active' : 'Inactive'}
+                        </button>
+                      </td>
+                      <td>
+                        <div className={styles.actionButtons}>
+                          <button className={styles.actionBtn} title="View">
+                            <FontAwesomeIcon icon={faEye} />
+                          </button>
+                          <button className={styles.actionBtn} title="Edit">
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button className={`${styles.actionBtn} ${styles.deleteBtn}`} title="Delete">
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
+        {/* Bookings Tab */}
+        {activeTab === "bookings" && (
           <div className={styles.tableContainer}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map(user => (
-                  <tr key={user._id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      <select
-                        value={user.role}
-                        onChange={(e) => updateUserRole(user._id, e.target.value)}
-                        className={styles.roleSelect}
-                      >
-                        <option value="user">User</option>
-                        <option value="business-manager">Business Manager</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td>
-                      <span className={`${styles.statusBadge} ${user.isVerified ? styles.verified : styles.unverified}`}>
-                        {user.isVerified ? 'Verified' : 'Unverified'}
-                      </span>
-                    </td>
-                    <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <button
-                          onClick={() => router.push(`/admin/users/${user._id}`)}
-                          className={styles.viewButton}
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          onClick={() => deleteUser(user._id)}
-                          className={styles.deleteButton}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'bookings' && (
-        <div className={styles.bookingsTab}>
-          <div className={styles.tabHeader}>
-            <h2>Booking Management</h2>
-            <div className={styles.tabActions}>
-              <div className={styles.searchBox}>
-                <FaSearch />
+            <div className={styles.tableHeader}>
+              <div className={styles.searchBar}>
+                <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
                 <input
                   type="text"
                   placeholder="Search bookings..."
-                  value={bookingSearch}
-                  onChange={(e) => setBookingSearch(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
                 />
               </div>
-              <select
-                value={bookingFilter}
-                onChange={(e) => setBookingFilter(e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Bookings</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="completed">Completed</option>
-              </select>
-              <button
-                onClick={() => exportData('bookings')}
-                className={styles.exportButton}
-              >
-                <FaDownload /> Export
-              </button>
+              <div className={styles.filterGroup}>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Status</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div className={styles.tableActions}>
+                <button className={styles.exportBtn}>
+                  <FontAwesomeIcon icon={faDownload} />
+                  Export
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className={styles.dataTable}>
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Customer</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBookings.map((booking) => (
+                    <tr key={booking._id}>
+                      <td>{booking.serviceName}</td>
+                      <td>
+                        <div>
+                          <div>{booking.user.name}</div>
+                          <small className={styles.userEmail}>{booking.user.email}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={styles.categoryBadge}>
+                          {booking.category}
+                        </span>
+                      </td>
+                      <td>{formatDate(booking.date || booking.createdAt)}</td>
+                      <td>{formatCurrency(booking.paymentDetails.totalAmount)}</td>
+                      <td>
+                        <select
+                          value={booking.status}
+                          onChange={(e) => handleBookingStatusUpdate(booking._id, e.target.value)}
+                          className={`${styles.statusSelect} ${getStatusBadgeClass(booking.status)}`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="canceled">Canceled</option>
+                        </select>
+                      </td>
+                      <td>
+                        <div className={styles.actionButtons}>
+                          <button className={styles.actionBtn} title="View">
+                            <FontAwesomeIcon icon={faEye} />
+                          </button>
+                          <button className={styles.actionBtn} title="Edit">
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>Booking ID</th>
-                  <th>User</th>
-                  <th>Service</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredBookings.map(booking => (
-                  <tr key={booking._id}>
-                    <td>#{booking._id.slice(-8)}</td>
-                    <td>
-                      <div>
-                        <div>{booking.user.name}</div>
-                        <div className={styles.userEmail}>{booking.user.email}</div>
-                      </div>
-                    </td>
-                    <td>{booking.category}</td>
-                    <td>
-                      {booking.date || booking.startDate 
-                        ? new Date(booking.date || booking.startDate).toLocaleDateString()
-                        : new Date(booking.createdAt).toLocaleDateString()
-                      }
-                    </td>
-                    <td>${booking.paymentDetails.totalAmount.toFixed(2)}</td>
-                    <td>
-                      <select
-                        value={booking.status}
-                        onChange={(e) => updateBookingStatus(booking._id, e.target.value)}
-                        className={`${styles.statusSelect} ${styles[booking.status]}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <button
-                          onClick={() => router.push(`/admin/bookings/${booking._id}`)}
-                          className={styles.viewButton}
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          onClick={() => updateBookingStatus(booking._id, 'cancelled')}
-                          className={styles.cancelButton}
-                        >
-                          <FaBan />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -1,65 +1,57 @@
+// src/app/itinerary/page.tsx - Complete Itinerary with PDF Generation
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './itinerary.module.css';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faCalendarAlt, faMapMarkerAlt, faUsers, faClock, 
-  faMoneyBillWave, faCheckCircle, faTimesCircle, faDownload
+  faCalendarAlt, 
+  faMapMarkerAlt, 
+  faUsers, 
+  faClock, 
+  faDownload,
+  faEye,
+  faTrash 
 } from "@fortawesome/free-solid-svg-icons";
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-// Simplified interfaces
-interface BookingPayee {
-  user: string;
-  amount: number;
-  status: 'pending' | 'paid';
-  paymentMethod: string;
-}
+import styles from "./itinerary.module.css";
 
 interface Booking {
   _id: string;
-  user: string;
-  status: 'pending' | 'confirmed' | 'canceled';
-  category: 'activity' | 'stay' | 'transportation';
-  numOfPeople: number;
-  date?: Date;
+  category: 'activity' | 'stay' | 'transportation' | 'dining';
+  serviceName: string;
+  date?: string;
   time?: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: string;
+  endDate?: string;
+  numOfPeople: number;
+  status: 'confirmed' | 'pending' | 'canceled';
   pickupLocation?: string;
   dropoffLocation?: string;
   paymentDetails: {
     totalAmount: number;
     amountPaid: number;
     remainingBalance: number;
-    payees: BookingPayee[];
-  };
-  cancellation?: {
-    isCanceled: boolean;
-    cancellationDate?: Date;
-    refundAmount?: number;
-    refundStatus?: 'pending' | 'processed';
   };
   requirements?: {
     specialNotes?: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
 }
 
-export default function BookingsPage() {
-  const router = useRouter();
+export default function ItineraryPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('upcoming');
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'category' | 'status'>('date');
 
   useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       setError("User not authenticated.");
@@ -67,95 +59,38 @@ export default function BookingsPage() {
       return;
     }
 
-    axios
-      .get("http://localhost:5000/api/bookings", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then((res) => setBookings(res.data.data))
-      .catch((err) => {
-        console.error("Error fetching bookings:", err);
-        setError("Failed to fetch bookings. Please try again later.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleCancelBooking = async (bookingId: string) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-    
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("User not authenticated.");
-      return;
-    }
-
     try {
-      await axios.patch(
-        `http://localhost:5000/api/bookings/${bookingId}/cancel`, 
-        {}, 
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/bookings/user`,
         { headers: { Authorization: `Bearer ${token}` }}
       );
       
-      // Update local state
-      setBookings(bookings.map(booking => 
-        booking._id === bookingId 
-          ? { 
-              ...booking, 
-              status: 'canceled',
-              cancellation: { 
-                ...booking.cancellation,
-                isCanceled: true, 
-                cancellationDate: new Date() 
-              }
-            } 
-          : booking
-      ));
-      
-      if (selectedBooking?._id === bookingId) {
-        setSelectedBooking(prev => prev ? {
-          ...prev,
-          status: 'canceled',
-          cancellation: {
-            ...prev.cancellation,
-            isCanceled: true,
-            cancellationDate: new Date()
-          }
-        } : null);
-      }
-    } catch (error) {
-      console.error('Error canceling booking:', error);
-      setError("Failed to cancel booking. Please try again later.");
+      setBookings(response.data);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to load bookings.");
+      setLoading(false);
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const isUpcoming = (booking: Booking): boolean => {
     const today = new Date();
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'upcoming') {
-      if (booking.category === 'activity' || booking.category === 'transportation') {
-        return booking.date ? new Date(booking.date) >= today : false;
-      }
-      if (booking.category === 'stay') {
-        return booking.startDate ? new Date(booking.startDate) >= today : false;
-      }
+    today.setHours(0, 0, 0, 0);
+    
+    if (booking.category === 'activity' || booking.category === 'dining' || booking.category === 'transportation') {
+      return booking.date ? new Date(booking.date) >= today : false;
     }
-    if (activeFilter === 'past') {
-      if (booking.category === 'activity' || booking.category === 'transportation') {
-        return booking.date ? new Date(booking.date) < today : false;
-      }
-      if (booking.category === 'stay') {
-        return booking.endDate ? new Date(booking.endDate) < today : false;
-      }
+    if (booking.category === 'stay') {
+      return booking.startDate ? new Date(booking.startDate) >= today : false;
     }
-    if (activeFilter === 'canceled') {
-      return booking.status === 'canceled' || (booking.cancellation && booking.cancellation.isCanceled);
-    }
-    return true;
-  });
+    return false;
+  };
 
-  // Helper function to check if a booking is in the past
-  const isBookingInPast = (booking: Booking): boolean => {
+  const isPast = (booking: Booking): boolean => {
     const today = new Date();
-    if (booking.category === 'activity' || booking.category === 'transportation') {
+    today.setHours(0, 0, 0, 0);
+    
+    if (booking.category === 'activity' || booking.category === 'dining' || booking.category === 'transportation') {
       return booking.date ? new Date(booking.date) < today : false;
     }
     if (booking.category === 'stay') {
@@ -164,10 +99,49 @@ export default function BookingsPage() {
     return false;
   };
 
+  const getFilteredBookings = () => {
+    let filtered = [...bookings];
+
+    // Apply filter
+    if (filter === 'upcoming') {
+      filtered = filtered.filter(isUpcoming);
+    } else if (filter === 'past') {
+      filtered = filtered.filter(isPast);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = new Date(a.date || a.startDate || a.createdAt);
+        const dateB = new Date(b.date || b.startDate || b.createdAt);
+        return dateA.getTime() - dateB.getTime();
+      } else if (sortBy === 'category') {
+        return a.category.localeCompare(b.category);
+      } else if (sortBy === 'status') {
+        return a.status.localeCompare(b.status);
+      }
+      return 0;
+    });
+
+    return filtered;
+  };
+
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric'
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric'
+    });
+  };
+
+  const formatFullDate = (date: Date | string | undefined) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric'
     });
   };
 
@@ -185,6 +159,7 @@ export default function BookingsPage() {
       case 'activity': return faUsers;
       case 'stay': return faMapMarkerAlt;
       case 'transportation': return faClock;
+      case 'dining': return faUsers;
       default: return faCalendarAlt;
     }
   };
@@ -194,328 +169,579 @@ export default function BookingsPage() {
       case 'activity': return 'Activity';
       case 'stay': return 'Accommodation';
       case 'transportation': return 'Transportation';
+      case 'dining': return 'Dining';
       default: return 'Booking';
     }
   };
 
-  // New function to handle PDF download
-  const handleDownload = (booking: Booking) => {
-    try {
-      // Create new jsPDF instance
-      const doc = new jsPDF();
-      
-      // Add a title to the PDF
-      doc.setFontSize(20);
-      doc.setTextColor(0, 0, 128); // Dark blue
-      doc.text(`Booking Confirmation - ${getCategoryTitle(booking.category)}`, 20, 20);
-      
-      // Add status indicator
-      doc.setFontSize(12);
-      const statusColor = booking.status === 'confirmed' ? [0, 128, 0] : 
-                          booking.status === 'pending' ? [255, 140, 0] : [255, 0, 0];
-      doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      doc.text(`Status: ${booking.status.toUpperCase()}`, 20, 30);
-      
-      // Reset text color for regular content
-      doc.setTextColor(0, 0, 0);
-      
-      // Add booking reference number
-      doc.setFontSize(10);
-      doc.text(`Booking Reference: ${booking._id}`, 20, 40);
-      doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 45);
-      
-      // Add horizontal line
-      doc.setLineWidth(0.5);
-      doc.line(20, 50, 190, 50);
-      
-      // Add booking details
+  const generateDetailedPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Header
+    doc.setFillColor(30, 77, 114);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TurksExplorer', 20, 25);
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Your Complete Travel Itinerary', 20, 35);
+    
+    // Date generated
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - 60, 50);
+    
+    let yPosition = 70;
+    const filteredBookings = getFilteredBookings();
+    
+    if (filteredBookings.length === 0) {
       doc.setFontSize(14);
-      doc.text("Booking Details", 20, 60);
-      
-      doc.setFontSize(12);
-      let yPos = 70;
-      
-      // Category-specific details
-      if (booking.category === 'stay') {
-        doc.text(`Check-in: ${formatDate(booking.startDate)}`, 20, yPos);
-        yPos += 7;
-        doc.text(`Check-out: ${formatDate(booking.endDate)}`, 20, yPos);
-      } else {
-        doc.text(`Date: ${formatDate(booking.date)}`, 20, yPos);
-        if (booking.time) {
-          yPos += 7;
-          doc.text(`Time: ${booking.time}`, 20, yPos);
-        }
+      doc.text('No bookings found for the selected filter.', 20, yPosition);
+      doc.save('turksexplorer-itinerary.pdf');
+      return;
+    }
+
+    // Summary section
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 77, 114);
+    doc.text('Trip Summary', 20, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    
+    const totalBookings = filteredBookings.length;
+    const confirmedBookings = filteredBookings.filter(b => b.status === 'confirmed').length;
+    const totalAmount = filteredBookings.reduce((sum, b) => sum + b.paymentDetails.totalAmount, 0);
+    
+    doc.text(`Total Bookings: ${totalBookings}`, 20, yPosition);
+    doc.text(`Confirmed: ${confirmedBookings}`, 120, yPosition);
+    yPosition += 12;
+    doc.text(`Total Value: $${totalAmount.toFixed(2)}`, 20, yPosition);
+    yPosition += 20;
+
+    // Group bookings by date
+    const bookingsByDate = filteredBookings.reduce((acc, booking) => {
+      const date = booking.date || booking.startDate || booking.createdAt;
+      const dateKey = formatFullDate(date);
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
       }
-      
-      yPos += 7;
-      doc.text(`Number of People: ${booking.numOfPeople}`, 20, yPos);
-      
-      if (booking.category === 'transportation') {
-        yPos += 7;
-        doc.text(`Pickup: ${booking.pickupLocation}`, 20, yPos);
-        yPos += 7;
-        doc.text(`Dropoff: ${booking.dropoffLocation}`, 20, yPos);
+      acc[dateKey].push(booking);
+      return acc;
+    }, {} as Record<string, Booking[]>);
+
+    // Detailed itinerary
+    Object.entries(bookingsByDate).forEach(([date, dayBookings]) => {
+      // Check if we need a new page
+      if (yPosition > pageHeight - 100) {
+        doc.addPage();
+        yPosition = 30;
       }
-      
-      if (booking.requirements?.specialNotes) {
-        yPos += 7;
-        doc.text(`Special Notes: ${booking.requirements.specialNotes}`, 20, yPos);
-      }
-      
-      // Add payment details table
-      yPos += 15;
-      doc.setFontSize(14);
-      doc.text("Payment Information", 20, yPos);
-      yPos += 10;
-      
-      // Create payment table manually if autoTable isn't available
-      const tableData = [
-        ['Total Amount', `$${booking.paymentDetails.totalAmount.toFixed(2)}`],
-        ['Amount Paid', `$${booking.paymentDetails.amountPaid.toFixed(2)}`],
-        ['Remaining Balance', `$${booking.paymentDetails.remainingBalance.toFixed(2)}`]
-      ];
-      
-      // Draw table manually
-      doc.setFontSize(12);
-      doc.setDrawColor(0);
+
+      // Date header
       doc.setFillColor(240, 240, 240);
+      doc.rect(15, yPosition - 5, pageWidth - 30, 20, 'F');
       
-      // Table header
-      doc.setFillColor(0, 0, 128);
-      doc.setTextColor(255, 255, 255);
-      doc.rect(20, yPos, 80, 10, 'F');
-      doc.rect(100, yPos, 70, 10, 'F');
-      doc.text('Description', 25, yPos + 7);
-      doc.text('Amount', 105, yPos + 7);
-      yPos += 10;
-      
-      // Table body
-      doc.setTextColor(0, 0, 0);
-      tableData.forEach((row, index) => {
-        // Alternate row coloring
-        if (index % 2 === 0) {
-          doc.setFillColor(245, 245, 245);
-          doc.rect(20, yPos, 80, 10, 'F');
-          doc.rect(100, yPos, 70, 10, 'F');
-        } else {
-          doc.setFillColor(255, 255, 255);
-          doc.rect(20, yPos, 80, 10, 'F');
-          doc.rect(100, yPos, 70, 10, 'F');
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 77, 114);
+      doc.text(date, 20, yPosition + 8);
+      yPosition += 25;
+
+      dayBookings.forEach((booking, index) => {
+        // Check if we need a new page for this booking
+        if (yPosition > pageHeight - 80) {
+          doc.addPage();
+          yPosition = 30;
+        }
+
+        // Booking card background
+        doc.setFillColor(250, 250, 250);
+        doc.rect(20, yPosition - 5, pageWidth - 40, 45, 'F');
+        
+        // Booking details
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text(booking.serviceName, 25, yPosition + 5);
+        
+        // Category and status
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(`${getCategoryTitle(booking.category)} • ${booking.status.toUpperCase()}`, 25, yPosition + 15);
+        
+        // Time/Details
+        let detailsText = '';
+        if (booking.time) detailsText += `Time: ${booking.time} • `;
+        if (booking.numOfPeople) detailsText += `People: ${booking.numOfPeople} • `;
+        if (booking.pickupLocation) detailsText += `Pickup: ${booking.pickupLocation} • `;
+        if (booking.dropoffLocation) detailsText += `Drop-off: ${booking.dropoffLocation}`;
+        
+        if (detailsText) {
+          doc.text(detailsText.replace(/ • $/, ''), 25, yPosition + 25);
         }
         
-        // Table borders
-        doc.setDrawColor(200, 200, 200);
-        doc.rect(20, yPos, 80, 10, 'S');
-        doc.rect(100, yPos, 70, 10, 'S');
+        // Price
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 77, 114);
+        doc.text(`$${booking.paymentDetails.totalAmount.toFixed(2)}`, pageWidth - 60, yPosition + 5);
         
-        // Table content
-        doc.text(row[0], 25, yPos + 7);
-        doc.text(row[1], 105, yPos + 7);
-        yPos += 10;
+        // Special notes
+        if (booking.requirements?.specialNotes) {
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(150, 150, 150);
+          const noteText = `Note: ${booking.requirements.specialNotes}`;
+          const splitNote = doc.splitTextToSize(noteText, pageWidth - 80);
+          doc.text(splitNote, 25, yPosition + 35);
+        }
+        
+        yPosition += 55;
       });
       
-      // Add cancellation information if applicable
-      if (booking.status === 'canceled' || (booking.cancellation && booking.cancellation.isCanceled)) {
-        yPos += 10;
-        doc.setFontSize(14);
-        doc.setTextColor(255, 0, 0);
-        doc.text("Cancellation Information", 20, yPos);
-        doc.setFontSize(12);
-        yPos += 10;
-        doc.text(`Canceled on: ${formatDate(booking.cancellation?.cancellationDate)}`, 20, yPos);
-        
-        if (booking.cancellation?.refundAmount) {
-          yPos += 7;
-          doc.text(`Refund amount: $${booking.cancellation.refundAmount.toFixed(2)}`, 20, yPos);
-          yPos += 7;
-          doc.text(`Refund status: ${booking.cancellation.refundStatus}`, 20, yPos);
-        }
+      yPosition += 10; // Space between days
+    });
+
+    // Footer
+    const totalPages = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 30, pageHeight - 10);
+      doc.text('TurksExplorer - Your Gateway to Paradise', 20, pageHeight - 10);
+    }
+
+    doc.save('turksexplorer-complete-itinerary.pdf');
+  };
+
+  const generateSingleBookingPDF = (booking: Booking) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFillColor(30, 77, 114);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Booking Confirmation', 20, 25);
+    
+    doc.setFontSize(12);
+    doc.text(`${getCategoryTitle(booking.category)} Reservation`, 20, 35);
+    
+    // Booking details
+    let yPos = 60;
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.text(`Booking ID: ${booking._id}`, 20, yPos);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth - 80, yPos);
+    yPos += 15;
+    
+    // Status badge
+    const statusColors = {
+      confirmed: [40, 167, 69],
+      pending: [255, 193, 7],
+      canceled: [220, 53, 69]
+    };
+    
+    const statusColor = statusColors[booking.status] || [108, 117, 125];
+    doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+    doc.rect(20, yPos, 30, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.text(booking.status.toUpperCase(), 22, yPos + 5);
+    yPos += 20;
+    
+    // Service details
+    doc.setTextColor(30, 77, 114);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(booking.serviceName, 20, yPos);
+    yPos += 15;
+    
+    // Booking information table
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Booking Information', 20, yPos);
+    yPos += 10;
+
+    const tableData = [];
+    
+    if (booking.category === 'stay') {
+      tableData.push(['Check-in Date', formatFullDate(booking.startDate)]);
+      tableData.push(['Check-out Date', formatFullDate(booking.endDate)]);
+    } else {
+      tableData.push(['Date', formatFullDate(booking.date)]);
+      if (booking.time) {
+        tableData.push(['Time', booking.time]);
       }
+    }
+    
+    tableData.push(['Number of People', booking.numOfPeople.toString()]);
+    
+    if (booking.pickupLocation) {
+      tableData.push(['Pickup Location', booking.pickupLocation]);
+    }
+    if (booking.dropoffLocation) {
+      tableData.push(['Drop-off Location', booking.dropoffLocation]);
+    }
+    
+    if (booking.requirements?.specialNotes) {
+      tableData.push(['Special Notes', booking.requirements.specialNotes]);
+    }
+
+    // Draw table manually
+    doc.setFontSize(10);
+    tableData.forEach(([label, value]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(label + ':', 20, yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(value, 80, yPos);
+      yPos += 8;
+    });
+
+    yPos += 10;
+
+    // Payment Information
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 77, 114);
+    doc.text('Payment Information', 20, yPos);
+    yPos += 15;
+
+    // Payment table
+    doc.setFillColor(245, 245, 245);
+    doc.rect(20, yPos - 5, pageWidth - 40, 30, 'F');
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    
+    doc.text('Total Amount:', 25, yPos + 5);
+    doc.text(`${booking.paymentDetails.totalAmount.toFixed(2)}`, pageWidth - 60, yPos + 5);
+    
+    doc.text('Amount Paid:', 25, yPos + 12);
+    doc.text(`${booking.paymentDetails.amountPaid.toFixed(2)}`, pageWidth - 60, yPos + 12);
+    
+    if (booking.paymentDetails.remainingBalance > 0) {
+      doc.text('Remaining Balance:', 25, yPos + 19);
+      doc.text(`${booking.paymentDetails.remainingBalance.toFixed(2)}`, pageWidth - 60, yPos + 19);
+    }
+
+    yPos += 40;
+
+    // Important Information
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 77, 114);
+    doc.text('Important Information', 20, yPos);
+    yPos += 15;
+
+    const importantInfo = [
+      '• Please arrive 15 minutes before your scheduled time',
+      '• Bring a valid ID and this confirmation',
+      '• Contact us if you need to make any changes',
+      '• Cancellation policy applies as per terms and conditions'
+    ];
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    
+    importantInfo.forEach(info => {
+      doc.text(info, 20, yPos);
+      yPos += 8;
+    });
+
+    yPos += 15;
+
+    // Contact Information
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 77, 114);
+    doc.text('Contact Information', 20, yPos);
+    yPos += 15;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Email: support@turksexplorer.com', 20, yPos);
+    yPos += 8;
+    doc.text('Phone: +1 (649) 123-4567', 20, yPos);
+    yPos += 8;
+    doc.text('Website: www.turksexplorer.com', 20, yPos);
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('TurksExplorer - Your Gateway to Paradise', 20, 280);
+    doc.text(`Booking ID: ${booking._id}`, pageWidth - 80, 280);
+
+    doc.save(`turksexplorer-booking-${booking._id.slice(-8)}.pdf`);
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) {
+      return;
+    }
+
+    const token = localStorage.getItem("authToken");
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/bookings/${bookingId}/cancel`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
       
-      // Footer
-      doc.setFontSize(10);
-      doc.setTextColor(128, 128, 128);
-      doc.text('Thank you for your booking! For any assistance, please contact our support team.', 20, 285);
-      doc.text(`Page 1 of 1`, 100, 292, null, null, 'center');
-      
-      // Save the PDF
-      doc.save(`booking-${booking._id}.pdf`);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again later.');
+      // Refresh bookings
+      fetchBookings();
+      alert('Booking cancelled successfully');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to cancel booking');
     }
   };
 
-  if (loading) return <div className={styles.loadingContainer}><div className={styles.spinner}></div><p>Loading your bookings...</p></div>;
-  if (error) return <div className={styles.errorContainer}><div className={styles.errorIcon}>!</div><h3>Error</h3><p>{error}</p><button className={styles.retryButton} onClick={() => window.location.reload()}>Retry</button></div>;
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <h2>Loading your itinerary...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorIcon}>⚠️</div>
+        <h2>Error</h2>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  const filteredBookings = getFilteredBookings();
 
   return (
-    <div className={styles.container}>
-      <div className={styles.heroSection}>
-        <h1 className={styles.title}>My Bookings</h1>
-        <p className={styles.subtitle}>Manage all your travel bookings in one place</p>
-      </div>
-
-      <div className={styles.filtersContainer}>
-        <div className={styles.filterTabs}>
-          {['all', 'upcoming', 'past', 'canceled'].map(filter => (
-            <button 
-              key={filter}
-              className={`${styles.filterTab} ${activeFilter === filter ? styles.activeTab : ''}`}
-              onClick={() => setActiveFilter(filter)}
-            >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)} {filter !== 'all' ? 'Bookings' : ''}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.resultsCount}>
-        {filteredBookings.length} {filteredBookings.length === 1 ? 'booking' : 'bookings'} found
-      </div>
-
-      {filteredBookings.length === 0 ? (
-        <div className={styles.noBookings}>
-          <div className={styles.noBookingsIcon}><FontAwesomeIcon icon={faCalendarAlt} /></div>
-          <h3>No bookings found</h3>
-          <p>You don't have any {activeFilter !== 'all' ? activeFilter : ''} bookings at the moment.</p>
-        </div>
-      ) : (
-        <div className={styles.bookingsGrid}>
-          {filteredBookings.map((booking) => (
-            <div 
-              key={booking._id} 
-              className={`${styles.bookingCard} ${booking.status === 'canceled' || (booking.cancellation && booking.cancellation.isCanceled) ? styles.canceledCard : ''}`}
-            >
-              <div className={`${styles.statusBadge} ${getStatusClass(booking.status)}`}>
-                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-              </div>
-              
-              <div className={styles.bookingHeader}>
-                <div className={styles.categoryIcon}>
-                  <FontAwesomeIcon icon={getCategoryIcon(booking.category)} />
-                </div>
-                <h3 className={styles.bookingCategory}>{getCategoryTitle(booking.category)}</h3>
-              </div>
-              
-              <div className={styles.bookingContent}>
-                <div className={styles.bookingDetailRow}>
-                  <FontAwesomeIcon icon={faCalendarAlt} className={styles.detailIcon} />
-                  <div className={styles.detailContent}>
-                    {booking.category === 'stay' ? (
-                      <span>{formatDate(booking.startDate)} — {formatDate(booking.endDate)}</span>
-                    ) : (
-                      <span>{formatDate(booking.date)}{booking.time ? `, ${booking.time}` : ''}</span>
-                    )}
-                  </div>
-                </div>
-                
-                {(booking.category === 'transportation') && (
-                  <div className={styles.bookingDetailRow}>
-                    <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.detailIcon} />
-                    <span>{booking.pickupLocation} → {booking.dropoffLocation}</span>
-                  </div>
-                )}
-                
-                <div className={styles.bookingDetailRow}>
-                  <FontAwesomeIcon icon={faUsers} className={styles.detailIcon} />
-                  <span>{booking.numOfPeople} people</span>
-                </div>
-                
-                <div className={styles.bookingDetailRow}>
-                  <FontAwesomeIcon icon={faMoneyBillWave} className={styles.detailIcon} />
-                  <span>${booking.paymentDetails.totalAmount.toFixed(2)}</span>
-                </div>
-              </div>
-              
-              <div className={styles.bookingActions}>
-                <button className={styles.viewButton} onClick={() => setSelectedBooking(booking)}>
-                  View Details
-                </button>
-                
-                {booking.status !== 'canceled' && 
-                  !(booking.cancellation && booking.cancellation.isCanceled) && 
-                  !isBookingInPast(booking) && (
-                  <button 
-                    className={styles.cancelButton}
-                    onClick={() => handleCancelBooking(booking._id)}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
+    <div className={styles.itineraryContainer}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8">
+              <h1 className={styles.title}>My Travel Itinerary</h1>
+              <p className={styles.subtitle}>
+                Manage your bookings and download your complete travel plan
+              </p>
             </div>
-          ))}
-        </div>
-      )}
-      
-      {/* Modal (simplified) */}
-      {selectedBooking && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedBooking(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.modalClose} onClick={() => setSelectedBooking(null)}>×</button>
-            
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>{getCategoryTitle(selectedBooking.category)} Details</h2>
-              <div className={`${styles.modalStatus} ${getStatusClass(selectedBooking.status)}`}>
-                {selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1)}
-              </div>
-            </div>
-            
-            <div className={styles.modalDetailsGrid}>
-              <div className={styles.modalDetailSection}>
-                <h3>Booking Information</h3>
-                <p>ID: {selectedBooking._id}</p>
-                <p>Date: {selectedBooking.category === 'stay' ? 
-                  `${formatDate(selectedBooking.startDate)} — ${formatDate(selectedBooking.endDate)}` : 
-                  `${formatDate(selectedBooking.date)} ${selectedBooking.time || ''}`}</p>
-                <p>People: {selectedBooking.numOfPeople}</p>
-                {selectedBooking.category === 'transportation' && (
-                  <p>Route: {selectedBooking.pickupLocation} → {selectedBooking.dropoffLocation}</p>
-                )}
-                {selectedBooking.requirements?.specialNotes && (
-                  <p>Notes: {selectedBooking.requirements.specialNotes}</p>
-                )}
-              </div>
-              
-              <div className={styles.modalDetailSection}>
-                <h3>Payment</h3>
-                <p>Total: ${selectedBooking.paymentDetails.totalAmount.toFixed(2)}</p>
-                <p>Paid: ${selectedBooking.paymentDetails.amountPaid.toFixed(2)}</p>
-                <p>Balance: ${selectedBooking.paymentDetails.remainingBalance.toFixed(2)}</p>
-              </div>
-            </div>
-            
-            <div className={styles.modalActions}>
-              {selectedBooking.status !== 'canceled' && 
-                !(selectedBooking.cancellation && selectedBooking.cancellation.isCanceled) && 
-                !isBookingInPast(selectedBooking) && (
-                <button 
-                  className={styles.modalCancelButton}
-                  onClick={() => {
-                    handleCancelBooking(selectedBooking._id);
-                    setSelectedBooking(null);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faTimesCircle} /> Cancel Booking
-                </button>
-              )}
-              
+            <div className="col-lg-4 text-lg-end">
               <button 
-                className={styles.downloadButton}
-                onClick={() => handleDownload(selectedBooking)}
+                className={styles.downloadBtn}
+                onClick={generateDetailedPDF}
+                disabled={filteredBookings.length === 0}
               >
-                <FontAwesomeIcon icon={faDownload} /> Download PDF
-              </button>
-              
-              <button className={styles.modalCloseButton} onClick={() => setSelectedBooking(null)}>
-                Close
+                <FontAwesomeIcon icon={faDownload} className={styles.downloadIcon} />
+                Download Complete Itinerary
               </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      <div className="container">
+        {/* Filters and Controls */}
+        <div className={styles.controls}>
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <div className={styles.filterGroup}>
+                <label className={styles.filterLabel}>Show:</label>
+                <select 
+                  className={styles.filterSelect}
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value as any)}
+                >
+                  <option value="all">All Bookings</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="past">Past</option>
+                </select>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className={styles.filterGroup}>
+                <label className={styles.filterLabel}>Sort by:</label>
+                <select 
+                  className={styles.filterSelect}
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                >
+                  <option value="date">Date</option>
+                  <option value="category">Category</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bookings Summary */}
+        {bookings.length > 0 && (
+          <div className={styles.summary}>
+            <div className="row">
+              <div className="col-md-3">
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryNumber}>{bookings.length}</div>
+                  <div className={styles.summaryLabel}>Total Bookings</div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryNumber}>
+                    {bookings.filter(b => b.status === 'confirmed').length}
+                  </div>
+                  <div className={styles.summaryLabel}>Confirmed</div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryNumber}>
+                    {bookings.filter(isUpcoming).length}
+                  </div>
+                  <div className={styles.summaryLabel}>Upcoming</div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryNumber}>
+                    ${bookings.reduce((sum, b) => sum + b.paymentDetails.totalAmount, 0).toFixed(0)}
+                  </div>
+                  <div className={styles.summaryLabel}>Total Value</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bookings List */}
+        <div className={styles.bookingsList}>
+          {filteredBookings.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📅</div>
+              <h3>No bookings found</h3>
+              <p>
+                {filter === 'all' 
+                  ? "You haven't made any bookings yet. Start exploring!"
+                  : `No ${filter} bookings found. Try changing your filter.`
+                }
+              </p>
+            </div>
+          ) : (
+            filteredBookings.map((booking) => (
+              <div key={booking._id} className={styles.bookingCard}>
+                <div className={styles.bookingHeader}>
+                  <div className={styles.bookingCategory}>
+                    <FontAwesomeIcon 
+                      icon={getCategoryIcon(booking.category)} 
+                      className={styles.categoryIcon}
+                    />
+                    <span>{getCategoryTitle(booking.category)}</span>
+                  </div>
+                  <div className={`${styles.bookingStatus} ${getStatusClass(booking.status)}`}>
+                    {booking.status}
+                  </div>
+                </div>
+
+                <div className={styles.bookingContent}>
+                  <h3 className={styles.bookingTitle}>{booking.serviceName}</h3>
+                  
+                  <div className={styles.bookingDetails}>
+                    <div className={styles.detailItem}>
+                      <FontAwesomeIcon icon={faCalendarAlt} className={styles.detailIcon} />
+                      <span>
+                        {booking.category === 'stay' 
+                          ? `${formatDate(booking.startDate)} - ${formatDate(booking.endDate)}`
+                          : formatDate(booking.date)
+                        }
+                      </span>
+                    </div>
+                    
+                    {booking.time && (
+                      <div className={styles.detailItem}>
+                        <FontAwesomeIcon icon={faClock} className={styles.detailIcon} />
+                        <span>{booking.time}</span>
+                      </div>
+                    )}
+                    
+                    <div className={styles.detailItem}>
+                      <FontAwesomeIcon icon={faUsers} className={styles.detailIcon} />
+                      <span>{booking.numOfPeople} {booking.numOfPeople === 1 ? 'person' : 'people'}</span>
+                    </div>
+
+                    {booking.pickupLocation && (
+                      <div className={styles.detailItem}>
+                        <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.detailIcon} />
+                        <span>Pickup: {booking.pickupLocation}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {booking.requirements?.specialNotes && (
+                    <div className={styles.specialNotes}>
+                      <strong>Special Notes:</strong> {booking.requirements.specialNotes}
+                    </div>
+                  )}
+
+                  <div className={styles.bookingFooter}>
+                    <div className={styles.priceInfo}>
+                      <span className={styles.price}>
+                        ${booking.paymentDetails.totalAmount.toFixed(2)}
+                      </span>
+                      {booking.paymentDetails.remainingBalance > 0 && (
+                        <span className={styles.remaining}>
+                          (${booking.paymentDetails.remainingBalance.toFixed(2)} remaining)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className={styles.bookingActions}>
+                      <button 
+                        className={styles.actionBtn}
+                        onClick={() => generateSingleBookingPDF(booking)}
+                        title="Download PDF"
+                      >
+                        <FontAwesomeIcon icon={faDownload} />
+                      </button>
+                      
+                      {booking.status === 'confirmed' && isUpcoming(booking) && (
+                        <button 
+                          className={`${styles.actionBtn} ${styles.cancelBtn}`}
+                          onClick={() => handleCancelBooking(booking._id)}
+                          title="Cancel Booking"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
