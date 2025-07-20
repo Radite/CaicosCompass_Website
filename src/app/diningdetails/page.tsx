@@ -10,6 +10,22 @@ interface Image {
   _id?: string;
 }
 
+interface SideDish {
+  name: string;
+  price: number;
+  _id?: string;
+}
+
+interface MenuItem {
+  _id?: string;
+  name: string;
+  description?: string;
+  category: 'Appetizers' | 'Main Courses' | 'Desserts' | 'Drinks';
+  price: number;
+  image?: string;
+  sides?: SideDish[];
+}
+
 interface OperatingHour {
   day: string;
   openTime: string;
@@ -33,8 +49,9 @@ interface DiningItem {
   island: string;
   images: Image[];
   cuisineTypes?: string[];
-  priceRange?: string;
+  priceRange?: '$' | '$$' | '$$$' | '$$$$';
   menuUrl?: string;
+  menuItems?: MenuItem[];
   operatingHours?: OperatingHour[];
   reviews?: Review[];
   coordinates: {
@@ -58,6 +75,7 @@ export default function DiningDetailsPage() {
   const router = useRouter();
   const [item, setItem] = useState<DiningItem | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   // Parse the dining item from the query parameter.
@@ -106,6 +124,25 @@ export default function DiningDetailsPage() {
     ? (item.reviews.reduce((sum, review) => sum + review.rating, 0) / item.reviews.length).toFixed(1)
     : "N/A";
 
+  // Get price range description
+  const getPriceRangeDescription = (priceRange?: string) => {
+    switch (priceRange) {
+      case '$': return 'Budget-friendly';
+      case '$$': return 'Moderate';
+      case '$$$': return 'Upscale';
+      case '$$$$': return 'Fine dining';
+      default: return 'Pricing varies';
+    }
+  };
+
+  // Filter menu items by category
+  const categories = ['All', 'Appetizers', 'Main Courses', 'Desserts', 'Drinks'];
+  const filteredMenuItems = item.menuItems?.filter(menuItem => 
+    selectedCategory === 'All' || menuItem.category === selectedCategory
+  ) || [];
+
+  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+
   return (
     <div className={styles.container}>
       <button onClick={() => router.back()} className={styles.backButton}>
@@ -147,7 +184,7 @@ export default function DiningDetailsPage() {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Price Range:</span>
-              <span>{item.priceRange || "N/A"}</span>
+              <span>{item.priceRange} - {getPriceRangeDescription(item.priceRange)}</span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Rating:</span>
@@ -199,13 +236,88 @@ export default function DiningDetailsPage() {
         </aside>
 
         <main className={styles.mainContent}>
+          {/* Menu Section */}
+          {item.menuItems && item.menuItems.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Menu</h2>
+              
+              {/* Category Filter */}
+              <div className={styles.categoryFilter}>
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`${styles.categoryButton} ${
+                      selectedCategory === category ? styles.active : ''
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+
+              {/* Menu Items Grid */}
+              <div className={styles.menuGrid}>
+                {filteredMenuItems.map((menuItem, index) => (
+                  <div key={menuItem._id || index} className={styles.menuItem}>
+                    {menuItem.image && (
+                      <div className={styles.menuItemImageContainer}>
+                        <img 
+                          src={menuItem.image} 
+                          alt={menuItem.name}
+                          className={styles.menuItemImage}
+                        />
+                      </div>
+                    )}
+                    <div className={styles.menuItemContent}>
+                      <div className={styles.menuItemHeader}>
+                        <h4 className={styles.menuItemName}>{menuItem.name}</h4>
+                        <span className={styles.menuItemPrice}>
+                          {formatPrice(menuItem.price)}
+                        </span>
+                      </div>
+                      {menuItem.description && (
+                        <p className={styles.menuItemDescription}>
+                          {menuItem.description}
+                        </p>
+                      )}
+                      <span className={styles.menuItemCategory}>
+                        {menuItem.category}
+                      </span>
+                      {menuItem.sides && menuItem.sides.length > 0 && (
+                        <div className={styles.sides}>
+                          <span className={styles.sidesLabel}>Available sides:</span>
+                          <div className={styles.sidesList}>
+                            {menuItem.sides.map((side, sideIndex) => (
+                              <span key={side._id || sideIndex} className={styles.side}>
+                                {side.name} (+{formatPrice(side.price)})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredMenuItems.length === 0 && (
+                <p className={styles.noMenuItems}>
+                  No menu items found for {selectedCategory === 'All' ? 'this restaurant' : selectedCategory}.
+                </p>
+              )}
+            </section>
+          )}
+
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Special Features</h2>
             <div className={styles.featuresList}>
-              <div className={styles.feature}>
-                <div className={styles.featureIcon}>🍽️</div>
-                <div className={styles.featureText}>Caribbean Cuisine</div>
-              </div>
+              {item.cuisineTypes?.map((cuisine, index) => (
+                <div key={index} className={styles.feature}>
+                  <div className={styles.featureIcon}>🍽️</div>
+                  <div className={styles.featureText}>{cuisine} Cuisine</div>
+                </div>
+              ))}
               <div className={styles.feature}>
                 <div className={styles.featureIcon}>🌊</div>
                 <div className={styles.featureText}>Ocean View</div>
@@ -244,36 +356,34 @@ export default function DiningDetailsPage() {
           </section>
         </main>
       </div>
+      
       <div className={styles.actions}>
-  <button
-    onClick={() => router.push("/favorites")}
-    className={styles.actionButton}
-  >
-    Add to Favorites
-  </button>
-  <button
-    onClick={() => {
-      if (item.menuUrl) {
-        window.open(item.menuUrl, "_blank");
-      } else {
-        alert("Menu unavailable.");
-      }
-    }}
-    className={styles.actionButton}
-  >
-    View Menu
-  </button>
-  <button
-    className={styles.actionButton}
-    onClick={() => router.push(`/reservations?restaurant=${item.name}`)}
-  >
-
-    Make an Order
-  </button>
-  <p className={styles.orderNote}>* Orders are pickup only.</p>
-</div>
-
-
+        <button
+          onClick={() => router.push("/favorites")}
+          className={styles.actionButton}
+        >
+          Add to Favorites
+        </button>
+        <button
+          onClick={() => {
+            if (item.menuUrl) {
+              window.open(item.menuUrl, "_blank");
+            } else {
+              alert("Menu unavailable.");
+            }
+          }}
+          className={styles.actionButton}
+        >
+          View Menu
+        </button>
+        <button
+          className={styles.actionButton}
+          onClick={() => router.push(`/reservations?restaurant=${item.name}`)}
+        >
+          Make an Order
+        </button>
+      </div>
+      <p className={styles.orderNote}>* Orders are pickup only.</p>
     </div>
   );
 }

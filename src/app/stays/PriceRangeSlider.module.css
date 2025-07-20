@@ -1,0 +1,228 @@
+.priceRangeContainer {
+  padding: 20px 0;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Slider Container */
+.sliderContainer {
+  position: relative;
+  height: 80px;
+  margin: 24px 0;
+}
+
+/* Histogram */
+.histogram {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.histogramBar {
+  position: absolute;
+  bottom: 0;
+  background: #e91e63;
+  border-radius: 1px 1px 0 0;
+  min-height: 2px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.histogramBar:hover {
+  opacity: 1;
+}
+
+/* Slider Track */
+.sliderTrack {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Active Range */
+.sliderRange {
+  position: absolute;
+  height: 100%;
+  background: #1f2937;
+  border-radius: 3px;
+}
+
+/* Slider Handles */
+.sliderHandle {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 2px solid #1f2937;
+  border-radius: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.sliderHandle:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sliderHandle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.minHandle {
+  z-index: 3;
+}
+
+.maxHandle {
+  z-index: 3;
+}
+
+/* Price Inputs */
+.priceInputs {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.priceInputGroup {
+  flex: 1;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  z-index: 1;
+}
+
+.priceInput {
+  width: 100%;
+  padding: 12px 12px 12px 24px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  background: #f9fafb;
+  transition: all 0.2s;
+}
+
+.priceInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.priceInput:hover:not(:focus) {
+  border-color: #9ca3af;
+  background: white;
+}
+
+/* Remove number input arrows */
+.priceInput::-webkit-outer-spin-button,
+.priceInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.priceInput[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .priceRangeContainer {
+    padding: 16px 0;
+  }
+  
+  .sliderContainer {
+    height: 70px;
+    margin: 20px 0;
+  }
+  
+  .histogram {
+    height: 40px;
+  }
+  
+  .sliderHandle {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .priceInputs {
+    gap: 12px;
+    margin-top: 20px;
+  }
+  
+  .priceInput {
+    padding: 10px 10px 10px 22px;
+    font-size: 0.8rem;
+  }
+  
+  .currencySymbol {
+    left: 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .priceInputs {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .title {
+    font-size: 1rem;
+  }
+  
+  .subtitle {
+    font-size: 0.8rem;
+  }
+}

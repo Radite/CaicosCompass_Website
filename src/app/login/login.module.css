@@ -31,7 +31,7 @@
   z-index: 2;
   display: flex;
   width: 85%;
-  max-width: 1200px;
+  max-width: 1400px; /* Increased for business form */
   min-height: 600px;
   background-color: #fff;
   border-radius: 8px;
@@ -47,6 +47,8 @@
   flex-direction: column;
   background-color: #fff;
   position: relative;
+  overflow-y: auto; /* Allow scrolling for business form */
+  max-height: 90vh;
 }
 
 /* Brand logo styling */
@@ -64,9 +66,46 @@
 
 /* Form wrapper to center content */
 .formWrapper {
-  max-width: 400px;
+  max-width: 500px; /* Increased for business form */
   width: 100%;
   margin: 0 auto;
+}
+
+/* Account Type Selector */
+.accountTypeSelector {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.toggleButtons {
+  display: flex;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 4px;
+  margin: 1rem 0;
+  gap: 4px;
+}
+
+.toggleButton {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: #666;
+}
+
+.toggleButton.active {
+  background-color: #0D4C92;
+  color: white;
+  box-shadow: 0 2px 4px rgba(13, 76, 146, 0.2);
+}
+
+.toggleButton:hover:not(.active) {
+  background-color: #e9ecef;
 }
 
 /* Title styling for the form */
@@ -86,6 +125,37 @@
   margin-bottom: 2rem;
 }
 
+/* Business Form Specific Styles */
+.businessForm {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0D4C92;
+  margin: 2rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.sectionTitle:first-of-type {
+  margin-top: 0;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.formRow .inputGroup {
+  flex: 1;
+  margin-bottom: 0;
+}
+
 /* Input group styling */
 .inputGroup {
   margin-bottom: 1.5rem;
@@ -99,19 +169,84 @@
   color: #333;
 }
 
-.inputGroup input {
+.inputGroup input,
+.inputGroup select,
+.inputGroup textarea {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #e1e1e1;
   border-radius: 4px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
 }
 
-.inputGroup input:focus {
+.inputGroup input:focus,
+.inputGroup select:focus,
+.inputGroup textarea:focus {
   border-color: #0D4C92;
   box-shadow: 0 0 0 2px rgba(13, 76, 146, 0.2);
   outline: none;
+}
+
+.inputGroup textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.inputGroup select {
+  cursor: pointer;
+}
+
+/* Checkbox Group Styling */
+.checkboxGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e1e1e1;
+  transition: all 0.3s ease;
+  font-weight: 400;
+}
+
+.checkboxLabel:hover {
+  background-color: #f8f9fa;
+  border-color: #0D4C92;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+  accent-color: #0D4C92;
+}
+
+.checkboxLabel input[type="checkbox"]:checked + span {
+  color: #0D4C92;
+  font-weight: 500;
+}
+
+/* Business Note */
+.businessNote {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0D4C92;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.businessNote p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
 }
 
 /* Label row for password field with forgot password link */
@@ -256,11 +391,10 @@
   text-decoration: underline;
 }
 
-/* Replace the current imageContainer styles with these */
+/* Image container with beach-inspired gradient */
 .imageContainer {
   flex: 1;
   position: relative;
-  /* Create a beach-inspired gradient background */
   background: linear-gradient(
     to bottom,
     #87CEEB 0%,    /* Sky blue */
@@ -274,7 +408,6 @@
   justify-content: center;
 }
 
-/* Keep the overlay for text readability */
 .imageContainer::before {
   content: '';
   position: absolute;
@@ -283,23 +416,6 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
-}
-
-/* Update mobile view to use the same gradient */
-@media (max-width: 480px) {
-  .imageContainer {
-    background: linear-gradient(
-      to bottom,
-      #87CEEB 0%,    /* Sky blue */
-      #00BFFF 30%,   /* Deep sky blue */
-      #1E90FF 50%,   /* Dodger blue - ocean */
-      #F5DEB3 85%,   /* Wheat - sand */
-      #DEB887 100%   /* Burlywood - darker sand */
-    );
-    position: relative;
-    width: 100%;
-    min-height: 300px;
-  }
 }
 
 .imageText {
@@ -335,12 +451,21 @@
 @media (max-width: 1200px) {
   .contentContainer {
     width: 95%;
+    max-width: 1200px;
+  }
+  
+  .formContainer {
+    padding: 2rem;
   }
 }
 
 @media (max-width: 992px) {
   .formContainer {
     padding: 2rem;
+  }
+  
+  .formWrapper {
+    max-width: 450px;
   }
   
   .imageText h1 {
@@ -350,6 +475,15 @@
   .imageText p {
     font-size: 1rem;
   }
+  
+  .formRow {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .formRow .inputGroup {
+    margin-bottom: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -357,11 +491,14 @@
     flex-direction: column;
     height: auto;
     min-height: 0;
+    max-height: 95vh;
   }
   
   .formContainer {
     order: 2;
     padding: 2rem 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
   }
   
   .imageContainer {
@@ -380,6 +517,19 @@
   .imageText p {
     font-size: 0.9rem;
   }
+  
+  .businessForm {
+    max-height: 50vh;
+  }
+  
+  .toggleButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .checkboxGroup {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -390,6 +540,7 @@
   
   .loginPage {
     align-items: flex-start;
+    height: 100vh;
   }
   
   .formContainer {
@@ -406,5 +557,503 @@
   
   .imageContainer {
     min-height: 200px;
+  }
+  
+  .formWrapper {
+    max-width: 100%;
+  }
+  
+  .businessForm {
+    max-height: 45vh;
+    padding-right: 5px;
+  }
+}
+
+/* Document Upload Styles */
+.documentUploadSection {
+  margin: 2rem 0;
+}
+
+.uploadInstructions {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #0D4C92;
+}
+
+.uploadInstructions p {
+  margin: 0 0 1rem 0;
+  color: #555;
+}
+
+.uploadInstructions ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  color: #666;
+}
+
+.uploadInstructions li {
+  margin-bottom: 0.5rem;
+}
+
+.uploadLimits {
+  font-size: 0.9rem !important;
+  color: #666 !important;
+  margin-top: 1rem !important;
+}
+
+.fileUploadArea {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.fileInput {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.fileUploadLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  border: 2px dashed #0D4C92;
+  border-radius: 12px;
+  background: rgba(13, 76, 146, 0.02);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.fileUploadLabel:hover {
+  background: rgba(13, 76, 146, 0.05);
+  border-color: #D4AF37;
+}
+
+.uploadIcon {
+  font-size: 2rem;
+  opacity: 0.7;
+}
+
+.uploadText {
+  font-weight: 600;
+  color: #0D4C92;
+  margin-bottom: 0.5rem;
+}
+
+.uploadSubtext {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.uploadedDocuments {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.uploadedDocuments h4 {
+  margin: 0 0 1rem 0;
+  color: #0D4C92;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.documentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.documentItem:hover {
+  background: #f0f0f0;
+  border-color: #0D4C92;
+}
+
+.documentItem:last-child {
+  margin-bottom: 0;
+}
+
+.documentInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.documentIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.documentDetails {
+  flex: 1;
+}
+
+.documentName {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.documentMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.documentType {
+  background: #0D4C92;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.documentSize {
+  color: #666;
+  font-weight: 500;
+}
+
+.removeDocButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.removeDocButton:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+/* Custom scrollbar for business form */
+.businessForm::-webkit-scrollbar {
+  width: 6px;
+}
+
+.businessForm::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.businessForm::-webkit-scrollbar-thumb {
+  background: #0D4C92;
+  border-radius: 3px;
+}
+
+.businessForm::-webkit-scrollbar-thumb:hover {
+  background: #083462;
+}
+
+/* Responsive styles for document upload */
+@media (max-width: 768px) {
+  .uploadInstructions {
+    padding: 1rem;
+  }
+  
+  .fileUploadLabel {
+    padding: 1.5rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .uploadIcon {
+    font-size: 1.5rem;
+  }
+  
+  .documentItem {
+    padding: 0.75rem;
+  }
+  
+  .documentInfo {
+    gap: 0.75rem;
+  }
+  
+  .documentMeta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .uploadedDocuments {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .uploadInstructions ul {
+    padding-left: 1rem;
+  }
+  
+  .fileUploadLabel {
+    padding: 1rem;
+  }
+  
+  .uploadText {
+    font-size: 0.9rem;
+  }
+  
+  .uploadSubtext {
+    font-size: 0.8rem;
+  }
+  
+  .documentName {
+    font-size: 0.9rem;
+  }
+  
+.documentTypeSelector {
+  margin-bottom: 1rem;
+}
+
+.documentTypeSelect {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+}
+
+.fileUploadLabel.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.documentMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+.businessNote {
+  margin-top: 1.5rem; /* Adjust as needed for spacing */
+  padding: 1rem;
+  background-color: #d1fae5; /* A light green background for success */
+  border: 1px solid #a7f3d0; /* A slightly darker green border */
+  border-radius: 0.5rem; /* Rounded corners */
+  color: #065f46; /* A darker green for the text for readability */
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.5;
+}
+
+.businessNote p {
+  margin: 0; /* Remove default paragraph margin */
+}
+}
+
+/* Custom Message Box Styles - Add these to your login.module.css */
+
+/* Message Box Overlay - Separate from page overlay */
+.messageBoxOverlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 99999 !important;
+  animation: fadeIn 0.3s ease-out;
+  pointer-events: auto !important;
+}
+
+.messageBox {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  min-width: 350px;
+  margin: 20px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+.header {
+  padding: 24px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.header.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.header.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.header.info {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.content {
+  padding: 16px 24px 24px;
+}
+
+.message {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.actions {
+  padding: 0 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirmButton,
+.cancelButton {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  min-width: 80px;
+}
+
+.confirmButton.success {
+  background: #10b981;
+  color: white;
+}
+
+.confirmButton.success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.confirmButton.error {
+  background: #ef4444;
+  color: white;
+}
+
+.confirmButton.error:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.confirmButton.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.confirmButton.warning:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.confirmButton.info {
+  background: #3b82f6;
+  color: white;
+}
+
+.confirmButton.info:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.cancelButton {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .messageBox {
+    min-width: auto;
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .confirmButton,
+  .cancelButton {
+    width: 100%;
   }
 }

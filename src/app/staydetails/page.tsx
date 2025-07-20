@@ -2,38 +2,56 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { FaWifi, FaSwimmingPool, FaUmbrellaBeach, FaUtensils } from 'react-icons/fa';
+import { FaWifi, FaSwimmingPool, FaUmbrellaBeach, FaUtensils, FaCar, FaTv, FaSnowflake } from 'react-icons/fa';
 import { GiBarbecue } from 'react-icons/gi';
-import { MdPets, MdSelfImprovement } from 'react-icons/md';
+import { MdPets, MdSelfImprovement, MdKitchen, MdLocalLaundryService, MdWork } from 'react-icons/md';
 import { IoMdTime } from 'react-icons/io';
 import styles from './staydetails.module.css';
-
-interface Room {
-  _id: string;
-  name: string;
-  pricePerNight: number;
-  maxGuests: number;
-  bedType: string;
-  bathrooms: number;
-  bedrooms: number;
-  images: string[];
-}
 
 interface Stay {
   _id: string;
   name: string;
-  description: string;
+  description?: string;
+  stayDescription?: string;
   location: string;
   island: string;
   images: {
     url: string;
-    isMain: boolean;
-    _id: string;
+    isMain?: boolean;
+    _id?: string;
   }[];
+  stayImages?: string[];
   pricePerNight: number;
   maxGuests: number;
-  rooms: Room[];
-  amenities: string[];
+  bedrooms: number;
+  bathrooms: number;
+  beds: number;
+  amenities: {
+    hotTub: boolean;
+    ac: boolean;
+    pool: boolean;
+    wifi: boolean;
+    freeParking: boolean;
+    beachfront: boolean;
+    kitchen: boolean;
+    washer: boolean;
+    dryer: boolean;
+    heating: boolean;
+    dedicatedWorkspace: boolean;
+    tv: boolean;
+    hairDryer: boolean;
+    iron: boolean;
+    evCharger: boolean;
+    crib: boolean;
+    kingBed: boolean;
+    gym: boolean;
+    bbqGrill: boolean;
+    breakfast: boolean;
+    indoorFireplace: boolean;
+    smokingAllowed: boolean;
+    smokeAlarm: boolean;
+    carbonMonoxideAlarm: boolean;
+  };
   bookingOptions: {
     instantBook: boolean;
     selfCheckIn: boolean;
@@ -53,7 +71,11 @@ interface Stay {
     longitude: number;
   };
   type: string;
-  unavailableDates: string[];
+  propertyType?: string;
+  unavailableDates: Array<{
+    startDate: string;
+    endDate: string;
+  }>;
 }
 
 export default function StayDetails() {
@@ -70,6 +92,36 @@ export default function StayDetails() {
     checkOut: null,
   });
   const [guestCount, setGuestCount] = useState(1);
+
+  // Read URL parameters for dates and guests
+  useEffect(() => {
+    const checkInParam = searchParams.get('checkIn');
+    const checkOutParam = searchParams.get('checkOut');
+    const guestsParam = searchParams.get('guests');
+
+    // Pre-fill dates from URL parameters
+    if (checkInParam) {
+      setSelectedDates(prev => ({
+        ...prev,
+        checkIn: new Date(checkInParam)
+      }));
+    }
+    
+    if (checkOutParam) {
+      setSelectedDates(prev => ({
+        ...prev,
+        checkOut: new Date(checkOutParam)
+      }));
+    }
+
+    // Pre-fill guest count from URL parameters
+    if (guestsParam) {
+      const guests = parseInt(guestsParam, 10);
+      if (!isNaN(guests) && guests > 0) {
+        setGuestCount(guests);
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!id) return;
@@ -93,17 +145,62 @@ export default function StayDetails() {
     fetchStayDetails();
   }, [id]);
 
-  const getAmenityIcon = (amenity: string) => {
-    switch (amenity) {
-      case 'Private Pool':
+  const getAmenityIcon = (amenityKey: string) => {
+    switch (amenityKey) {
+      case 'pool':
         return <FaSwimmingPool className={styles.amenityIcon} />;
-      case 'BBQ Grill':
+      case 'bbqGrill':
         return <GiBarbecue className={styles.amenityIcon} />;
-      case 'Ocean View':
+      case 'beachfront':
         return <FaUmbrellaBeach className={styles.amenityIcon} />;
+      case 'wifi':
+        return <FaWifi className={styles.amenityIcon} />;
+      case 'freeParking':
+        return <FaCar className={styles.amenityIcon} />;
+      case 'kitchen':
+        return <MdKitchen className={styles.amenityIcon} />;
+      case 'washer':
+      case 'dryer':
+        return <MdLocalLaundryService className={styles.amenityIcon} />;
+      case 'tv':
+        return <FaTv className={styles.amenityIcon} />;
+      case 'ac':
+        return <FaSnowflake className={styles.amenityIcon} />;
+      case 'dedicatedWorkspace':
+        return <MdWork className={styles.amenityIcon} />;
       default:
         return <FaWifi className={styles.amenityIcon} />;
     }
+  };
+
+  const getAmenityDisplayName = (amenityKey: string) => {
+    const displayNames: { [key: string]: string } = {
+      hotTub: 'Hot Tub',
+      ac: 'Air Conditioning',
+      pool: 'Swimming Pool',
+      wifi: 'WiFi',
+      freeParking: 'Free Parking',
+      beachfront: 'Beachfront',
+      kitchen: 'Kitchen',
+      washer: 'Washer',
+      dryer: 'Dryer',
+      heating: 'Heating',
+      dedicatedWorkspace: 'Dedicated Workspace',
+      tv: 'TV',
+      hairDryer: 'Hair Dryer',
+      iron: 'Iron',
+      evCharger: 'EV Charger',
+      crib: 'Crib',
+      kingBed: 'King Bed',
+      gym: 'Gym',
+      bbqGrill: 'BBQ Grill',
+      breakfast: 'Breakfast',
+      indoorFireplace: 'Indoor Fireplace',
+      smokingAllowed: 'Smoking Allowed',
+      smokeAlarm: 'Smoke Alarm',
+      carbonMonoxideAlarm: 'Carbon Monoxide Alarm'
+    };
+    return displayNames[amenityKey] || amenityKey;
   };
 
   const calculateTotalPrice = () => {
@@ -113,6 +210,19 @@ export default function StayDetails() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     return stay.pricePerNight * diffDays;
+  };
+
+  const getAvailableAmenities = () => {
+    if (!stay?.amenities) return [];
+    return Object.entries(stay.amenities)
+      .filter(([key, value]) => value === true)
+      .map(([key]) => key);
+  };
+
+  // Helper function to format date for input
+  const formatDateForInput = (date: Date | null) => {
+    if (!date) return '';
+    return date.toISOString().split('T')[0];
   };
 
   if (loading) {
@@ -131,6 +241,8 @@ export default function StayDetails() {
       </div>
     );
   }
+
+  const availableAmenities = getAvailableAmenities();
 
   return (
     <div className={styles.container}>
@@ -152,6 +264,12 @@ export default function StayDetails() {
             alt={stay.name} 
             className={styles.image}
           />
+        ) : stay.stayImages && stay.stayImages.length > 0 ? (
+          <img 
+            src={stay.stayImages[0]} 
+            alt={stay.name} 
+            className={styles.image}
+          />
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-200">
             <span className="text-gray-500">No image available</span>
@@ -166,8 +284,8 @@ export default function StayDetails() {
           {/* Host Info */}
           <div className={`${styles.hostSection} ${styles.sectionDivider}`}>
             <div className={styles.hostInfo}>
-              <h2>{stay.type} hosted by Property Manager</h2>
-              <p>{stay.maxGuests} guests • {stay.rooms.reduce((acc, room) => acc + room.bedrooms, 0)} bedrooms • {stay.rooms.reduce((acc, room) => acc + room.bathrooms, 0)} bathrooms</p>
+              <h2>{stay.propertyType || stay.type} hosted by Property Manager</h2>
+              <p>{stay.maxGuests} guests • {stay.bedrooms} bedrooms • {stay.bathrooms} bathrooms • {stay.beds} beds</p>
             </div>
             <div className={styles.hostAvatar}>
               <span>👤</span>
@@ -177,35 +295,25 @@ export default function StayDetails() {
           {/* Description */}
           <div className={styles.sectionDivider}>
             <h2 className={styles.sectionTitle}>About this place</h2>
-            <p className={styles.description}>{stay.description}</p>
-          </div>
-
-          {/* Rooms */}
-          <div className={styles.sectionDivider}>
-            <h2 className={styles.sectionTitle}>Rooms</h2>
-            <div className={styles.roomsGrid}>
-              {stay.rooms.map((room) => (
-                <div key={room._id} className={styles.roomCard}>
-                  <h3>{room.name}</h3>
-                  <p>{room.bedType} bed • {room.maxGuests} guests</p>
-                  <p>${room.pricePerNight} per night</p>
-                </div>
-              ))}
-            </div>
+            <p className={styles.description}>
+              {stay.stayDescription || stay.description || 'No description available.'}
+            </p>
           </div>
 
           {/* Amenities */}
-          <div className={styles.sectionDivider}>
-            <h2 className={styles.sectionTitle}>What this place offers</h2>
-            <div className={styles.amenitiesGrid}>
-              {stay.amenities.map((amenity, index) => (
-                <div key={index} className={styles.amenityItem}>
-                  {getAmenityIcon(amenity)}
-                  <span>{amenity}</span>
-                </div>
-              ))}
+          {availableAmenities.length > 0 && (
+            <div className={styles.sectionDivider}>
+              <h2 className={styles.sectionTitle}>What this place offers</h2>
+              <div className={styles.amenitiesGrid}>
+                {availableAmenities.map((amenityKey) => (
+                  <div key={amenityKey} className={styles.amenityItem}>
+                    {getAmenityIcon(amenityKey)}
+                    <span>{getAmenityDisplayName(amenityKey)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Booking Options */}
           <div className={styles.sectionDivider}>
@@ -263,10 +371,10 @@ export default function StayDetails() {
           <div className={styles.bookingWidget}>
             <div className={styles.priceHeader}>
               <span className={styles.price}>${stay.pricePerNight}</span>
-              <span className={styles.priceUnit}>night</span>
+              <span className={styles.priceUnit}>/night</span>
             </div>
 
-            {/* Date Pickers */}
+            {/* Date Pickers - Now pre-filled with URL parameters */}
             <div className={styles.datePickerContainer}>
               <div className={styles.datePickerGrid}>
                 <div className={styles.datePickerCell}>
@@ -274,6 +382,7 @@ export default function StayDetails() {
                   <input 
                     type="date" 
                     className={styles.dateInput}
+                    value={formatDateForInput(selectedDates.checkIn)}
                     onChange={(e) => setSelectedDates({
                       ...selectedDates,
                       checkIn: e.target.value ? new Date(e.target.value) : null
@@ -285,6 +394,7 @@ export default function StayDetails() {
                   <input 
                     type="date" 
                     className={styles.dateInput}
+                    value={formatDateForInput(selectedDates.checkOut)}
                     onChange={(e) => setSelectedDates({
                       ...selectedDates,
                       checkOut: e.target.value ? new Date(e.target.value) : null
