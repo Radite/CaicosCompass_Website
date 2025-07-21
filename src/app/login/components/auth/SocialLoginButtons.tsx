@@ -6,15 +6,18 @@ import { API_BASE_URL } from "../constants/authConstants";
 
 export default function SocialLoginButtons() {
   const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE_URL}/api/auth/google`;
+    // Fixed: Changed from /api/auth/google to /api/users/auth/google
+    window.location.href = `${API_BASE_URL}/api/users/auth/google`;
   };
   
   const handleFacebookLogin = () => {
-    window.location.href = `${API_BASE_URL}/api/auth/facebook`;
+    // Fixed: Changed from /api/auth/facebook to /api/users/auth/facebook
+    window.location.href = `${API_BASE_URL}/api/users/auth/facebook`;
   };
   
   const handleAppleLogin = () => {
-    window.location.href = `${API_BASE_URL}/api/auth/apple`;
+    // Fixed: Changed from /api/auth/apple to /api/users/auth/apple
+    window.location.href = `${API_BASE_URL}/api/users/auth/apple`;
   };
 
   return (
