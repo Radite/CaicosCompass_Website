@@ -14,53 +14,56 @@ export const login = async ({ email, password }) => {
 
     if (response.status === 200 && response.data) {
       const { token, user } = response.data;
-      
+
       if (token) {
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(user));
-        
+        // Store the user role separately for easy access
+        localStorage.setItem("userRole", user.role);
+
         // Determine redirect URL based on user role
         let redirectUrl = REDIRECT_URLS.USER;
-        
+
         switch (user.role) {
           case USER_ROLES.ADMIN:
             redirectUrl = REDIRECT_URLS.ADMIN;
             break;
           case USER_ROLES.BUSINESS_MANAGER:
-            redirectUrl = user.businessProfile?.isApproved 
-              ? REDIRECT_URLS.BUSINESS_APPROVED 
+            redirectUrl = user.businessProfile?.isApproved
+              ? REDIRECT_URLS.BUSINESS_APPROVED
               : REDIRECT_URLS.BUSINESS_PENDING;
             break;
           default:
             redirectUrl = REDIRECT_URLS.USER;
         }
-        
-        return { 
-          success: true, 
-          user, 
+
+        return {
+          success: true,
+          user,
           token,
-          redirectUrl 
+          redirectUrl
         };
       }
-      
-      return { 
-        success: false, 
-        message: 'Authentication token is missing' 
+
+      return {
+        success: false,
+        message: 'Authentication token is missing'
       };
     }
-    
-    return { 
-      success: false, 
-      message: response.data.message || 'Invalid login credentials' 
+
+    return {
+      success: false,
+      message: response.data.message || 'Invalid login credentials'
     };
   } catch (error) {
     console.error("Login error:", error);
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'An error occurred during login' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'An error occurred during login'
     };
   }
 };
+
 
 // Regular user registration
 export const register = async (userData) => {
