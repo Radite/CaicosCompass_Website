@@ -4,6 +4,17 @@ import { API_BASE_URL, USER_ROLES, REDIRECT_URLS } from "../constants/authConsta
 // Configure axios defaults
 axios.defaults.withCredentials = true;
 
+// Helper function to set cookies
+const setCookie = (name, value, days = 7) => {
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+};
+
+// Helper function to delete cookies
+const deleteCookie = (name) => {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+};
+
 // Login function
 export const login = async ({ email, password }) => {
   try {
@@ -16,10 +27,14 @@ export const login = async ({ email, password }) => {
       const { token, user } = response.data;
 
       if (token) {
+        // Set localStorage (for client-side)
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(user));
-        // Store the user role separately for easy access
         localStorage.setItem("userRole", user.role);
+
+        // Set cookies (for middleware)
+        setCookie("authToken", token, 7); // 7 days
+        setCookie("userRole", user.role, 7);
 
         // Determine redirect URL based on user role
         let redirectUrl = REDIRECT_URLS.USER;
@@ -63,7 +78,6 @@ export const login = async ({ email, password }) => {
     };
   }
 };
-
 
 // Regular user registration
 export const register = async (userData) => {
@@ -115,10 +129,17 @@ export const registerBusiness = async (businessData) => {
   }
 };
 
-// Logout function
+// Updated logout function
 export const logout = () => {
+  // Clear localStorage
   localStorage.removeItem("authToken");
   localStorage.removeItem("user");
+  localStorage.removeItem("userRole");
+  
+  // Clear cookies
+  deleteCookie("authToken");
+  deleteCookie("userRole");
+  
   window.location.href = "/login";
 };
 
@@ -136,4 +157,68 @@ export const getAuthToken = () => {
 // Check if user is authenticated
 export const isAuthenticated = () => {
   return !!getAuthToken();
+};
+
+// Initialize session (for AuthContext if you're using it)
+export const initializeSession = async () => {
+  const token = getAuthToken();
+  const user = getCurrentUser();
+  
+  if (token && user) {
+    return {
+      isAuthenticated: true,
+      user
+    };
+  }
+  
+  return {
+    isAuthenticated: false,
+    user: null
+  };
+};
+
+// Token refresh functionality (optional - for advanced setups)
+export const refreshAccessToken = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/users/refresh`, {}, { 
+      withCredentials: true 
+    });
+
+    if (response.status === 200) {
+      const { accessToken } = response.data;
+      localStorage.setItem("authToken", accessToken);
+      setCookie("authToken", accessToken, 7);
+      return accessToken;
+    }
+  } catch (error) {
+    console.error("Token refresh failed", error);
+    logout(); // Logout user if refresh fails
+  }
+};
+
+// Handle logout (for server communication if needed)
+export const handleLogout = async () => {
+  try {
+    await axios.post(`${API_BASE_URL}/api/users/logout`, {}, { 
+      withCredentials: true 
+    });
+  } catch (error) {
+    console.error("Logout API call failed", error);
+  } finally {
+    logout(); // Always clear local data
+  }
+};
+
+// Timer functions for token refresh (optional - for advanced setups)
+export const startTokenRefreshTimer = () => {
+  // Refresh token every 50 minutes (assuming 1-hour expiry)
+  return setInterval(() => {
+    refreshAccessToken();
+  }, 50 * 60 * 1000);
+};
+
+export const stopTokenRefreshTimer = (timerId) => {
+  if (timerId) {
+    clearInterval(timerId);
+  }
 };

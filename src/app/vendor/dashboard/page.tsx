@@ -9,6 +9,7 @@ import {
   faFilter, faEdit, faEye, faTrash, faToggleOn, faToggleOff
 } from '@fortawesome/free-solid-svg-icons';
 import styles from './dashboard.module.css';
+import ProtectedRoute from '../../components/ProtectedRoute';
 
 // Import all dashboard components
 import DashboardOverview from './components/DashboardOverview';
@@ -231,6 +232,10 @@ const checkAuth = () => {
   }
 
   return (
+      <ProtectedRoute 
+      requiredRole="business-manager"
+      redirectTo="/login"
+    >
     <div className={styles.dashboardContainer}>
       {/* Sidebar */}
       <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
@@ -317,5 +322,6 @@ const checkAuth = () => {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 }
