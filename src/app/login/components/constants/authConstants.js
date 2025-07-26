@@ -52,7 +52,7 @@ export const USER_ROLES = {
 };
 
 export const REDIRECT_URLS = {
-  ADMIN: '/admin/dashboard',
+  ADMIN: '/admin/',
   BUSINESS_APPROVED: '/vendor/dashboard',
   BUSINESS_PENDING: '/vendor/pending-approval',
   USER: '/'
