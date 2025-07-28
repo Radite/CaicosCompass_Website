@@ -1,0 +1,789 @@
+/* File Path: src/components/InfoPageDetail.module.css */
+
+/* Define CSS Variables for better maintainability */
+:root {
+  --color-primary-text: #2d3748;
+  --color-secondary-text: #4a5568;
+  --color-border: #e2e8f0;
+  --color-background-light: #f8fafc;
+  --color-background-card: #ffffff;
+  --color-accent-blue: #3182ce;
+  --color-accent-green: #38a169;
+  --color-accent-orange: #dd6b20;
+  --color-accent-red: #e53e3e;
+  --border-radius-base: 8px;
+  --border-radius-lg: 12px;
+  --box-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --box-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Base Styles */
+.pageDetail {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  color: var(--color-primary-text);
+  line-height: 1.6;
+  background-color: var(--color-background-light);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header Section */
+.header {
+  padding: 3rem 1.5rem; /* Increased padding */
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--box-shadow-lg); /* Stronger shadow for header */
+  /* Dynamic background based on page.color, with a fallback gradient */
+  background: linear-gradient(135deg, var(--page-color-start, #2563eb), var(--page-color-end, #0891b2));
+}
+
+/* Use the custom property for background color from JS */
+.header[style*="background-color"] {
+  --page-color-start: var(--header-bg-color, #2563eb);
+  --page-color-end: color-mix(in srgb, var(--header-bg-color, #0891b2) 80%, black);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  opacity: 0.7;
+  z-index: 0;
+}
+
+.headerContent {
+  max-width: 1000px; /* Slightly wider content area */
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.backButton {
+  background: rgba(255, 255, 255, 0.25); /* Slightly more opaque */
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem; /* Slightly larger padding */
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex; /* Use inline-flex for better alignment */
+  align-items: center;
+  gap: 0.6rem; /* Slightly more gap */
+  font-size: 0.95rem; /* Slightly larger font */
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 2rem; /* Increased margin */
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateX(-5px); /* More pronounced hover effect */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.backButton:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem; /* Increased gap */
+}
+
+.pageIcon {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem; /* Larger padding */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.pageIcon svg {
+  color: white;
+  width: 36px; /* Larger icon */
+  height: 36px;
+}
+
+.categoryBadge {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.4rem 0.9rem; /* Slightly larger */
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem; /* Increased margin */
+  text-transform: uppercase;
+  letter-spacing: 0.08em; /* More prominent letter spacing */
+}
+
+.featuredStar {
+  color: #fbbf24;
+  fill: currentColor;
+}
+
+.pageTitle {
+  font-size: 3rem; /* Larger title */
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+  line-height: 1.2;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pageDescription {
+  font-size: 1.15rem; /* Slightly larger description */
+  opacity: 0.95;
+  margin-bottom: 1.8rem; /* Increased margin */
+  max-width: 700px;
+}
+
+.pageStats {
+  display: flex;
+  gap: 2rem; /* Increased gap */
+  font-size: 0.95rem; /* Slightly larger font */
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Slightly more gap */
+}
+
+/* Tags Section */
+.tagsSection {
+  background-color: #eaf5ff; /* Lighter, more subtle background */
+  padding: 1rem 1.5rem;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.03); /* Softer shadow */
+}
+
+.tags {
+  max-width: 1000px; /* Aligned with header content width */
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem; /* Consistent spacing */
+}
+
+.tag {
+  background-color: #cfe8ff; /* Softer blue */
+  color: #0d6efd; /* Deeper blue text */
+  padding: 0.45rem 1rem; /* Slightly more padding */
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  border: 1px solid #a8d5ff; /* Subtle border */
+}
+
+.tag:hover {
+  background-color: #b2d9ff;
+  transform: translateY(-2px);
+}
+
+/* Content Sections */
+.content {
+  max-width: 1000px; /* Aligned with header content width */
+  margin: 3rem auto; /* Increased top/bottom margin */
+  padding: 0 1.5rem;
+}
+
+.section {
+  background-color: var(--color-background-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md); /* Medium shadow */
+  margin-bottom: 2.5rem; /* Increased margin */
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.8rem 2.2rem; /* Increased padding */
+  background-color: #f7f9fc; /* Lighter background for headers */
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.3s ease;
+}
+
+.sectionHeader:hover {
+  background-color: #edf2f7;
+}
+
+.sectionHeader:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: -2px;
+}
+
+.sectionTitle {
+  font-size: 1.55rem; /* Larger title */
+  font-weight: 700;
+  color: var(--color-primary-text);
+  margin: 0;
+  letter-spacing: -0.02em; /* Tighter letter spacing for titles */
+}
+
+.sectionToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-secondary-text);
+  transition: transform 0.3s ease, color 0.2s ease;
+  padding: 0.4rem; /* More click area */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionToggle:hover {
+  color: var(--color-accent-blue);
+  background-color: #f0f4f8;
+}
+
+.sectionToggle:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+.sectionToggle svg {
+  transform: rotate(0deg);
+}
+
+.sectionToggle[aria-label="Collapse section"] svg {
+  transform: rotate(180deg);
+}
+
+
+.sectionContent {
+  padding: 1.8rem 2.2rem; /* Increased padding */
+}
+
+/* Content Item */
+.contentItem {
+  margin-bottom: 2.5rem; /* Increased margin */
+  border-bottom: 1px dashed var(--color-border);
+  padding-bottom: 2rem; /* Increased padding */
+}
+
+.contentItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.contentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem; /* More space below header */
+}
+
+.contentTitle {
+  font-size: 1.35rem; /* Larger title */
+  font-weight: 600;
+  color: var(--color-primary-text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-secondary-text);
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.expandButton:hover {
+  color: var(--color-accent-blue);
+  background-color: #f0f4f8;
+}
+
+.expandButton:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+.expandButton svg {
+  transform: rotate(0deg);
+}
+
+.expandButton[aria-label="Collapse details"] svg {
+  transform: rotate(180deg);
+}
+
+.contentDescription {
+  color: var(--color-secondary-text);
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem; /* Slightly larger description text */
+}
+
+.contentImage {
+  margin-top: 1.2rem;
+  margin-bottom: 1.8rem;
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+  box-shadow: var(--box-shadow-md);
+  max-width: 100%; /* Ensure image doesn't overflow */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Additional Info Section */
+.additionalInfo {
+  background-color: #fdfefe; /* Very light background */
+  border: 1px solid #e0e7eb;
+  border-radius: var(--border-radius-base);
+  padding: 2rem; /* More generous padding */
+  margin-top: 2rem; /* More space above */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02); /* Softer inset shadow */
+}
+
+.infoSubtitle {
+  font-size: 1.1rem; /* Slightly larger subtitle */
+  font-weight: 700;
+  color: var(--color-primary-text);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sectionIcon {
+  color: var(--color-accent-blue); /* Consistent blue for info section icons */
+  flex-shrink: 0;
+}
+
+/* Contact Info Grid */
+.contactInfo {
+  margin-bottom: 2rem; /* More space */
+  padding-bottom: 2rem;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.contactInfo:last-child {
+  border-bottom: none;
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Adjusted min-width */
+  gap: 1.2rem; /* Slightly more gap */
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start; /* Align to top for multi-line text */
+  gap: 0.7rem;
+  color: var(--color-secondary-text);
+  font-size: 0.98rem; /* Refined font size */
+  word-break: break-word;
+}
+
+.contactIcon {
+  color: var(--color-accent-blue);
+  flex-shrink: 0;
+  margin-top: 2px; /* Slight adjustment for alignment */
+}
+
+.contactLink {
+  color: var(--color-accent-blue);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.contactLink:hover {
+  color: #2b6cb0;
+  text-decoration: underline;
+}
+.contactLink:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* General Info List */
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoListItem {
+  background-color: #f5f9ff; /* Lighter blue tint */
+  border-left: 4px solid var(--color-accent-blue);
+  padding: 0.85rem 1.1rem; /* More padding */
+  margin-bottom: 0.6rem;
+  border-radius: 6px; /* Slightly more rounded */
+  color: var(--color-secondary-text);
+  font-size: 0.98rem;
+  box-shadow: var(--box-shadow-sm); /* Subtle shadow */
+}
+
+.infoListItem:last-child {
+  margin-bottom: 0;
+}
+
+/* Specific List Styles */
+.tips .infoListItem {
+  border-left-color: var(--color-accent-orange); /* Orange for tips */
+  background-color: #fffaf0;
+  color: #a0522d; /* Darker orange text */
+}
+
+.warning .infoListItem {
+  border-left-color: var(--color-accent-red); /* Red for warnings */
+  background-color: #fff5f5;
+  color: #c53030;
+}
+
+
+/* Tipping Grid */
+.tippingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjusted min-width */
+  gap: 1.2rem;
+}
+
+.tippingItem {
+  background-color: #e6fffa; /* Light green tint */
+  border: 1px solid #81e6d9;
+  padding: 0.85rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.tippingCategory {
+  font-weight: 600;
+  color: var(--color-primary-text);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.tippingAmount {
+  color: var(--color-accent-green); /* Green for amounts */
+  font-weight: 500;
+}
+
+
+/* Map Markers Section */
+.markersSection {
+  max-width: 1000px; /* Aligned with content width */
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.markersSection .sectionTitle {
+  background-color: #f7f9fc; /* Match general section header background */
+  padding: 1.8rem 2.2rem;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: var(--box-shadow-md);
+  border: 1px solid var(--color-border);
+  font-size: 1.55rem; /* Aligned with section title font size */
+}
+
+.markersSection .sectionTitle .sectionIcon {
+  color: var(--color-accent-red); /* Red for map pins */
+}
+
+.markersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjusted min-width */
+  gap: 1.5rem;
+}
+
+.markerCard {
+  background-color: var(--color-background-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  padding: 1.8rem; /* More generous padding */
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.markerCard:hover {
+  transform: translateY(-7px); /* More pronounced lift */
+  box-shadow: var(--box-shadow-lg);
+}
+
+.markerCard:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 4px; /* Offset to not obscure shadow */
+  border-radius: var(--border-radius-lg);
+}
+
+.markerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.markerTitle {
+  font-size: 1.25rem; /* Slightly larger title */
+  font-weight: 600;
+  color: var(--color-primary-text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.markerType {
+  background-color: #edf2f7;
+  color: var(--color-secondary-text);
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.85rem; /* Slightly larger font */
+  font-weight: 500;
+  text-transform: capitalize; /* Capitalize type text */
+}
+
+.markerDescription {
+  color: var(--color-secondary-text);
+  font-size: 0.95rem; /* Slightly larger description */
+  margin-bottom: 1.2rem;
+}
+
+.markerCoords {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #718096;
+  font-size: 0.88rem; /* Slightly larger font */
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  background-color: #f0f4f8; /* Subtle background for coords */
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-base);
+  width: fit-content;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+  .headerContent,
+  .tags,
+  .content,
+  .markersSection {
+    max-width: 768px; /* Adjust max-width for medium screens */
+  }
+
+  .pageTitle {
+    font-size: 2.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 2.5rem 1rem;
+  }
+
+  .headerInfo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.2rem;
+  }
+
+  .pageIcon {
+    padding: 0.8rem;
+  }
+
+  .pageIcon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pageTitle {
+    font-size: 2.25rem;
+    margin-top: 0.6rem;
+  }
+
+  .pageDescription {
+    font-size: 1.05rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .pageStats {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
+  .tagsSection {
+    padding: 0.8rem 1rem;
+  }
+
+  .content,
+  .markersSection {
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .sectionHeader {
+    padding: 1.5rem 1.8rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+  }
+
+  .sectionContent {
+    padding: 1.5rem 1.8rem;
+  }
+
+  .contentItem {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .contentTitle {
+    font-size: 1.2rem;
+  }
+
+  .additionalInfo {
+    padding: 1.5rem;
+  }
+
+  .contactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tippingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .markersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .backButton {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.8rem;
+  }
+
+  .pageDescription {
+    font-size: 0.98rem;
+  }
+
+  .tags {
+    gap: 0.6rem;
+  }
+
+  .tag {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.15rem;
+  }
+
+  .contentTitle {
+    font-size: 1.05rem;
+  }
+
+  .infoListItem,
+  .tippingItem,
+  .contactItem {
+    font-size: 0.9rem;
+  }
+
+  .markerTitle {
+    font-size: 1.1rem;
+  }
+
+  .markerDescription {
+    font-size: 0.9rem;
+  }
+
+  .markerCoords {
+    font-size: 0.8rem;
+  }
+}
+
+.locationButton, .directionsButton {
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.locationButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.directionsButton {
+  background: #28a745;
+}
+
+.locationError {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.locationStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #28a745;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.mapActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}

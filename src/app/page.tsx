@@ -347,7 +347,7 @@ export default function HomePage() {
                 <div className="access-content">
                   <h3>Travel Information</h3>
                   <p>Essential guides, tips, and local insights for your journey</p>
-                  <a href="/information" className="access-btn">
+                  <a href="/info" className="access-btn">
                     Learn More
                     <ArrowRight className="btn-arrow" />
                   </a>

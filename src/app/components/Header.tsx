@@ -155,9 +155,9 @@ export default function Header() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/help" className="dropdown-item py-2">
+                    <Link href="/faq" className="dropdown-item py-2">
                       <FontAwesomeIcon icon={faQuestionCircle} className="me-2" style={{ color: "#0C54CF" }} />
-                      Help
+                      FAQ
                     </Link>
                   </li>
                   <li>
