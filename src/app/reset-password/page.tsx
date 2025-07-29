@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import styles from "./login.module.css";
+import styles from "../login/login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";

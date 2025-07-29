@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link"; // ADD THIS IMPORT
 import styles from "@/app/login/login.module.css";
 import SocialLoginButtons from "./SocialLoginButtons";
 import { login } from "../services/authService";
@@ -55,7 +56,6 @@ const handleSubmit = async (e) => {
   }
 };
 
-
   return (
     <form onSubmit={handleSubmit}>
       <div className={styles.inputGroup}>
@@ -73,7 +73,10 @@ const handleSubmit = async (e) => {
       <div className={styles.inputGroup}>
         <div className={styles.labelRow}>
           <label htmlFor="loginPassword">Password</label>
-          <a href="#" className={styles.forgotPassword}>Forgot Password?</a>
+          {/* FIXED: Changed from href="#" to proper Link */}
+          <Link href="/forgot-password" className={styles.forgotPassword}>
+            Forgot Password?
+          </Link>
         </div>
         <input
           type="password"

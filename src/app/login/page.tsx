@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./login.module.css";
 import LoginForm from "./components/auth/LoginForm";
 import SignupForm from "./components/auth/SignupForm";
 import BusinessSignupForm from "./components/auth/BusinessSignupForm";
 import AccountTypeSelector from "./components/auth/AccountTypeSelector";
+import ResendVerification from "./components/auth/ResendVerification";
 import CustomMessageBox from "./components/shared/CustomMessageBox";
 import { useMessage } from "./utils/messageUtils";
 
@@ -15,19 +16,43 @@ export default function LoginPage() {
   const [isBusinessSignup, setIsBusinessSignup] = useState(false);
   // Loading state for button feedback
   const [loading, setLoading] = useState(false);
+  // Resend verification toggle
+  const [showResend, setShowResend] = useState(false);
 
   // Message box utilities
   const { messageBox, showMessage, closeMessageBox } = useMessage();
+
+  // Check for URL parameters to show resend verification
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resendParam = urlParams.get('resend');
+    
+    if (resendParam === 'true') {
+      setIsLogin(true); // Ensure we're on login page
+      setShowResend(true);
+      showMessage(
+        'Verification Required',
+        'Please verify your email to continue. You can request a new verification email below.',
+        'warning'
+      );
+    }
+  }, [showMessage]);
 
   // Toggle between forms
   const toggleForms = () => {
     setIsLogin(!isLogin);
     setIsBusinessSignup(false);
+    setShowResend(false); // Hide resend when switching forms
   };
 
   // Toggle business signup
   const toggleBusinessSignup = () => {
     setIsBusinessSignup(!isBusinessSignup);
+  };
+
+  // Toggle resend verification section
+  const toggleResendVerification = () => {
+    setShowResend(!showResend);
   };
 
   return (
@@ -52,6 +77,36 @@ export default function LoginPage() {
                 closeMessageBox={closeMessageBox}
                 toggleForms={toggleForms}
               />
+
+              {/* Email Verification Section */}
+              <div className={styles.verificationSection}>
+                <div className={styles.verificationToggle}>
+                  <button 
+                    type="button"
+                    className={styles.toggleButton}
+                    onClick={toggleResendVerification}
+                  >
+                    {showResend ? '🔼 Hide Email Verification' : '📧 Need to verify your email?'}
+                  </button>
+                </div>
+
+                {showResend && (
+                  <ResendVerification 
+                    showMessage={showMessage}
+                    closeMessageBox={closeMessageBox}
+                  />
+                )}
+              </div>
+
+              {/* Toggle to Signup */}
+              <div className={styles.formToggle}>
+                <span>
+                  Don't have an account?{" "}
+                  <button type="button" className={styles.toggleLink} onClick={toggleForms}>
+                    Sign Up
+                  </button>
+                </span>
+              </div>
             </div>
           ) : (
             <div className={styles.formWrapper}>

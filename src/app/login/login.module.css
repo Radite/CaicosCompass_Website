@@ -1057,3 +1057,477 @@
     width: 100%;
   }
 }
+
+/* Add these styles to your existing src/app/login/login.module.css file */
+
+/* Resend Verification Section */
+.resendSection {
+  background: linear-gradient(135deg, #fff9e6 0%, #fdf4e0 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  border: 1px solid #ffd700;
+  border-left: 4px solid #ff9800;
+}
+
+.resendHeader {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.resendHeader h3 {
+  color: #e65100;
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.resendHeader p {
+  color: #6c4423;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.resendForm {
+  margin: 20px 0;
+}
+
+.resendButton {
+  width: 100%;
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.resendButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.resendButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.resendTips {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+  border: 1px solid #ffecb3;
+}
+
+.resendTips h4 {
+  color: #e65100;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.resendTips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resendTips li {
+  color: #6c4423;
+  font-size: 13px;
+  padding: 4px 0;
+  position: relative;
+  padding-left: 20px;
+}
+
+.resendTips li::before {
+  content: "•";
+  color: #ff9800;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* Notification for verification needed */
+.verificationNotice {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  border-left: 4px solid #2196f3;
+  text-align: center;
+}
+
+.verificationNotice h3 {
+  color: #1565c0;
+  font-size: 18px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.verificationNotice p {
+  color: #1976d2;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Success message styling */
+.successMessage {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  border-left: 4px solid #4caf50;
+  text-align: center;
+}
+
+.successMessage h3 {
+  color: #2e7d32;
+  font-size: 18px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.successMessage p {
+  color: #388e3c;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Tab/Toggle for resend verification */
+.verificationToggle {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.toggleButton {
+  background: transparent;
+  color: #0078C8;
+  border: 1px solid #0078C8;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+  background: #0078C8;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .resendSection {
+    padding: 20px 15px;
+    margin: 15px 0;
+  }
+  
+  .resendHeader h3 {
+    font-size: 18px;
+  }
+  
+  .resendHeader p {
+    font-size: 13px;
+  }
+  
+  .resendButton {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .resendTips {
+    padding: 12px;
+  }
+  
+  .resendTips li {
+    font-size: 12px;
+  }
+}
+
+/* Add these styles to your existing src/app/login/login.module.css file */
+
+/* Info Box for OAuth Users */
+.infoBox {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+  border: 1px solid #2196f3;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.infoIcon {
+  color: #1976d2;
+  font-size: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.infoContent h4 {
+  color: #1565c0;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.infoContent p {
+  color: #1976d2;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Success Section */
+.successSection {
+  text-align: center;
+}
+
+.successMessage h3 {
+  color: #2e7d32;
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.emailInstructions {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.emailInstructions h4 {
+  color: #333;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.emailInstructions ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #555;
+}
+
+.emailInstructions li {
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #0078C8 0%, #005a9c 100%);
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 120, 200, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+.secondaryButton {
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondaryButton:hover {
+  border-color: #0078C8;
+  color: #0078C8;
+  transform: translateY(-1px);
+}
+
+/* Form Footer */
+.formFooter {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.backLink {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.backLink:hover {
+  color: #0078C8;
+  text-decoration: none;
+}
+
+/* Security Notice */
+.securityNotice {
+  background: #fff8e1;
+  border: 1px solid #ffc107;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 25px;
+  text-align: left;
+}
+
+.securityNotice h4 {
+  color: #e65100;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.securityNotice ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.securityNotice li {
+  color: #6c4423;
+  font-size: 12px;
+  padding: 3px 0;
+  position: relative;
+  padding-left: 16px;
+  line-height: 1.4;
+}
+
+.securityNotice li::before {
+  content: "•";
+  color: #ff9800;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* Reset Form Specific Styles */
+.resetForm {
+  width: 100%;
+}
+
+.resetForm .inputGroup {
+  margin-bottom: 20px;
+}
+
+.resetForm .inputGroup input:focus {
+  border-color: #0078C8;
+  box-shadow: 0 0 0 3px rgba(0, 120, 200, 0.1);
+}
+
+/* Message Styles */
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.errorMessage {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.successMessage {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+/* Small Text */
+.smallText {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .infoBox {
+    padding: 12px;
+    margin: 15px 0;
+  }
+  
+  .infoContent h4 {
+    font-size: 13px;
+  }
+  
+  .infoContent p {
+    font-size: 12px;
+  }
+  
+  .emailInstructions {
+    padding: 12px;
+  }
+  
+  .actionButtons {
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .securityNotice {
+    padding: 12px;
+    margin-top: 20px;
+  }
+  
+  .securityNotice li {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoBox {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .emailInstructions ol {
+    padding-left: 16px;
+  }
+  
+  .actionButtons {
+    gap: 8px;
+  }
+}

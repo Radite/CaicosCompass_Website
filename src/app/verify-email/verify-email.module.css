@@ -1,0 +1,277 @@
+/* src/app/verify-email/verify-email.module.css */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0078C8, #00bcd4);
+}
+
+.loadingSpinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e3f2fd;
+  border-top: 4px solid #0078C8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 30px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.successIcon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.errorIcon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: shake 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 60%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  80% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #6c757d;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.welcomeMessage {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 25px 0;
+  border-left: 4px solid #28a745;
+}
+
+.welcomeMessage p {
+  margin: 10px 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.featureList li {
+  padding: 8px 0;
+  color: #495057;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.featureList li:last-child {
+  border-bottom: none;
+}
+
+.troubleshooting {
+  background: #fff3cd;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 25px 0;
+  border-left: 4px solid #ffc107;
+  text-align: left;
+}
+
+.troubleshooting h3 {
+  color: #856404;
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.troubleshooting ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.troubleshooting li {
+  padding: 5px 0;
+  color: #6c4423;
+  font-size: 14px;
+}
+
+.redirectInfo {
+  background: #e7f3ff;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px 0;
+  color: #0056b3;
+  font-size: 14px;
+}
+
+.countdown {
+  font-weight: 700;
+  color: #0078C8;
+  font-size: 18px;
+  background: white;
+  padding: 2px 8px;
+  border-radius: 5px;
+  margin: 0 2px;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #0078C8 0%, #005a9c 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 120, 200, 0.4);
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+}
+
+.secondaryButton {
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondaryButton:hover {
+  border-color: #0078C8;
+  color: #0078C8;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .card {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .successIcon,
+  .errorIcon {
+    font-size: 60px;
+  }
+  
+  .buttonGroup {
+    gap: 10px;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .welcomeMessage,
+  .troubleshooting {
+    padding: 15px;
+  }
+  
+  .featureList li,
+  .troubleshooting li {
+    font-size: 13px;
+  }
+}

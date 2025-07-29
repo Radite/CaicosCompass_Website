@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import styles from './admin.module.css';
 import DashboardOverview from './components/DashboardOverview';
+import VendorManagement from './components/VendorManagement';
 import UserManagement from './components/UserManagement';
 import BookingManagement from './components/BookingManagement';
 import RevenueAnalytics from './components/RevenueAnalytics';
@@ -39,6 +40,7 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'revenue', label: 'Revenue Tracking', icon: DollarSign },
     { id: 'users', label: 'User Management', icon: Users },
+    { id: 'vendors', label: 'Vendor Management', icon: Users }, // ADD THIS LINE
     { id: 'bookings', label: 'Booking Management', icon: MessageSquare },
     { id: 'system', label: 'System Monitoring', icon: Monitor },
     { id: 'backup', label: 'Backup & Maintenance', icon: Database },
@@ -173,6 +175,8 @@ const fetchUsers = async () => {
         return <RevenueAnalytics />;
       case 'users':
         return <UserManagement users={users} onRefresh={fetchUsers} />;
+      case 'vendors':
+        return <VendorManagement />;
       case 'bookings':
         return <BookingManagement bookings={bookings} onRefresh={fetchBookings} />;
       case 'system':
