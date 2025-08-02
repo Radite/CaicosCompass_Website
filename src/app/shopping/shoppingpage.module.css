@@ -323,3 +323,268 @@
       text-align: left;
     }
   }
+
+  /* Additional styles for enhanced shopping page */
+
+/* Expanded card state */
+.cardExpanded {
+  margin-bottom: 2rem;
+}
+
+/* Delivery badge */
+.deliveryBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Info icons */
+.infoIcon {
+  margin-right: 6px;
+  color: #6c757d;
+  width: 12px;
+}
+
+/* Description */
+.description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+  line-height: 1.4;
+}
+
+/* Closure warning */
+.closureText {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+/* Expanded content container */
+.expandedContent {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Section titles */
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
+}
+
+.sectionTitle:first-child {
+  margin-top: 0;
+}
+
+/* Products section */
+.productsSection {
+  margin-bottom: 1.5rem;
+}
+
+.productsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.productItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.productName {
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.productPrice {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.discountedPrice {
+  color: #e74c3c;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.availability {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inStock {
+  background: #d4edda;
+  color: #155724;
+}
+
+.limited {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.moreProducts {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Hours section */
+.hoursSection {
+  margin-bottom: 1.5rem;
+}
+
+.hoursList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.hoursItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.day {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.time {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Payment section */
+.paymentSection {
+  margin-bottom: 1rem;
+}
+
+.paymentOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Card actions */
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.expandButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.expandButton:hover {
+  background: #5a6268;
+}
+
+.cardButton {
+  flex: 1;
+}
+
+/* Basic info styling */
+.basicInfo {
+  margin: 0.75rem 0;
+}
+
+.basicInfo .cardText {
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hoursItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .productItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .cardActions {
+    flex-direction: column;
+  }
+  
+  .paymentOptions {
+    justify-content: center;
+  }
+}

@@ -648,3 +648,220 @@
   font-weight: 600;
   color: #0C54CF;
 }
+
+/* ADD THESE UPDATES TO YOUR EXISTING bookingpage.module.css */
+
+/* Enhanced main image container */
+.mainImageContainer {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  position: relative; /* Add this for overlay elements */
+}
+
+/* Enhanced main image styling */
+.mainImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover; /* Ensures image fills container perfectly */
+  object-position: center; /* Centers the image within container */
+  transition: transform 0.5s ease;
+  display: block; /* Prevents inline spacing issues */
+}
+
+.mainImage:hover {
+  transform: scale(1.02);
+}
+
+/* Enhanced thumbnail styling */
+.imageThumbnails {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding: 5px 0;
+  scrollbar-width: thin; /* Firefox */
+}
+
+/* Custom scrollbar for thumbnails */
+.imageThumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.imageThumbnails::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.imageThumbnails::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.imageThumbnails::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Enhanced thumbnail images */
+.thumbnailImage {
+  width: 80px;
+  height: 60px;
+  object-fit: cover; /* Ensures thumbnails fit perfectly */
+  object-position: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+  border: 2px solid transparent;
+  flex-shrink: 0; /* Prevents thumbnails from shrinking */
+}
+
+.thumbnailImage:hover {
+  opacity: 1;
+  transform: scale(1.05); /* Add slight zoom on hover */
+}
+
+.activeThumbnail {
+  opacity: 1;
+  border-color: #0C54CF;
+  box-shadow: 0 4px 8px rgba(12, 84, 207, 0.2);
+}
+
+/* ADD THESE NEW STYLES FOR BETTER IMAGE HANDLING */
+
+/* Loading state for images */
+.imageLoading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error state for broken images */
+.imageError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 2px dashed #dee2e6;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Navigation arrows for mobile */
+.imageNavigation {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.imageNavigation:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prevButton {
+  left: 15px;
+}
+
+.nextButton {
+  right: 15px;
+}
+
+/* Image counter overlay */
+.imageCounter {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2;
+}
+
+/* Placeholder for no images */
+.noImagePlaceholder {
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #6c757d;
+}
+
+.noImageIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.noImageText {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Mobile responsive updates */
+@media (max-width: 768px) {
+  .mainImage {
+    height: 300px; /* Smaller on mobile */
+  }
+  
+  .thumbnailImage {
+    width: 60px;
+    height: 45px;
+  }
+  
+  .imageNavigation {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+  
+  .prevButton {
+    left: 10px;
+  }
+  
+  .nextButton {
+    right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainImage {
+    height: 250px; /* Even smaller on very small screens */
+  }
+  
+  .thumbnailImage {
+    width: 50px;
+    height: 38px;
+  }
+  
+  .imageThumbnails {
+    gap: 6px;
+  }
+}

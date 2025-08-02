@@ -1,0 +1,1784 @@
+/* ServiceForms.module.css */
+
+/* Service Form Container */
+.serviceForm {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.formHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.formHeader h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.formHeader p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.tabBtn.active {
+  background: white;
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* Tab Content */
+.tabContent {
+  padding: 2rem;
+  min-height: 400px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 3rem;
+}
+
+.section:last-child {
+  margin-bottom: 1rem;
+}
+
+.section h3 {
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader h3 {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sectionDescription {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.subsection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.subsection h5 {
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.subsectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.subsectionHeader h5 {
+  margin-bottom: 0;
+}
+
+/* Form Elements */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formGroup input.error,
+.formGroup select.error,
+.formGroup textarea.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Price Input */
+.priceInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency {
+  position: absolute;
+  left: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.priceInput input {
+  padding-left: 2rem;
+}
+
+/* Buttons */
+.addBtn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.addBtn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.removeBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+}
+
+.removeBtn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.uploadBtn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.uploadBtn:hover {
+  background: #4f46e5;
+}
+
+/* Image Upload */
+.imageUploadArea {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.imageUploadArea:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+.uploadLabel svg {
+  font-size: 2rem;
+  color: #6b7280;
+}
+
+.uploadLabel span {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.uploadLabel small {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Image Grid */
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+
+.imageItem .removeBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.primaryBadge {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  background: #10b981;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.singleImageUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.singleImagePreview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.singleImagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.singleImagePreview .removeBtn {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  padding: 0;
+  font-size: 0.7rem;
+}
+
+/* Cards */
+.optionCard,
+.menuItemCard,
+.productCard,
+.serviceCard,
+.programCard,
+.waiverCard,
+.specialCard,
+.discountCard,
+.insuranceCard,
+.hoursCard,
+.closureCard,
+.availabilityCard,
+.locationCard,
+.scheduleCard,
+.exceptionCard {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cardHeader h4 {
+  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Specific Card Types */
+.hoursCard,
+.closureCard,
+.availabilityCard,
+.locationCard,
+.scheduleCard,
+.exceptionCard {
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hoursRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+/* Checkboxes and Switches */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
+}
+
+.switchLabel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 0.75rem 0;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #d1d5db;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switchLabel input:checked + .switch {
+  background: #3b82f6;
+}
+
+.switchLabel input:checked + .switch::before {
+  transform: translateX(20px);
+}
+
+.switchLabel input {
+  display: none;
+}
+
+/* Grids */
+.cuisineGrid,
+.amenityGrid,
+.paymentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cuisineCard,
+.amenityCard,
+.checkboxCard {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.cuisineCard:hover,
+.amenityCard:hover,
+.checkboxCard:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.cuisineCard input:checked + .cuisineLabel,
+.amenityCard:has(input:checked),
+.checkboxCard:has(input:checked) {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.cuisineCard input,
+.amenityCard input,
+.checkboxCard input {
+  margin: 0;
+}
+
+.cuisineLabel {
+  font-weight: 500;
+}
+
+/* Price Range */
+.priceRangeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.radioCard {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.radioCard:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.radioCard:has(input:checked) {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.radioCard input {
+  accent-color: #3b82f6;
+  margin: 0;
+}
+
+.radioLabel {
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Availability */
+.dayAvailability {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.dayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.addTimeSlot {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.addTimeSlot:hover {
+  background: #059669;
+}
+
+.timeSlot {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.timeSlot span {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.timeSlot input {
+  padding: 0.375rem;
+  font-size: 0.9rem;
+}
+
+/* Special Items */
+.amenityItem,
+.sideItem,
+.equipmentItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.amenityItem input,
+.sideItem input,
+.equipmentItem input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Booking Options */
+.bookingOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookingOptions .switchLabel {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.bookingOptions .switchLabel div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookingOptions .switchLabel strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.bookingOptions .switchLabel small {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Tag Options */
+.tagOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.tagOptions .checkboxCard {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.tagOptions .checkboxCard div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tagOptions .checkboxCard strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.tagOptions .checkboxCard small {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Conditions Grid */
+.conditionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.conditionsGrid .switchLabel {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  margin: 0;
+}
+
+/* Empty States */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+}
+
+.emptyState svg {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyState p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState small {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Form Actions */
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.prevBtn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prevBtn:hover {
+  background: #4b5563;
+}
+
+.nextBtn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.05rem;
+}
+
+.nextBtn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .serviceForm {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .formHeader {
+    padding: 1.5rem;
+  }
+
+  .formHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .tabContent {
+    padding: 1rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .hoursRow {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .timeSlot {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .timeSlot span {
+    display: none;
+  }
+
+  .cuisineGrid,
+  .amenityGrid,
+  .paymentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .priceRangeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tagOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .conditionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .dayHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .formActions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .formActions .prevBtn,
+  .formActions .nextBtn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .tabNavigation {
+    flex-wrap: wrap;
+  }
+
+  .tabBtn {
+    flex: 1 1 auto;
+    min-width: 120px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .amenityItem,
+  .sideItem,
+  .equipmentItem {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+}
+
+/* Add these styles to your ServiceForms.module.css */
+
+/* Map Container Styles */
+.mapContainer {
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.leafletMap {
+  height: 300px !important;
+  width: 100% !important;
+}
+
+.mapSection {
+  margin: 16px 0;
+}
+
+.coordinatesDisplay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.coordinatesDisplay svg {
+  color: #28a745;
+}
+
+/* Toggle Button Styles */
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.toggleBtn svg {
+  font-size: 16px;
+}
+
+/* Closure Card Updates */
+.closureCard {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.closureCard .formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.closureCard .formGroup {
+  margin-bottom: 0;
+}
+
+/* Switch Label Improvements */
+.switchLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.switchLabel input[type="checkbox"] {
+  display: none;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.switchLabel input[type="checkbox"]:checked + .switch {
+  background: #007bff;
+}
+
+.switchLabel input[type="checkbox"]:checked + .switch::after {
+  transform: translateX(20px);
+}
+
+/* Help Text Styling */
+.helpText {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Section Header Improvements */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader h3,
+.sectionHeader h4 {
+  margin: 0;
+}
+
+/* Section Description */
+.sectionDescription {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Hours Card Styling */
+.hoursCard {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.hoursRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+/* Payment Grid */
+.paymentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.checkboxCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkboxCard:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.checkboxCard input[type="checkbox"]:checked + svg + span,
+.checkboxCard:has(input[type="checkbox"]:checked) {
+  border-color: #007bff;
+  background: #e7f3ff;
+  color: #007bff;
+}
+
+.checkboxCard svg {
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.checkboxCard input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Product Card Improvements */
+.productCard {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.cardHeader h4 {
+  margin: 0;
+  color: #343a40;
+}
+
+/* Subsection Styling */
+.subsection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.subsection h5 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+/* Price Input Styling */
+.priceInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency {
+  position: absolute;
+  left: 12px;
+  color: #6c757d;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.priceInput input {
+  padding-left: 28px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .closureCard .formRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .hoursRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .paymentGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mapContainer {
+    margin: 12px 0;
+  }
+  
+  .leafletMap {
+    height: 250px !important;
+  }
+}
+
+/* Leaflet Custom Styles */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-size: 14px;
+}
+
+/* Override Leaflet default styles if needed */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #333 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f4f4f4 !important;
+}
+
+/* Add these styles to your ServiceForms.module.css */
+
+/* Map Container Styles */
+.mapContainer {
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.leafletMap {
+  height: 300px !important;
+  width: 100% !important;
+}
+
+.mapSection {
+  margin: 16px 0;
+}
+
+.mapLoading {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.coordinatesDisplay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.coordinatesDisplay svg {
+  color: #28a745;
+}
+
+/* Toggle Button Styles */
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.toggleBtn svg {
+  font-size: 16px;
+}
+
+/* Closure Card Updates */
+.closureCard {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.closureCard .formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.closureCard .formGroup {
+  margin-bottom: 0;
+}
+
+/* Switch Label Improvements */
+.switchLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.switchLabel input[type="checkbox"] {
+  display: none;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.switchLabel input[type="checkbox"]:checked + .switch {
+  background: #007bff;
+}
+
+.switchLabel input[type="checkbox"]:checked + .switch::after {
+  transform: translateX(20px);
+}
+
+/* Help Text Styling */
+.helpText {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Section Header Improvements */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader h3,
+.sectionHeader h4 {
+  margin: 0;
+}
+
+/* Section Description */
+.sectionDescription {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Hours Card Styling */
+.hoursCard {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.hoursRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+/* Payment Grid */
+.paymentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.checkboxCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkboxCard:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.checkboxCard input[type="checkbox"]:checked + svg + span,
+.checkboxCard:has(input[type="checkbox"]:checked) {
+  border-color: #007bff;
+  background: #e7f3ff;
+  color: #007bff;
+}
+
+.checkboxCard svg {
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.checkboxCard input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Product Card Improvements */
+.productCard {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.cardHeader h4 {
+  margin: 0;
+  color: #343a40;
+}
+
+/* Subsection Styling */
+.subsection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.subsection h5 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+/* Price Input Styling */
+.priceInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency {
+  position: absolute;
+  left: 12px;
+  color: #6c757d;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.priceInput input {
+  padding-left: 28px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .closureCard .formRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .hoursRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .paymentGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mapContainer {
+    margin: 12px 0;
+  }
+  
+  .leafletMap {
+    height: 250px !important;
+  }
+}
+
+/* Leaflet Custom Styles */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-size: 14px;
+}
+
+/* Override Leaflet default styles if needed */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #333 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f4f4f4 !important;
+}
+
+/* Add these styles to your ServiceForms.module.css */
+
+/* Image Item Updates */
+.imageItem {
+  position: relative;
+  border-radius: 8px;
+  overflow: visible; /* Changed from hidden to allow badge below */
+  background: #fff;
+  border: 2px solid #e1e5e9;
+  transition: all 0.2s ease;
+  padding-bottom: 24px; /* Add space for badge below */
+}
+
+.imageItem:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.imageItem img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  border-radius: 6px 6px 0 0; /* Round only top corners */
+}
+
+/* Primary Badge - Now positioned below image */
+.primaryBadge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+/* Image Actions Container - Adjust positioning */
+.imageActions {
+  position: absolute;
+  bottom: 28px; /* Moved up to make room for badge */
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.imageItem:hover .imageActions {
+  opacity: 1;
+}
+
+
+
+
+/* Primary Button Styles */
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  color: #495057;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  flex: 1;
+}
+
+.primaryBtn:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.primaryBtn.isPrimary {
+  background: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.primaryBtn.isPrimary:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.primaryBtn svg {
+  font-size: 12px;
+}
+
+/* Remove Button Updates */
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.removeBtn:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.05);
+}
+
+.removeBtn svg {
+  font-size: 14px;
+}
+
+
+/* Image Grid Updates */
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* Image Upload Area Improvements */
+.imageUploadArea {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.imageUploadArea:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.uploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #495057;
+}
+
+.uploadLabel:hover {
+  color: #007bff;
+}
+
+.uploadLabel svg {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.uploadLabel span {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.uploadLabel small {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .imageActions {
+    position: static;
+    opacity: 1;
+    margin-top: 8px;
+    padding: 0 8px 8px 8px;
+  }
+  
+  .primaryBtn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .removeBtn {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Animation for primary selection */
+@keyframes primarySelected {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.imageItem.primarySelected {
+  animation: primarySelected 0.3s ease;
+}

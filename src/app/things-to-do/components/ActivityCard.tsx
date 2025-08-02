@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faMapMarkerAlt, faStar, faImage } from "@fortawesome/free-solid-svg-icons";
 import { Activity } from "../utils/fetchActivities";
 import { getAverageRating, getLowestPrice, getHighestPrice, formatRating } from "../utils/filters";
 import styles from "../ThingsToDo.module.css";
@@ -15,6 +15,8 @@ interface Props {
 
 const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
   const router = useRouter();
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const handleViewDetails = () => {
     const queryParam = encodeURIComponent(JSON.stringify(activity));
@@ -42,21 +44,88 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
 
   const avgRating = getAverageRating(activity.reviews);
 
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardImageContainer}>
-        <img
-          src={
-            activity.images?.find((img) => img.isMain)?.url ||
-            "https://via.placeholder.com/400x220?text=Experience"
-          }
-          alt={activity.name}
-          className={styles.cardImg}
-        />
+  // Get the main image URL
+  const mainImage = activity.images?.find((img) => img.isMain);
+  const imageUrl = mainImage?.url;
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+  };
+
+  // Render image content
+  const renderImageContent = () => {
+    if (imageError || !imageUrl) {
+      return (
+        <div className={`${styles.cardImg} ${styles.imageError}`}>
+          <div style={{ textAlign: 'center' }}>
+            <FontAwesomeIcon icon={faImage} style={{ fontSize: '24px', marginBottom: '8px' }} />
+            <div>No Image Available</div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={imageUrl}
+        alt={activity.name}
+        className={`${styles.cardImg} ${imageLoading ? styles.imageLoading : ''}`}
+        onError={handleImageError}
+        onLoad={handleImageLoad}
+      />
+    );
+  };
+
+  // Alternative: Background image approach (uncomment to use)
+  /*
+  const renderBackgroundImage = () => {
+    const backgroundStyle = {
+      backgroundImage: imageUrl && !imageError ? `url(${imageUrl})` : 'none',
+      backgroundColor: '#f8f9fa'
+    };
+
+    return (
+      <div 
+        className={`${styles.cardImageContainer_bg} ${imageLoading ? styles.imageLoading : ''}`}
+        style={backgroundStyle}
+      >
+        {(!imageUrl || imageError) && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: '#6c757d'
+          }}>
+            <FontAwesomeIcon icon={faImage} style={{ fontSize: '24px', marginBottom: '8px' }} />
+            <div>No Image Available</div>
+          </div>
+        )}
         {activity.category && (
           <span className={styles.categoryTag}>{activity.category}</span>
         )}
       </div>
+    );
+  };
+  */
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardImageContainer}>
+        {renderImageContent()}
+        
+        {activity.category && (
+          <span className={styles.categoryTag}>{activity.category}</span>
+        )}
+      </div>
+      
       <div className={styles.cardBody}>
         <h3 className={styles.cardTitle}>{activity.name}</h3>
 
@@ -78,27 +147,25 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
 
         {/* HOST NAME DISPLAY */}
         {activity.host && (
-        <div className={styles.locationContainer}>
+          <div className={styles.locationContainer}>
             <p className={styles.locationText}>
-            Host:{" "}
-            {typeof activity.host === "string" ? (
+              Host:{" "}
+              {typeof activity.host === "string" ? (
                 "Unknown Host"
-            ) : (
+              ) : (
                 <span
-                onClick={(e) => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     router.push(`/host/${activity.host._id}`);
-                }}
-                className={styles.hostLink}
+                  }}
+                  className={styles.hostLink}
                 >
-                {activity.host.name || "Unknown Host"}
+                  {activity.host.name || "Unknown Host"}
                 </span>
-            )}
+              )}
             </p>
-        </div>
+          </div>
         )}
-
-
 
         <div className={styles.priceContainer}>
           <span className={styles.priceLabel}>{priceLabel}</span>

@@ -19,7 +19,7 @@ export default function useDining() {
   // Fetch dining data
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/services/type/dining")
+      .get("http://localhost:5000/api/services/type/dinings")
       .then((res) => {
         setDiningItems(res.data);
         setFilteredItems(res.data);

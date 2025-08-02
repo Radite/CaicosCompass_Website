@@ -580,3 +580,234 @@
   transform: none;
   box-shadow: none;
 }
+
+/* Add these styles to your existing shoppingdetails.module.css file */
+
+/* Header Actions */
+.headerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.actionButton:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+/* Status Badges */
+.statusBadges {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.statusBadge.open {
+  background: rgba(212, 237, 218, 0.9);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.statusBadge.closed {
+  background: rgba(248, 215, 218, 0.9);
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.statusBadge.unknown {
+  background: rgba(255, 243, 205, 0.9);
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.deliveryBadge {
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+/* Store Header */
+.storeHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.storeTypeTag {
+  background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+  color: #495057;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+}
+
+/* Toggle Info Button */
+.toggleInfoButton {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggleInfoButton:hover {
+  background: linear-gradient(135deg, #5a6268, #343a40);
+  transform: translateY(-1px);
+}
+
+/* Today's hour highlighting */
+.todayHour {
+  background: rgba(12, 84, 207, 0.05);
+  border-left: 3px solid #0C54CF;
+  padding-left: 15px;
+  font-weight: 600;
+}
+
+.todayHour .day {
+  color: #0C54CF;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.productCount {
+  background: #e9ecef;
+  color: #495057;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Availability Status Styling */
+.serviceAvailability.available {
+  color: #28a745;
+}
+
+.serviceAvailability.limited {
+  color: #ffc107;
+}
+
+.serviceAvailability.unavailable {
+  color: #dc3545;
+}
+
+/* Savings Amount */
+.savingsAmount {
+  font-size: 0.8rem;
+  color: #28a745;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Enhanced Info Items */
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.infoItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: #0C54CF;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .headerActions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .storeHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .statusBadges {
+    position: static;
+    flex-direction: row;
+    margin: 10px 0;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .actionButtons {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
