@@ -7,7 +7,7 @@ import {
   faUser, faBuilding, faPhone, faEnvelope, faGlobe,
   faMapMarkerAlt, faClock, faCalendar, faCreditCard,
   faSave, faEdit, faCheck, faTimes, faUpload, faShield,
-  faBell, faKey, faTrash, faPlus
+  faBell, faKey, faTrash, faPlus, faEye, faEyeSlash
 } from '@fortawesome/free-solid-svg-icons';
 import styles from '../dashboard.module.css';
 
@@ -145,31 +145,116 @@ export default function ProfileManagement({ vendorData, onUpdate }: ProfileManag
     return { Authorization: `Bearer ${token}` };
   };
 
-  useEffect(() => {
-    if (vendorData?.businessProfile) {
-      setProfile(prev => ({
-        ...prev,
-        businessName: vendorData.businessProfile.businessName || '',
-        businessType: vendorData.businessProfile.businessType || '',
-        description: vendorData.businessProfile.businessDescription || '',
-        logo: null, // No logo field in current backend
-        coverImage: null, // No cover image field in current backend
-        contactInfo: {
-          ...prev.contactInfo,
-          phone: vendorData.businessProfile.businessPhone || '',
-          email: vendorData.email || '',
-          website: vendorData.businessProfile.businessWebsite || '',
-          address: vendorData.businessProfile.businessAddress?.street || '',
-          island: vendorData.businessProfile.businessAddress?.island || ''
-        },
-        // Set default values for missing fields
-        businessHours: prev.businessHours,
-        paymentInfo: prev.paymentInfo,
-        socialMedia: prev.socialMedia,
-        settings: prev.settings
-      }));
+const [showPaymentDetails, setShowPaymentDetails] = useState(false);
+const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+const [verificationPassword, setVerificationPassword] = useState('');
+const [isVerifying, setIsVerifying] = useState(false);
+const [decryptedPaymentInfo, setDecryptedPaymentInfo] = useState({
+  bankName: '',
+  accountHolderName: '',
+  accountNumber: '',
+  routingNumber: ''
+});
+const verifyPasswordAndShowDetails = async () => {
+  if (!verificationPassword) {
+    alert('Please enter your password');
+    return;
+  }
+
+  try {
+    setIsVerifying(true);
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/decrypted-payment-info`,
+      { password: verificationPassword },
+      { headers: getAuthHeaders() }
+    );
+
+    if (response.data.success) {
+      setDecryptedPaymentInfo(response.data.paymentInfo);
+      setShowPaymentDetails(true);
+      setShowPasswordPrompt(false);
+      setVerificationPassword('');
+    } else {
+      alert(response.data.message || 'Incorrect password');
     }
-  }, [vendorData]);
+  } catch (error: any) {
+    console.error('Password verification failed:', error);
+    alert(error.response?.data?.message || 'Error verifying password');
+  } finally {
+    setIsVerifying(false);
+  }
+};
+
+// Replace the togglePaymentDetails function with this:
+const togglePaymentDetails = () => {
+  if (!showPaymentDetails) {
+    setShowPasswordPrompt(true);
+  } else {
+    setShowPaymentDetails(false);
+    setShowPasswordPrompt(false);
+    setVerificationPassword('');
+    // Clear decrypted data when hiding
+    setDecryptedPaymentInfo({
+      bankName: '',
+      accountHolderName: '',
+      accountNumber: '',
+      routingNumber: ''
+    });
+  }
+};
+
+// Add this helper function to determine if a field is encrypted (shows as masked)
+const isFieldEncrypted = (value: string) => {
+  return value && (value.includes('****') || value.length > 50); // Basic check for encrypted/masked data
+};
+useEffect(() => {
+  if (vendorData?.businessProfile) {
+    setProfile(prev => ({
+      ...prev,
+      businessName: vendorData.businessProfile.businessName || '',
+      businessType: vendorData.businessProfile.businessType || '',
+      description: vendorData.businessProfile.businessDescription || '',
+      logo: vendorData.businessProfile.logo || '',
+      coverImage: vendorData.businessProfile.coverImage || '',
+      contactInfo: {
+        phone: vendorData.businessProfile.businessPhone || '',
+        email: vendorData.email || '',
+        website: vendorData.businessProfile.businessWebsite || '',
+        address: vendorData.businessProfile.businessAddress?.street || '',
+        island: vendorData.businessProfile.businessAddress?.island || ''
+      },
+      businessHours: vendorData.businessProfile.businessHours || {
+        monday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        tuesday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        wednesday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        thursday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        friday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        saturday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+        sunday: { isOpen: false, openTime: '09:00', closeTime: '17:00' }
+      },
+      paymentInfo: vendorData.businessProfile.paymentInfo || {
+        bankName: '',
+        accountNumber: '',
+        routingNumber: '',
+        accountHolderName: ''
+      },
+      socialMedia: vendorData.businessProfile.socialMedia || {
+        facebook: '',
+        instagram: '',
+        twitter: '',
+        website: ''
+      },
+      settings: vendorData.businessProfile.settings || {
+        emailNotifications: true,
+        smsNotifications: true,
+        bookingAutoConfirm: false,
+        showPhoneNumber: true,
+        allowReviews: true
+      }
+    }));
+  }
+}, [vendorData]);
+
 
   const handleInputChange = (section: string, field: string, value: any) => {
     setProfile(prev => ({
@@ -234,25 +319,48 @@ export default function ProfileManagement({ vendorData, onUpdate }: ProfileManag
     }
   };
 
-  const handleSaveProfile = async () => {
-    try {
-      setSaving(true);
+const handleSaveProfile = async () => {
+  try {
+    setSaving(true);
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/business-profile`,
-        profile,
-        { headers: getAuthHeaders() }
-      );
+    // Prepare the profile data
+    let profileToSave = { ...profile };
 
-      alert('Profile updated successfully!');
-      onUpdate();
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error updating profile. Please try again.');
-    } finally {
-      setSaving(false);
+    // If payment details are currently shown (decrypted), use the decrypted values
+    if (showPaymentDetails) {
+      profileToSave.paymentInfo = {
+        ...profile.paymentInfo,
+        ...decryptedPaymentInfo
+      };
     }
-  };
+
+    await axios.put(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/business-profile`,
+      profileToSave,
+      { headers: getAuthHeaders() }
+    );
+
+    alert('Profile updated successfully!');
+    
+    // Hide payment details after saving for security
+    if (showPaymentDetails) {
+      setShowPaymentDetails(false);
+      setDecryptedPaymentInfo({
+        bankName: '',
+        accountHolderName: '',
+        accountNumber: '',
+        routingNumber: ''
+      });
+    }
+    
+    onUpdate();
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert('Error updating profile. Please try again.');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -576,60 +684,374 @@ export default function ProfileManagement({ vendorData, onUpdate }: ProfileManag
           </div>
         );
 
-      case 'payment':
-        return (
-          <div className={styles.tabContent}>
-            <div className={styles.paymentNotice}>
-              <FontAwesomeIcon icon={faShield} />
-              <p>Your payment information is encrypted and secure. This information is used for processing payouts.</p>
-            </div>
+case 'payment':
+  return (
+    <div className={styles.tabContent}>
+      <div className={styles.paymentNotice}>
+        <FontAwesomeIcon icon={faShield} />
+        <p>🔒 Your payment information is encrypted and secure. Account and routing numbers are masked for security.</p>
+      </div>
 
-            <div className={styles.formGroup}>
-              <label>Bank Name *</label>
+      {/* Show/Hide Details Button */}
+      <div className={styles.paymentDetailsToggle}>
+        <button
+          type="button"
+          onClick={togglePaymentDetails}
+          className={`${styles.toggleDetailsBtn} ${showPaymentDetails ? styles.hide : styles.show}`}
+        >
+          <FontAwesomeIcon icon={showPaymentDetails ? faEyeSlash : faEye} />
+          {showPaymentDetails ? 'Hide Details' : 'Show Full Details'}
+        </button>
+      </div>
+
+      {/* Password Verification Modal */}
+      {showPasswordPrompt && (
+        <div className={styles.passwordVerification}>
+          <div className={styles.verificationBox}>
+            <h4>Verify Your Identity</h4>
+            <p>Enter your password to view and edit full banking details:</p>
+            <div className={styles.passwordInputGroup}>
               <input
-                type="text"
-                value={profile.paymentInfo.bankName}
-                onChange={(e) => handleInputChange('paymentInfo', 'bankName', e.target.value)}
+                type="password"
+                value={verificationPassword}
+                onChange={(e) => setVerificationPassword(e.target.value)}
+                placeholder="Enter your password"
                 className={styles.formInput}
+                onKeyPress={(e) => e.key === 'Enter' && verifyPasswordAndShowDetails()}
               />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Account Holder Name *</label>
-              <input
-                type="text"
-                value={profile.paymentInfo.accountHolder}
-                onChange={(e) => handleInputChange('paymentInfo', 'accountHolder', e.target.value)}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label>Account Number *</label>
-                <input
-                  type="text"
-                  value={profile.paymentInfo.accountNumber}
-                  onChange={(e) => handleInputChange('paymentInfo', 'accountNumber', e.target.value)}
-                  className={styles.formInput}
-                  placeholder="Enter account number"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Routing Number *</label>
-                <input
-                  type="text"
-                  value={profile.paymentInfo.routingNumber}
-                  onChange={(e) => handleInputChange('paymentInfo', 'routingNumber', e.target.value)}
-                  className={styles.formInput}
-                  placeholder="Enter routing number"
-                />
+              <div className={styles.verificationButtons}>
+                <button
+                  type="button"
+                  onClick={verifyPasswordAndShowDetails}
+                  disabled={isVerifying || !verificationPassword}
+                  className={styles.verifyBtn}
+                >
+                  {isVerifying ? (
+                    <>
+                      <div className={styles.spinner}></div>
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faCheck} />
+                      Verify & Show
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordPrompt(false);
+                    setVerificationPassword('');
+                  }}
+                  className={styles.cancelBtn}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
-        );
+        </div>
+      )}
 
+      <div className={styles.formGroup}>
+        <label>Bank Name *</label>
+        <input
+          type="text"
+          value={showPaymentDetails ? decryptedPaymentInfo.bankName : (profile.paymentInfo.bankName || '')}
+          onChange={(e) => {
+            if (showPaymentDetails) {
+              setDecryptedPaymentInfo(prev => ({ ...prev, bankName: e.target.value }));
+            } else {
+              handleInputChange('paymentInfo', 'bankName', e.target.value);
+            }
+          }}
+          className={styles.formInput}
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Account Holder Name *</label>
+        <input
+          type="text"
+          value={showPaymentDetails ? decryptedPaymentInfo.accountHolderName : (profile.paymentInfo.accountHolderName || '')}
+          onChange={(e) => {
+            if (showPaymentDetails) {
+              setDecryptedPaymentInfo(prev => ({ ...prev, accountHolderName: e.target.value }));
+            } else {
+              handleInputChange('paymentInfo', 'accountHolderName', e.target.value);
+            }
+          }}
+          className={styles.formInput}
+        />
+      </div>
+
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label>
+            Account Number *
+            {!showPaymentDetails && profile.paymentInfo.accountNumber && 
+              <small> (encrypted)</small>
+            }
+          </label>
+          <input
+            type="text"
+            value={
+              showPaymentDetails 
+                ? decryptedPaymentInfo.accountNumber 
+                : (profile.paymentInfo.accountNumber ? '••••••••••••••••' : '')
+            }
+            onChange={(e) => {
+              if (showPaymentDetails) {
+                setDecryptedPaymentInfo(prev => ({ ...prev, accountNumber: e.target.value }));
+              }
+            }}
+            className={styles.formInput}
+            placeholder={
+              !showPaymentDetails && profile.paymentInfo.accountNumber
+                ? "Click 'Show Full Details' to view and edit"
+                : "Enter account number"
+            }
+            readOnly={!showPaymentDetails && !!profile.paymentInfo.accountNumber}
+          />
+          {!showPaymentDetails && profile.paymentInfo.accountNumber && (
+            <small className={styles.maskedNotice}>
+              🔒 Encrypted - Click "Show Full Details" to view and edit
+            </small>
+          )}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>
+            Routing Number *
+            {!showPaymentDetails && profile.paymentInfo.routingNumber && 
+              <small> (encrypted)</small>
+            }
+          </label>
+          <input
+            type="text"
+            value={
+              showPaymentDetails 
+                ? decryptedPaymentInfo.routingNumber 
+                : (profile.paymentInfo.routingNumber ? '•••••••••' : '')
+            }
+            onChange={(e) => {
+              if (showPaymentDetails) {
+                setDecryptedPaymentInfo(prev => ({ ...prev, routingNumber: e.target.value }));
+              }
+            }}
+            className={styles.formInput}
+            placeholder={
+              !showPaymentDetails && profile.paymentInfo.routingNumber
+                ? "Click 'Show Full Details' to view and edit"
+                : "Enter routing number"
+            }
+            readOnly={!showPaymentDetails && !!profile.paymentInfo.routingNumber}
+          />
+          {!showPaymentDetails && profile.paymentInfo.routingNumber && (
+            <small className={styles.maskedNotice}>
+              🔒 Encrypted - Click "Show Full Details" to view and edit
+            </small>
+          )}
+        </div>
+      </div>
+
+      {showPaymentDetails && (
+        <div className={styles.securityWarning}>
+          <FontAwesomeIcon icon={faShield} />
+          <p>
+            <strong>Security Notice:</strong> Full banking details are now visible and editable. 
+            Make sure no one else can see your screen. Click "Hide Details" when finished.
+          </p>
+        </div>
+      )}
+    </div>
+  );  return (
+    <div className={styles.tabContent}>
+      <div className={styles.paymentNotice}>
+        <FontAwesomeIcon icon={faShield} />
+        <p>🔒 Your payment information is encrypted and secure. Account and routing numbers are masked for security.</p>
+      </div>
+
+      {/* Show/Hide Details Button */}
+      <div className={styles.paymentDetailsToggle}>
+        <button
+          type="button"
+          onClick={togglePaymentDetails}
+          className={`${styles.toggleDetailsBtn} ${showPaymentDetails ? styles.hide : styles.show}`}
+        >
+          <FontAwesomeIcon icon={showPaymentDetails ? faEyeSlash : faEye} />
+          {showPaymentDetails ? 'Hide Details' : 'Show Full Details'}
+        </button>
+      </div>
+
+      {/* Password Verification Modal */}
+      {showPasswordPrompt && (
+        <div className={styles.passwordVerification}>
+          <div className={styles.verificationBox}>
+            <h4>Verify Your Identity</h4>
+            <p>Enter your password to view and edit full banking details:</p>
+            <div className={styles.passwordInputGroup}>
+              <input
+                type="password"
+                value={verificationPassword}
+                onChange={(e) => setVerificationPassword(e.target.value)}
+                placeholder="Enter your password"
+                className={styles.formInput}
+                onKeyPress={(e) => e.key === 'Enter' && verifyPasswordAndShowDetails()}
+              />
+              <div className={styles.verificationButtons}>
+                <button
+                  type="button"
+                  onClick={verifyPasswordAndShowDetails}
+                  disabled={isVerifying || !verificationPassword}
+                  className={styles.verifyBtn}
+                >
+                  {isVerifying ? (
+                    <>
+                      <div className={styles.spinner}></div>
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faCheck} />
+                      Verify & Show
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordPrompt(false);
+                    setVerificationPassword('');
+                  }}
+                  className={styles.cancelBtn}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.formGroup}>
+        <label>Bank Name *</label>
+        <input
+          type="text"
+          value={showPaymentDetails ? decryptedPaymentInfo.bankName : (profile.paymentInfo.bankName || '')}
+          onChange={(e) => {
+            if (showPaymentDetails) {
+              setDecryptedPaymentInfo(prev => ({ ...prev, bankName: e.target.value }));
+            } else {
+              handleInputChange('paymentInfo', 'bankName', e.target.value);
+            }
+          }}
+          className={styles.formInput}
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label>Account Holder Name *</label>
+        <input
+          type="text"
+          value={showPaymentDetails ? decryptedPaymentInfo.accountHolderName : (profile.paymentInfo.accountHolderName || '')}
+          onChange={(e) => {
+            if (showPaymentDetails) {
+              setDecryptedPaymentInfo(prev => ({ ...prev, accountHolderName: e.target.value }));
+            } else {
+              handleInputChange('paymentInfo', 'accountHolderName', e.target.value);
+            }
+          }}
+          className={styles.formInput}
+        />
+      </div>
+
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label>
+            Account Number *
+            {!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.accountNumber) && 
+              <small> (encrypted)</small>
+            }
+          </label>
+          <input
+            type="text"
+            value={
+              showPaymentDetails 
+                ? decryptedPaymentInfo.accountNumber 
+                : (isFieldEncrypted(profile.paymentInfo.accountNumber) ? '********' : (profile.paymentInfo.accountNumber || ''))
+            }
+            onChange={(e) => {
+              if (showPaymentDetails) {
+                setDecryptedPaymentInfo(prev => ({ ...prev, accountNumber: e.target.value }));
+              }
+              // Don't allow changes when not showing details
+            }}
+            className={styles.formInput}
+            placeholder={
+              !showPaymentDetails && isFieldEncrypted(profile.paymentInfo.accountNumber)
+                ? "Click 'Show Full Details' to view and edit"
+                : "Enter account number"
+            }
+            readOnly={!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.accountNumber)}
+          />
+          {!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.accountNumber) && (
+            <small className={styles.maskedNotice}>
+              🔒 Encrypted - Click "Show Full Details" to view and edit
+            </small>
+          )}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>
+            Routing Number *
+            {!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.routingNumber) && 
+              <small> (encrypted)</small>
+            }
+          </label>
+          <input
+            type="text"
+            value={
+              showPaymentDetails 
+                ? decryptedPaymentInfo.routingNumber 
+                : (isFieldEncrypted(profile.paymentInfo.routingNumber) ? '********' : (profile.paymentInfo.routingNumber || ''))
+            }
+            onChange={(e) => {
+              if (showPaymentDetails) {
+                setDecryptedPaymentInfo(prev => ({ ...prev, routingNumber: e.target.value }));
+              }
+              // Don't allow changes when not showing details
+            }}
+            className={styles.formInput}
+            placeholder={
+              !showPaymentDetails && isFieldEncrypted(profile.paymentInfo.routingNumber)
+                ? "Click 'Show Full Details' to view and edit"
+                : "Enter routing number"
+            }
+            readOnly={!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.routingNumber)}
+          />
+          {!showPaymentDetails && isFieldEncrypted(profile.paymentInfo.routingNumber) && (
+            <small className={styles.maskedNotice}>
+              🔒 Encrypted - Click "Show Full Details" to view and edit
+            </small>
+          )}
+        </div>
+      </div>
+
+      {showPaymentDetails && (
+        <div className={styles.securityWarning}>
+          <FontAwesomeIcon icon={faShield} />
+          <p>
+            <strong>Security Notice:</strong> Full banking details are now visible and editable. 
+            Make sure no one else can see your screen. Click "Hide Details" when finished.
+          </p>
+        </div>
+      )}
+    </div>
+  );
       case 'social':
         return (
           <div className={styles.tabContent}>

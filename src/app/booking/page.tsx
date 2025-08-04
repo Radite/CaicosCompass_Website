@@ -47,29 +47,48 @@ export default function BookingPage() {
 
   const averageRating = calculateAverageRating(activity);
 
-  const handleContinue = () => {
-    if (!selectedTime) {
-      alert("Please select a time slot.");
-      return;
-    }
-    
-    const pricePerUnit = selectedOption ? selectedOption.cost : activity?.price || 0;
-    const totalPrice = pricePerUnit * numPeople;
-    
-    const bookingData: BookingData = {
-      activityId: activity?._id,
-      optionId: selectedOption?._id || null,
-      date: selectedDate,
-      timeSlot: selectedTime,
-      numPeople,
-      multiUser,
-      totalPrice,
-    };
-    
-    // Pass the bookingData as a JSON-encoded query parameter to PaymentPage
-    const queryParam = encodeURIComponent(JSON.stringify(bookingData));
-    router.push(`/payment?booking=${queryParam}`);
+const handleContinue = () => {
+  if (!selectedTime) {
+    alert("Please select a time slot.");
+    return;
+  }
+  
+  const pricePerUnit = selectedOption ? selectedOption.cost : activity?.price || 0;
+  const totalPrice = pricePerUnit * numPeople;
+  
+  // Enhanced booking data with comprehensive information
+  const bookingData: BookingData = {
+    activityId: activity?._id,
+    activityName: activity?.name,
+    optionId: selectedOption?._id || null,
+    option: selectedOption,
+    date: selectedDate,
+    timeSlot: selectedTime,
+    numPeople,
+    multiUser,
+    totalPrice,
+    price: pricePerUnit,
+    basePrice: pricePerUnit,
+    // Additional activity details for payment page
+    category: activity?.category || 'Activity',
+    duration: selectedOption?.duration || activity?.duration,
+    location: activity?.location,
+    island: activity?.island,
+    difficulty: activity?.difficulty,
+    ageRestrictions: activity?.ageRestrictions,
+    groupSizeLimit: activity?.groupSizeLimit,
+    inclusions: selectedOption?.inclusions || activity?.inclusions,
+    exclusions: selectedOption?.exclusions || activity?.exclusions,
+    description: selectedOption?.description || activity?.description,
+    discountedPrice: activity?.discountedPrice,
+    pricingType: activity?.pricingType
   };
+  
+  // Pass the bookingData as a JSON-encoded query parameter to PaymentPage
+  // IMPORTANT: Add the &type=activity parameter
+  const queryParam = encodeURIComponent(JSON.stringify(bookingData));
+  router.push(`/payment?booking=${queryParam}&type=activity`);
+};
 
   return (
     <div className={styles.container}>

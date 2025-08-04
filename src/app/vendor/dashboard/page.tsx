@@ -81,7 +81,6 @@ export default function VendorDashboard() {
     { id: 'bookings', label: 'Bookings', icon: faCalendarCheck },
     { id: 'analytics', label: 'Analytics', icon: faChartBar },
     { id: 'discounts', label: 'Promotions', icon: faTags },
-    { id: 'media', label: 'Media Manager', icon: faEye },
     { id: 'profile', label: 'Profile', icon: faUser },
   ];
 
@@ -127,20 +126,26 @@ const checkAuth = () => {
     }
   };
 
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/business-dashboard`,
-        { headers: getAuthHeaders() }
-      );
-      setDashboardStats(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      setLoading(false);
+const fetchDashboardStats = async () => {
+  try {
+    // Change from /api/users/business-dashboard to /api/vendor/dashboard  
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vendor/dashboard`,
+      { headers: getAuthHeaders() }
+    );
+    setDashboardStats(response.data);
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    // Better error handling
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userRole');
+      window.location.href = '/login';
     }
-  };
-
+    setLoading(false);
+  }
+};
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
@@ -213,8 +218,7 @@ const checkAuth = () => {
         return <AnalyticsDashboard vendorData={vendorData} />;
       case 'discounts':
         return <DiscountManager vendorData={vendorData} />;
-      case 'media':
-        return <MediaManager vendorData={vendorData} />;
+
       case 'profile':
         return <ProfileManagement vendorData={vendorData} onUpdate={fetchVendorData} />;
       default:

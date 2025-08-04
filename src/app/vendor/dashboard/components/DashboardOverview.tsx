@@ -38,19 +38,19 @@ export default function DashboardOverview({ stats, vendorData }: DashboardOvervi
     fetchRecentActivity();
   }, []);
 
-  const fetchRecentActivity = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vendor/recent-activity`,
-        { headers: getAuthHeaders() }
-      );
-      setRecentActivity(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching recent activity:', error);
-      setLoading(false);
-    }
-  };
+const fetchRecentActivity = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vendor/recent-activity`,
+      { headers: getAuthHeaders() }
+    );
+    setRecentActivity(response.data);
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching recent activity:', error);
+    setLoading(false);
+  }
+};
 
   const quickStats: QuickStat[] = [
     {

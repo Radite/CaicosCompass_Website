@@ -5,7 +5,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSave, faTimes, faUpload, faTrash, faPlus, 
-  faEdit, faCalendar, faDollarSign, faUsers, faClock
+  faEdit, faCalendar, faDollarSign, faUsers, faClock, faTags
 } from '@fortawesome/free-solid-svg-icons';
 import styles from '../dashboard.module.css';
 

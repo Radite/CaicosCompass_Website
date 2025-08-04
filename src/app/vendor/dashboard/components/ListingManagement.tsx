@@ -9,7 +9,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import styles from '../dashboard.module.css';
 
-// WITH THIS:
 interface ListingManagementProps {
   onEditListing: (id: string) => void;
   onCreateListing: () => void;
@@ -45,6 +44,36 @@ export default function ListingManagement({ onEditListing, onCreateListing }: Li
   const getAuthHeaders = () => {
     const token = localStorage.getItem('authToken');
     return { Authorization: `Bearer ${token}` };
+  };
+
+  // Helper function to get the primary image URL (following ActivityCard pattern)
+  const getImageUrl = (listing: Listing) => {
+    if (listing.images && listing.images.length > 0) {
+      // Check if images is an array of objects with url property (like ActivityCard)
+      const firstImage = listing.images[0];
+      let imageUrl: string;
+      
+      if (typeof firstImage === 'object' && firstImage !== null) {
+        // For images array with objects like [{ url: 'path', isMain: true }]
+        const mainImage = listing.images.find((img: any) => img.isMain);
+        imageUrl = mainImage?.url || firstImage.url;
+      } else {
+        // For simple string array like ['path1', 'path2']
+        imageUrl = firstImage as string;
+      }
+      
+      // Ensure imageUrl is a string before calling startsWith
+      if (typeof imageUrl === 'string') {
+        // Check if it's already a full URL
+        if (imageUrl.startsWith('http')) {
+          return imageUrl;
+        }
+        // If it's a relative path, construct the full URL
+        return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/${imageUrl}`;
+      }
+    }
+    // Fallback to placeholder
+    return "https://via.placeholder.com/48x48/0D4C92/FFFFFF?text=IMG";
   };
 
   useEffect(() => {
@@ -218,7 +247,10 @@ export default function ListingManagement({ onEditListing, onCreateListing }: Li
             </select>
           </div>
 
-
+          <button className={styles.createBtn} onClick={onCreateListing}>
+            <FontAwesomeIcon icon={faPlus} />
+            <span>Create Listing</span>
+          </button>
         </div>
 
         {/* Bulk Actions */}
@@ -244,7 +276,7 @@ export default function ListingManagement({ onEditListing, onCreateListing }: Li
           <div className={styles.tableCell}>
             <input
               type="checkbox"
-              checked={selectedListings.length === filteredListings.length}
+              checked={selectedListings.length === filteredListings.length && filteredListings.length > 0}
               onChange={(e) => {
                 if (e.target.checked) {
                   setSelectedListings(filteredListings.map(l => l._id));
@@ -301,9 +333,13 @@ export default function ListingManagement({ onEditListing, onCreateListing }: Li
               <div className={styles.tableCell}>
                 <div className={styles.listingInfo}>
                   <img 
-                    src="https://via.placeholder.com/48x48/0D4C92/FFFFFF?text=IMG"
+                    src={getImageUrl(listing)}
                     alt={listing.name}
                     className={styles.listingThumbnail}
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      (e.target as HTMLImageElement).src = "https://via.placeholder.com/48x48/0D4C92/FFFFFF?text=IMG";
+                    }}
                   />
                   <div>
                     <h4>{listing.name}</h4>
@@ -359,7 +395,7 @@ export default function ListingManagement({ onEditListing, onCreateListing }: Li
                   </button>
                   
                   <button 
-                    className={styles.actionBtn}
+                    className={`${styles.actionBtn} ${listing.status === 'active' ? styles.active : styles.inactive}`}
                     onClick={() => toggleListingStatus(listing._id, listing.status)}
                     title={listing.status === 'active' ? 'Deactivate' : 'Activate'}
                   >
