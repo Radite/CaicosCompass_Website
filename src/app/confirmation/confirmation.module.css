@@ -1,0 +1,73 @@
+/* Main container for the confirmation page */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 70vh; /* Ensures it takes up a good portion of the screen */
+  background-color: #f4f7f6; /* A soft, neutral background */
+}
+
+/* Base styles for the confirmation card */
+.card {
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  border-top: 5px solid #4caf50; /* Green for success */
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Heading styles (e.g., "Your booking is confirmed!") */
+.card h2 {
+  font-size: 1.75rem;
+  color: #2e7d32; /* Darker green for text */
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Paragraph text styles */
+.card p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Styling for the booking ID to make it stand out */
+.card p strong {
+  font-family: monospace;
+  background-color: #e8f5e9; /* Light green background */
+  color: #1b5e20;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+}
+
+/* Modifier class for the error state card */
+.error {
+  border-top-color: #d32f2f; /* Red for error */
+}
+
+/* Heading style specifically for the error card */
+.error h2 {
+  color: #c62828; /* Darker red */
+}
+
+/* Animation for the card to fade in smoothly */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

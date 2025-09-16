@@ -1,9 +1,7 @@
-// components/BookingPage/BookingSummary.tsx
 import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import { Option, Activity, TimeSlot } from '../../types';
 import { formatDate } from '../../utils/dateUtils';
-import { calculateTotalPrice } from '../../utils/bookingUtils';
 import styles from '../../bookingpage.module.css';
 
 interface BookingSummaryProps {
@@ -13,6 +11,7 @@ interface BookingSummaryProps {
   selectedTime: TimeSlot | null;
   numPeople: number;
   onContinue: () => void;
+  totalPrice: number; // Add totalPrice to the props interface
 }
 
 const BookingSummary: React.FC<BookingSummaryProps> = ({ 
@@ -21,10 +20,9 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   selectedDate, 
   selectedTime, 
   numPeople,
-  onContinue
+  onContinue,
+  totalPrice // Receive totalPrice from props
 }) => {
-  const totalPrice = calculateTotalPrice(selectedOption, activity, numPeople);
-  
   return (
     <div className={styles.bookingSection}>
       <h3 className={styles.bookingTitle}>Booking Summary</h3>

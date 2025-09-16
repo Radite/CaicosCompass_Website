@@ -1,14 +1,15 @@
-// RootLayout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { Providers } from "./providers"; // Import the new Providers component
 import "./globals.css";
 import Head from "next/head";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,6 +29,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <Head>
+        {/* Note: In App Router, <Head> from 'next/head' is not used here. Metadata API is preferred.
+            These <link> tags should ideally be here if you must use them this way. */}
         <link
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
           rel="stylesheet"
@@ -44,11 +47,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </Head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Header />
-        <main>
-          {children}
-        </main>
-        <Footer />
+        <Providers> {/* Wrap your content with the Providers component */}
+          <Header />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

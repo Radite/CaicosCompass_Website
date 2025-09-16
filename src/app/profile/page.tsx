@@ -106,6 +106,7 @@ export default function ProfilePage() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
+  const [budgetErrors, setBudgetErrors] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -157,29 +158,59 @@ export default function ProfilePage() {
     setActiveModal(section);
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    const token = localStorage.getItem("authToken");
+const handleSave = async () => {
+  setSaving(true);
+  const token = localStorage.getItem("authToken");
+  
+  try {
+    let dataToSend;
     
-    try {
-      const updateData = { [activeModal as string]: formData };
+    // Special handling for budget data
+    if (activeModal === 'budget') {
+      // For budget, wrap the data under 'budget' key as backend expects
+      dataToSend = {
+        budget: {
+          total: formData.total,
+          allocation: formData.allocation
+        }
+      };
       
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/me`,
-        updateData,
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      
-      setUser(response.data);
-      setActiveModal(null);
-      setFormData({});
-    } catch (error) {
-      console.error("Error saving profile:", error);
-      alert("Failed to save changes. Please try again.");
-    } finally {
-      setSaving(false);
+      console.log('Sending budget data:', dataToSend); // Debug log
+    } else {
+      // For other modals, send formData directly
+      dataToSend = formData;
+      console.log('Sending form data:', dataToSend); // Debug log
     }
-  };
+    
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/me`,
+      dataToSend,
+      { headers: { Authorization: `Bearer ${token}` }}
+    );
+    
+    console.log('Save response:', response.data); // Debug log
+    
+    setUser(response.data.user || response.data);
+    setActiveModal(null);
+    setFormData({});
+    setBudgetErrors({}); // Clear budget errors
+    
+  } catch (error) {
+    console.error("Error saving profile:", error);
+    
+    // Handle validation errors from backend
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      if (activeModal === 'budget') {
+        setBudgetErrors(error.response.data.errors);
+      }
+      alert("Please fix the validation errors.");
+    } else {
+      alert("Failed to save changes. Please try again.");
+    }
+  } finally {
+    setSaving(false);
+  }
+};
 
   const getInitials = (name: string) => {
     return name
@@ -499,102 +530,459 @@ export default function ProfilePage() {
     </div>
   );
 
-  const renderBudgetForm = () => (
-    <div>
-      <div className="mb-3">
-        <label className="form-label">Total Budget ($)</label>
-        <input
-          type="number"
-          className="form-control"
-          min="0"
-          value={formData.total ?? user?.budget?.total ?? 0}
-          onChange={(e) => setFormData({...formData, total: parseFloat(e.target.value)})}
-        />
-      </div>
 
-      <h5>Budget Allocation (%)</h5>
-      <div className="mb-3">
-        <label className="form-label">Accommodation</label>
-        <input
-          type="number"
-          className="form-control"
-          min="0"
-          max="100"
-          value={formData.allocation?.accommodation ?? user?.budget?.allocation?.accommodation ?? 0}
-          onChange={(e) => setFormData({
-            ...formData, 
-            allocation: {
-              ...formData.allocation,
-              accommodation: parseFloat(e.target.value)
-            }
-          })}
-        />
-      </div>
+    // Budget helper functions
+  const handleAllocationChange = (category, value) => {
+    const numValue = parseFloat(value) || 0;
+    
+    // Get current allocation
+    const allocation = formData.allocation || user?.budget?.allocation || {
+      accommodation: 0,
+      food: 0,
+      activities: 0,
+      transportation: 0
+    };
+    
+    // Prevent values over 100 or negative
+    if (numValue > 100) {
+      setBudgetErrors(prev => ({
+        ...prev,
+        [category]: "Cannot exceed 100%"
+      }));
+      return;
+    }
+    
+    if (numValue < 0) {
+      setBudgetErrors(prev => ({
+        ...prev,
+        [category]: "Cannot be negative"
+      }));
+      return;
+    }
+    
+    // Clear error for this field
+    setBudgetErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[category];
+      return newErrors;
+    });
+    
+    // Update the allocation
+    const newAllocation = {
+      ...allocation,
+      [category]: numValue
+    };
+    
+    setFormData({
+      ...formData,
+      allocation: newAllocation
+    });
+  };
 
-      <div className="mb-3">
-        <label className="form-label">Food</label>
-        <input
-          type="number"
-          className="form-control"
-          min="0"
-          max="100"
-          value={formData.allocation?.food ?? user?.budget?.allocation?.food ?? 0}
-          onChange={(e) => setFormData({
-            ...formData, 
-            allocation: {
-              ...formData.allocation,
-              food: parseFloat(e.target.value)
-            }
-          })}
-        />
-      </div>
+  const autoDistribute = () => {
+    const allocation = formData.allocation || user?.budget?.allocation || {
+      accommodation: 0,
+      food: 0,
+      activities: 0,
+      transportation: 0
+    };
+    
+    const categories = ['accommodation', 'food', 'activities', 'transportation'];
+    const emptyCategories = categories.filter(cat => !allocation[cat] || allocation[cat] === 0);
+    
+    if (emptyCategories.length === 0) return;
+    
+    const totalPercentage = (allocation.accommodation || 0) + 
+                           (allocation.food || 0) + 
+                           (allocation.activities || 0) + 
+                           (allocation.transportation || 0);
+    
+    const remainingToDistribute = 100 - totalPercentage;
+    const perCategory = Math.floor(remainingToDistribute / emptyCategories.length);
+    const extra = remainingToDistribute % emptyCategories.length;
+    
+    const newAllocation = { ...allocation };
+    
+    emptyCategories.forEach((category, index) => {
+      newAllocation[category] = perCategory + (index < extra ? 1 : 0);
+    });
+    
+    setFormData({
+      ...formData,
+      allocation: newAllocation
+    });
+  };
 
-      <div className="mb-3">
-        <label className="form-label">Activities</label>
-        <input
-          type="number"
-          className="form-control"
-          min="0"
-          max="100"
-          value={formData.allocation?.activities ?? user?.budget?.allocation?.activities ?? 0}
-          onChange={(e) => setFormData({
-            ...formData, 
-            allocation: {
-              ...formData.allocation,
-              activities: parseFloat(e.target.value)
-            }
-          })}
-        />
-      </div>
+  const resetAllocations = () => {
+    setFormData({
+      ...formData,
+      allocation: {
+        accommodation: 0,
+        food: 0,
+        activities: 0,
+        transportation: 0
+      }
+    });
+    setBudgetErrors({});
+  };
 
-      <div className="mb-3">
-        <label className="form-label">Transportation</label>
-        <input
-          type="number"
-          className="form-control"
-          min="0"
-          max="100"
-          value={formData.allocation?.transportation ?? user?.budget?.allocation?.transportation ?? 0}
-          onChange={(e) => setFormData({
-            ...formData, 
-            allocation: {
-              ...formData.allocation,
-              transportation: parseFloat(e.target.value)
-            }
-          })}
-        />
-      </div>
+  const suggestBalanced = () => {
+    setFormData({
+      ...formData,
+      allocation: {
+        accommodation: 40,
+        food: 25,
+        activities: 25,
+        transportation: 10
+      }
+    });
+    setBudgetErrors({});
+  };
+// Find your existing renderBudgetForm function and REPLACE THE ENTIRE FUNCTION with this:
 
-      <div className={styles.modalFooter}>
-        <button className={styles.btnSecondary} onClick={() => setActiveModal(null)}>
-          Cancel
-        </button>
-        <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+ const renderBudgetForm = () => {
+    // Get current allocation values or defaults
+    const allocation = formData.allocation || user?.budget?.allocation || {
+      accommodation: 0,
+      food: 0,
+      activities: 0,
+      transportation: 0
+    };
+    
+    // Calculate total percentage
+    const totalPercentage = (allocation.accommodation || 0) + 
+                           (allocation.food || 0) + 
+                           (allocation.activities || 0) + 
+                           (allocation.transportation || 0);
+    
+    const isValidTotal = totalPercentage === 100;
+    const remaining = 100 - totalPercentage;
+
+    return (
+      <div>
+        {/* Total Budget */}
+        <div className="mb-4">
+          <label className="form-label">
+            Total Budget ($) <span style={{color: '#dc3545'}}>*</span>
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            min="0"
+            step="0.01"
+            value={formData.total ?? user?.budget?.total ?? ''}
+            onChange={(e) => setFormData({...formData, total: parseFloat(e.target.value) || 0})}
+            placeholder="Enter your total budget"
+          />
+          <small className="form-text text-muted">
+            Enter your total travel budget in USD
+          </small>
+        </div>
+
+        {/* Budget Allocation Section */}
+        <div style={{
+          background: '#f8f9fa',
+          padding: '20px',
+          borderRadius: '12px',
+          border: '2px solid #e9ecef',
+          marginBottom: '20px'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h5 style={{ margin: 0, color: '#2d3748' }}>
+              Budget Allocation (%)
+            </h5>
+            
+            {/* Total Percentage Display */}
+            <div style={{
+              background: isValidTotal ? '#d4edda' : totalPercentage > 100 ? '#f8d7da' : '#fff3cd',
+              color: isValidTotal ? '#155724' : totalPercentage > 100 ? '#721c24' : '#856404',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontWeight: '600',
+              fontSize: '0.9rem',
+              border: `2px solid ${isValidTotal ? '#c3e6cb' : totalPercentage > 100 ? '#f5c6cb' : '#ffeaa7'}`
+            }}>
+              {totalPercentage}% / 100%
+              {!isValidTotal && totalPercentage < 100 && (
+                <span style={{ marginLeft: '8px', fontSize: '0.8rem' }}>
+                  ({remaining}% remaining)
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Action Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '20px',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              type="button"
+              style={{
+                background: '#e3f2fd',
+                border: '1px solid #bbdefb',
+                color: '#1976d2',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+              onClick={suggestBalanced}
+            >
+              Suggest Balanced (40/25/25/10)
+            </button>
+            <button
+              type="button"
+              style={{
+                background: '#f3e5f5',
+                border: '1px solid #e1bee7',
+                color: '#7b1fa2',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+              onClick={autoDistribute}
+              disabled={totalPercentage >= 100}
+            >
+              Auto-Distribute Remaining
+            </button>
+            <button
+              type="button"
+              style={{
+                background: '#ffebee',
+                border: '1px solid #ffcdd2',
+                color: '#c62828',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+              onClick={resetAllocations}
+            >
+              Reset All
+            </button>
+          </div>
+
+          {/* Allocation Inputs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            {/* Accommodation */}
+            <div>
+              <label className="form-label">
+                🏨 Accommodation
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  className={`form-control ${budgetErrors.accommodation ? 'is-invalid' : ''}`}
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={allocation.accommodation || ''}
+                  onChange={(e) => handleAllocationChange('accommodation', e.target.value)}
+                  placeholder="0"
+                  style={{ paddingRight: '30px' }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#6c757d',
+                  fontWeight: '500'
+                }}>
+                  %
+                </span>
+              </div>
+              {budgetErrors.accommodation && (
+                <small style={{ color: '#dc3545', fontSize: '0.8rem' }}>
+                  {budgetErrors.accommodation}
+                </small>
+              )}
+              {formData.total && allocation.accommodation && (
+                <small style={{ color: '#6c757d', fontSize: '0.8rem' }}>
+                  ${((formData.total * allocation.accommodation) / 100).toLocaleString()}
+                </small>
+              )}
+            </div>
+
+            {/* Food */}
+            <div>
+              <label className="form-label">
+                🍽️ Food & Dining
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  className={`form-control ${budgetErrors.food ? 'is-invalid' : ''}`}
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={allocation.food || ''}
+                  onChange={(e) => handleAllocationChange('food', e.target.value)}
+                  placeholder="0"
+                  style={{ paddingRight: '30px' }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#6c757d',
+                  fontWeight: '500'
+                }}>
+                  %
+                </span>
+              </div>
+              {budgetErrors.food && (
+                <small style={{ color: '#dc3545', fontSize: '0.8rem' }}>
+                  {budgetErrors.food}
+                </small>
+              )}
+              {formData.total && allocation.food && (
+                <small style={{ color: '#6c757d', fontSize: '0.8rem' }}>
+                  ${((formData.total * allocation.food) / 100).toLocaleString()}
+                </small>
+              )}
+            </div>
+
+            {/* Activities */}
+            <div>
+              <label className="form-label">
+                🎯 Activities & Tours
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  className={`form-control ${budgetErrors.activities ? 'is-invalid' : ''}`}
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={allocation.activities || ''}
+                  onChange={(e) => handleAllocationChange('activities', e.target.value)}
+                  placeholder="0"
+                  style={{ paddingRight: '30px' }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#6c757d',
+                  fontWeight: '500'
+                }}>
+                  %
+                </span>
+              </div>
+              {budgetErrors.activities && (
+                <small style={{ color: '#dc3545', fontSize: '0.8rem' }}>
+                  {budgetErrors.activities}
+                </small>
+              )}
+              {formData.total && allocation.activities && (
+                <small style={{ color: '#6c757d', fontSize: '0.8rem' }}>
+                  ${((formData.total * allocation.activities) / 100).toLocaleString()}
+                </small>
+              )}
+            </div>
+
+            {/* Transportation */}
+            <div>
+              <label className="form-label">
+                🚗 Transportation
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  className={`form-control ${budgetErrors.transportation ? 'is-invalid' : ''}`}
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={allocation.transportation || ''}
+                  onChange={(e) => handleAllocationChange('transportation', e.target.value)}
+                  placeholder="0"
+                  style={{ paddingRight: '30px' }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#6c757d',
+                  fontWeight: '500'
+                }}>
+                  %
+                </span>
+              </div>
+              {budgetErrors.transportation && (
+                <small style={{ color: '#dc3545', fontSize: '0.8rem' }}>
+                  {budgetErrors.transportation}
+                </small>
+              )}
+              {formData.total && allocation.transportation && (
+                <small style={{ color: '#6c757d', fontSize: '0.8rem' }}>
+                  ${((formData.total * allocation.transportation) / 100).toLocaleString()}
+                </small>
+              )}
+            </div>
+          </div>
+
+          {/* Validation Message */}
+          {!isValidTotal && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: totalPercentage > 100 ? '#f8d7da' : '#fff3cd',
+              color: totalPercentage > 100 ? '#721c24' : '#856404',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              border: `1px solid ${totalPercentage > 100 ? '#f5c6cb' : '#ffeaa7'}`
+            }}>
+              {totalPercentage > 100 ? (
+                <>⚠️ Total exceeds 100% by {totalPercentage - 100}%. Please adjust your allocation.</>
+              ) : (
+                <>📊 You have {remaining}% remaining to allocate. Use "Auto-Distribute" or adjust manually.</>
+              )}
+            </div>
+          )}
+
+          {isValidTotal && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: '#d4edda',
+              color: '#155724',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              border: '1px solid #c3e6cb'
+            }}>
+              ✅ Perfect! Your budget allocation adds up to 100%.
+            </div>
+          )}
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button className={styles.btnSecondary} onClick={() => setActiveModal(null)}>
+            Cancel
+          </button>
+          <button 
+            className={styles.btnPrimary} 
+            onClick={handleSave} 
+            disabled={saving || !isValidTotal || Object.keys(budgetErrors).length > 0}
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderFoodPreferencesForm = () => (
     <div>

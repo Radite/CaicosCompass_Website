@@ -687,17 +687,45 @@ export default function WellnessSpaDetailsPage() {
     }
   };
 
-  const handleProceedToPayment = () => {
-    if (!bookingDetails || !item) return;
-    
-    const bookingInfo = encodeURIComponent(JSON.stringify({
-      spaId: item._id,
-      spaName: item.name,
-      ...bookingDetails
-    }));
-    
-    router.push(`/payment?booking=${bookingInfo}`);
+const handleProceedToPayment = () => {
+  if (!bookingDetails || !item) return;
+  
+  // Create a simplified booking object without problematic nested data
+  const simplifiedBookingInfo = {
+    spaId: item._id,
+    spaName: item.name,
+    serviceId: bookingDetails.serviceId,
+    serviceName: bookingDetails.serviceName,
+    date: bookingDetails.date,
+    timeSlot: {
+      startTime: bookingDetails.timeSlot.startTime,
+      endTime: bookingDetails.timeSlot.endTime
+    },
+    price: bookingDetails.price,
+    discountedPrice: bookingDetails.discountedPrice,
+    location: item.location,
+    island: item.island,
+    spaType: item.spaType,
+    duration: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.duration || 60,
+    category: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.category || 'Wellness',
+    description: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.description || '',
+    // Simplify images to just URLs
+    images: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.images?.map(img => img.url) || [],
+    cancellationPolicy: item.cancellationPolicy,
+    paymentOptions: item.paymentOptions
   };
+  
+  try {
+    // Double-encode to handle special characters properly
+    const bookingInfo = encodeURIComponent(JSON.stringify(simplifiedBookingInfo));
+router.push(`/wellnesspayment?booking=${bookingInfo}&type=spa`);
+  } catch (error) {
+    console.error('Error encoding booking data:', error);
+    // Fallback: use sessionStorage
+    sessionStorage.setItem('pendingBooking', JSON.stringify(simplifiedBookingInfo));
+    router.push('/wellnesspayment?type=spa&useSession=true');
+  }
+};
 
   return (
     <div className={styles.container}>

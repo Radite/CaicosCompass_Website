@@ -16,6 +16,7 @@ import {
   faTrash 
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./itinerary.module.css";
+import { useAuth } from '../contexts/AuthContext'; // Adjust path as needed
 
 interface Booking {
   _id: string;
@@ -41,38 +42,70 @@ interface Booking {
 }
 
 export default function ItineraryPage() {
+  const { 
+    user, 
+    token, 
+    isAuthenticated, 
+    loading: authLoading 
+  } = useAuth(); // --- FIX #2: Get user, token, and loading state from context ---
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'category' | 'status'>('date');
+useEffect(() => {
+  console.log("Auth Context State:", {
+    authLoading,
+    isAuthenticated,
+    user,
+    token
+  });
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  // WAIT for auth to finish loading before making decisions
+  if (authLoading) {
+    console.log("Still loading auth, waiting...");
+    return; // Don't do anything while auth is loading
+  }
 
-  const fetchBookings = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("User not authenticated.");
+  // Now that auth has finished loading, check authentication
+  if (isAuthenticated && user?._id) {
+    console.log("User is authenticated, fetching bookings...");
+    // Try to get token from auth context first, fallback to localStorage
+    const authToken = token || localStorage.getItem("authToken");
+    if (authToken) {
+      fetchBookings(authToken);
+    } else {
+      setError("Authentication token not found. Please log in again.");
       setLoading(false);
-      return;
     }
-
+  } else {
+    console.log("User is not authenticated");
+    setError("You must be logged in to view your itinerary.");
+    setLoading(false);
+  }
+}, [authLoading, isAuthenticated, user, token]); // Include all dependencies
+  // --- FIX #4: Update fetchBookings to accept the token ---
+const fetchBookings = async (authToken: string) => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/bookings/user`,
-        { headers: { Authorization: `Bearer ${token}` }}
+        { headers: { Authorization: `Bearer ${authToken}` }}
       );
       
-      setBookings(response.data);
-      setLoading(false);
+      // --- THIS IS THE FIX ---
+      // Access the array inside the 'data' property of the response.
+      // Use '|| []' as a fallback to ensure it's always an array.
+      setBookings(response.data.data || []);
+      
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load bookings.");
+      setBookings([]); // Also set to an empty array on error
+    } finally {
       setLoading(false);
     }
   };
-
   const isUpcoming = (booking: Booking): boolean => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -515,14 +548,15 @@ export default function ItineraryPage() {
     }
   };
 
-  if (loading) {
+ if (authLoading || loading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
-        <h2>Loading your itinerary...</h2>
+        <h2>{authLoading ? "Authenticating your session..." : "Loading your itinerary..."}</h2>
       </div>
     );
   }
+
 
   if (error) {
     return (

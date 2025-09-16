@@ -1,4 +1,3 @@
-// page.tsx (updated with useActivityParser)
 "use client";
 
 import React, { useState } from "react";
@@ -8,6 +7,7 @@ import styles from "./bookingpage.module.css";
 
 // Types
 import { TimeSlot, BookingData } from "./types";
+import { useAuth } from "../contexts/AuthContext"; // 1. Import your auth hook
 
 // Components
 import BackButton from "./components/ui/BackButton";
@@ -19,7 +19,7 @@ import BookingSummary from "./components/BookingPage/BookingSummary";
 // Hooks & Utils
 import { useAvailability } from "./hooks/useAvailability";
 import { useActivityParser } from "./hooks/useActivityParser";
-import { calculateAverageRating } from "./utils/bookingUtils";
+import { calculateAverageRating, calculateTotalPrice } from "./utils/bookingUtils";
 
 export default function BookingPage() {
   const searchParams = useSearchParams();
@@ -30,66 +30,68 @@ export default function BookingPage() {
   const [numPeople, setNumPeople] = useState<number>(1);
   const [multiUser, setMultiUser] = useState<boolean>(false);
 
-  // Custom hook for parsing activity from URL
-  const { 
-    activity, 
-    selectedOption, 
-    allImages, 
-    handleOptionChange 
-  } = useActivityParser(searchParams);
-
-  // Custom hook for handling availability and timeslots
-  const { 
-    availableTimeslots, 
-    selectedTime, 
-    setSelectedTime 
-  } = useAvailability(activity, selectedOption, selectedDate);
-
+  const { activity, selectedOption, allImages, handleOptionChange } = useActivityParser(searchParams);
+  const { availableTimeslots, selectedTime, setSelectedTime } = useAvailability(activity, selectedOption, selectedDate);
   const averageRating = calculateAverageRating(activity);
 
-const handleContinue = () => {
-  if (!selectedTime) {
-    alert("Please select a time slot.");
-    return;
-  }
-  
-  const pricePerUnit = selectedOption ? selectedOption.cost : activity?.price || 0;
-  const totalPrice = pricePerUnit * numPeople;
-  
-  // Enhanced booking data with comprehensive information
-  const bookingData: BookingData = {
-    activityId: activity?._id,
-    activityName: activity?.name,
-    optionId: selectedOption?._id || null,
-    option: selectedOption,
-    date: selectedDate,
-    timeSlot: selectedTime,
-    numPeople,
-    multiUser,
-    totalPrice,
-    price: pricePerUnit,
-    basePrice: pricePerUnit,
-    // Additional activity details for payment page
-    category: activity?.category || 'Activity',
-    duration: selectedOption?.duration || activity?.duration,
-    location: activity?.location,
-    island: activity?.island,
-    difficulty: activity?.difficulty,
-    ageRestrictions: activity?.ageRestrictions,
-    groupSizeLimit: activity?.groupSizeLimit,
-    inclusions: selectedOption?.inclusions || activity?.inclusions,
-    exclusions: selectedOption?.exclusions || activity?.exclusions,
-    description: selectedOption?.description || activity?.description,
-    discountedPrice: activity?.discountedPrice,
-    pricingType: activity?.pricingType
-  };
-  
-  // Pass the bookingData as a JSON-encoded query parameter to PaymentPage
-  // IMPORTANT: Add the &type=activity parameter
-  const queryParam = encodeURIComponent(JSON.stringify(bookingData));
-  router.push(`/payment?booking=${queryParam}&type=activity`);
-};
+  const { user, loading: authLoading } = useAuth();
 
+  // Calculate totalPrice here, in the parent component
+  const totalPrice = calculateTotalPrice(selectedOption, activity, numPeople);
+
+  const handleContinue = () => {
+    if (!selectedTime) {
+      alert("Please select a time slot.");
+      return;
+    }
+    
+    const pricePerUnit = selectedOption ? selectedOption.cost : activity?.price || 0;
+    
+    const bookingData: BookingData = {
+            // --- 3. ADD THE USER ID HERE ---
+      user: user ? user.id : null, // Add the user's ID if they exist
+      
+
+      activityId: activity?._id,
+      activityName: activity?.name,
+      optionId: selectedOption?._id || null,
+      option: selectedOption,
+      date: selectedDate,
+      time: `${selectedTime.startTime} - ${selectedTime.endTime}`,
+      timeSlot: selectedTime,
+      numPeople,
+      multiUser,
+      totalPrice: totalPrice, // Use the authoritative totalPrice
+      price: pricePerUnit,
+      basePrice: pricePerUnit,
+      serviceType: activity?.serviceType || 'Activity',
+      category: activity?.category || 'General', 
+      duration: selectedOption?.duration || activity?.duration,
+      location: activity?.location,
+      island: activity?.island,
+      difficulty: activity?.difficulty,
+      ageRestrictions: activity?.ageRestrictions,
+      groupSizeLimit: activity?.groupSizeLimit,
+      inclusions: selectedOption?.inclusions || activity?.inclusions,
+      exclusions: selectedOption?.exclusions || activity?.exclusions,
+      description: selectedOption?.description || activity?.description,
+      discountedPrice: activity?.discountedPrice,
+      pricingType: activity?.pricingType
+    };
+    
+    const queryParam = encodeURIComponent(JSON.stringify(bookingData));
+    router.push(`/payment?booking=${queryParam}&type=activity`);
+  };
+
+    // --- FIX #2: Show a loading indicator until authentication is ready ---
+  if (authLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        {/* You can use a dedicated Spinner component here */}
+        <h2>Loading Your Session...</h2>
+      </div>
+    );
+  }
   return (
     <div className={styles.container}>
       <BackButton />
@@ -149,6 +151,7 @@ const handleContinue = () => {
             selectedTime={selectedTime}
             numPeople={numPeople}
             onContinue={handleContinue}
+            totalPrice={totalPrice} // Pass totalPrice down as a prop
           />
         </div>
 

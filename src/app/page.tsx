@@ -1,11 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronDown, Sparkles, Clock, MapPin, Star, ArrowRight } from "lucide-react";
+import { ChevronDown, Sparkles, Clock, MapPin, Star, ArrowRight, Search, Filter } from "lucide-react";
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchAttempted, setSearchAttempted] = useState(false);
 
   const heroImages = [
     {
@@ -25,10 +30,19 @@ export default function HomePage() {
     }
   ];
 
+  const filterOptions = [
+    { id: 'all', label: 'All', endpoint: '/services' },
+    { id: 'activities', label: 'Activities', endpoint: '/services/type/activities' },
+    { id: 'dining', label: 'Dining', endpoint: '/services/type/dinings' },
+    { id: 'stays', label: 'Stays', endpoint: '/services/type/stays' },
+    { id: 'transportation', label: 'Transportation', endpoint: '/services/type/transportations' },
+    { id: 'shopping', label: 'Shopping', endpoint: '/services/type/shoppings' },
+    { id: 'wellnessspa', label: 'Wellness & Spa', endpoint: '/services/type/wellnessspas' }
+  ];
+
   useEffect(() => {
     setIsLoaded(true);
     
-    // Enhanced Bootstrap carousel initialization
     import("bootstrap/dist/js/bootstrap.bundle.min.js").then((bootstrap) => {
       const carouselElement = document.getElementById("heroCarousel");
       const { Carousel } = bootstrap;
@@ -41,14 +55,12 @@ export default function HomePage() {
           touch: true
         });
 
-        // Listen to slide events for enhanced animations
         carouselElement.addEventListener('slide.bs.carousel', (event) => {
           setCurrentSlide(event.to);
         });
       }
     });
 
-    // Enhanced scroll animations
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
@@ -62,7 +74,6 @@ export default function HomePage() {
       });
     }, observerOptions);
 
-    // Observe all sections for scroll animations
     document.querySelectorAll('section').forEach(section => {
       observer.observe(section);
     });
@@ -70,11 +81,63 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
-  const scrollToCategories = () => {
-    document.getElementById('categories')?.scrollIntoView({ 
+  const scrollToSearch = () => {
+    document.getElementById('search-section')?.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     });
+  };
+
+  const handleFilterChange = (filterId) => {
+    setActiveFilter(filterId);
+    performSearch(searchQuery.trim() ? searchQuery : '', filterId);
+  };
+
+  const handleSearch = () => {
+    performSearch(searchQuery, activeFilter);
+  };
+
+  const performSearch = async (query, filter) => {
+    setIsSearching(true);
+    setSearchAttempted(true);
+    setSearchResults([]); 
+    const API_BASE_URL = 'http://localhost:5000/api';
+
+    try {
+      const filterConfig = filterOptions.find(f => f.id === filter);
+      const endpoint = filterConfig?.endpoint || '/services';
+      
+      const searchParams = new URLSearchParams();
+
+      const fullUrl = `${API_BASE_URL}${endpoint}?${searchParams.toString()}`;
+      console.log(`Fetching: ${fullUrl}`);
+
+      const response = await fetch(fullUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      let finalResults = data;
+      const trimmedQuery = query.trim();
+
+      if (trimmedQuery) {
+        const lowerCaseQuery = trimmedQuery.toLowerCase();
+        finalResults = data.filter(item => {
+          const nameMatch = item.name && item.name.toLowerCase().includes(lowerCaseQuery);
+          const descriptionMatch = item.description && item.description.toLowerCase().includes(lowerCaseQuery);
+          return nameMatch || descriptionMatch;
+        });
+      }
+      
+      setSearchResults(finalResults);
+
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -130,8 +193,8 @@ export default function HomePage() {
           
           <button 
             className="scroll-indicator"
-            onClick={scrollToCategories}
-            aria-label="Scroll to explore categories"
+            onClick={scrollToSearch}
+            aria-label="Scroll to search"
           >
             <ChevronDown className="scroll-arrow" />
           </button>
@@ -238,7 +301,163 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Categories Section */}
+      {/* Enhanced Search Section */}
+      <section id="search-section" className="search-section">
+        <div className="container">
+          <div className="text-center mb-5">
+            <div className="section-badge">
+              <Search className="me-2" style={{ width: '16px', height: '16px' }} />
+              <span>Discover</span>
+            </div>
+            <h2 className="section-title">Find Your Perfect Experience</h2>
+            <p className="section-subtitle">
+              Search through our curated collection of activities, dining, stays, and more
+            </p>
+          </div>
+          
+          {/* Filter Tabs */}
+          <div className="filter-tabs-container mb-4">
+            <div className="filter-tabs">
+              {filterOptions.map((filter) => (
+                <button
+                  key={filter.id}
+                  className={`filter-tab ${activeFilter === filter.id ? 'active' : ''}`}
+                  onClick={() => handleFilterChange(filter.id)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="search-container">
+            <div className="search-form">
+              <div className="search-input-group">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder={`Search ${activeFilter === 'all' ? 'all experiences' : filterOptions.find(f => f.id === activeFilter)?.label.toLowerCase()}...`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button 
+                  className="search-submit-btn"
+                  onClick={handleSearch}
+                  disabled={isSearching}
+                >
+                  {isSearching ? (
+                    <div className="spinner"></div>
+                  ) : (
+                    <>
+                      <span>Search</span>
+                      <ArrowRight className="btn-arrow" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* --- UPDATED RESULTS AREA --- */}
+          <div className="search-results-wrapper mt-5">
+            {/* Display Results Grid */}
+            {!isSearching && searchResults.length > 0 && (
+              <div className="search-results">
+                <div className="results-header">
+                  <h3>Search Results</h3>
+                  <span className="results-count">{searchResults.length} results found</span>
+                </div>
+                
+                <div className="results-grid">
+                  {searchResults.map((result, index) => {
+                    // Find the main image, fallback to the first image, then a placeholder
+                    const mainImage = result.images?.find(img => img.isMain);
+                    const imageUrl = mainImage?.url || result.images?.[0]?.url || "https://via.placeholder.com/300x200";
+
+                    return (
+                      <div key={result._id?.$oid || index} className="result-card">
+                        <div className="result-image-container">
+                          <img
+                            src={imageUrl}
+                            alt={result.name}
+                            className="result-image"
+                            loading="lazy"
+                          />
+                          <div className="result-overlay"></div>
+                        </div>
+                        <div className="result-content">
+                          <div className="result-category">{result.serviceType || result.category}</div>
+                          <h5 className="result-title">{result.name}</h5>
+                          <p className="result-description">{result.description}</p>
+                          {(result.pricePerNight || result.price) && (
+                            <div className="result-price">From ${result.pricePerNight || result.price}</div>
+                          )}
+                          <a 
+                            href={`/service/${result._id?.$oid || result.id}`} 
+                            className="result-link"
+                            aria-label={`View ${result.name}`}
+                          >
+                            <span>View Details</span>
+                            <ArrowRight className="link-icon" />
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Display "Nothing Found" Message */}
+            {searchAttempted && !isSearching && searchResults.length === 0 && (
+              <div className="text-center no-results-card">
+                <div className="no-results-icon">
+                  <Search size={48} />
+                </div>
+                <h3>Nothing Found</h3>
+                <p className="text-muted">
+                  Sorry, we couldn't find any results for your search.
+                  <br />
+                  Please try a different keyword or browse our categories.
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Quick Browse Categories */}
+          <div className="quick-browse mt-5">
+            <h3 className="quick-browse-title">Quick Browse</h3>
+            <div className="quick-categories">
+              {[
+                { name: 'Water Sports', icon: '🏄‍♂️', filter: 'activities' },
+                { name: 'Fine Dining', icon: '🍽️', filter: 'dining' },
+                { name: 'Luxury Villas', icon: '🏖️', filter: 'stays' },
+                { name: 'Island Tours', icon: '🚗', filter: 'transportation' },
+                { name: 'Local Markets', icon: '🛍️', filter: 'shopping' },
+                { name: 'Spa Retreats', icon: '💆‍♀️', filter: 'wellnessspa' }
+              ].map((category, index) => (
+                <button
+                  key={index}
+                  className="quick-category-btn"
+                  onClick={() => {
+                    setActiveFilter(category.filter);
+                    setSearchQuery(category.name);
+                    performSearch(category.name, category.filter);
+                  }}
+                >
+                  <span className="category-icon">{category.icon}</span>
+                  <span className="category-name">{category.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Curated Experiences Section */}
       <section id="categories" className="categories-section">
         <div className="container">
           <div className="text-center mb-5">
