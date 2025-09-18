@@ -33,10 +33,8 @@ export default function HomePage() {
   const filterOptions = [
     { id: 'all', label: 'All', endpoint: '/services' },
     { id: 'activities', label: 'Activities', endpoint: '/services/type/activities' },
-    { id: 'dining', label: 'Dining', endpoint: '/services/type/dinings' },
     { id: 'stays', label: 'Stays', endpoint: '/services/type/stays' },
     { id: 'transportation', label: 'Transportation', endpoint: '/services/type/transportations' },
-    { id: 'shopping', label: 'Shopping', endpoint: '/services/type/shoppings' },
     { id: 'wellnessspa', label: 'Wellness & Spa', endpoint: '/services/type/wellnessspas' }
   ];
 
@@ -433,10 +431,8 @@ export default function HomePage() {
             <div className="quick-categories">
               {[
                 { name: 'Water Sports', icon: '🏄‍♂️', filter: 'activities' },
-                { name: 'Fine Dining', icon: '🍽️', filter: 'dining' },
                 { name: 'Luxury Villas', icon: '🏖️', filter: 'stays' },
                 { name: 'Island Tours', icon: '🚗', filter: 'transportation' },
-                { name: 'Local Markets', icon: '🛍️', filter: 'shopping' },
                 { name: 'Spa Retreats', icon: '💆‍♀️', filter: 'wellnessspa' }
               ].map((category, index) => (
                 <button
@@ -479,28 +475,16 @@ export default function HomePage() {
                 description: "Adventure & Activities"
               },
               {
-                title: "Luxury Stays",
+                title: "Villas & Airbnbs",
                 image: "https://www.visittci.com/core/cover-emerald-cay-estate-aerial_1024x341.jpg", 
                 href: "/stays",
                 description: "Premium Accommodations"
               },
               {
-                title: "Fine Dining",
-                image: "https://www.visittci.com/core/cover-beach-house-dessert-and-wine_1024x341.jpg",
-                href: "/dining", 
-                description: "Culinary Experiences"
-              },
-              {
-                title: "Transportation",
+                title: "Taxis & Rental Services",
                 image: "https://www.visittci.com/core/cover-jeep-wranglers-at-west-harbour-bluff_1024x341.jpg",
                 href: "/transportationcategories",
                 description: "Getting Around"
-              },
-              {
-                title: "Shopping & Markets", 
-                image: "https://www.visittci.com/core/cover-ports-of-call-grace-bay-providenciales_1024x341.jpg",
-                href: "/shopping",
-                description: "Local Treasures"
               },
               {
                 title: "Wellness & Spa",

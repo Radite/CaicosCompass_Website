@@ -20,78 +20,89 @@ function PaymentPageContent() {
     const router = useRouter();
     const { isAuthenticated, user, loading: authLoading } = useAuth();
 
+    // State variables remain the same
     const [bookingData, setBookingData] = useState<BookingData | null>(null);
     const [clientSecret, setClientSecret] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>('');
-
-    // New state for checkout flow
     const [checkoutChoice, setCheckoutChoice] = useState<'none' | 'signin' | 'guest'>('none');
-    
-    // State for guest checkout form
     const [guestName, setGuestName] = useState('');
     const [guestEmail, setGuestEmail] = useState('');
     const [isGuestInfoSubmitted, setIsGuestInfoSubmitted] = useState(false);
 
+    // ✅ FIX 1: useEffect for LOADING DATA (runs once)
+    // This hook's only job is to get the booking data from either sessionStorage or the URL.
     useEffect(() => {
-        // Don't do anything until the auth context has finished its initial loading
-        if (authLoading) {
-            return;
+        // Don't run if data is already loaded or auth is still in progress
+        if (bookingData || authLoading) return;
+
+        let bookingJsonString: string | null = null;
+        const useSession = searchParams.get('useSession') === 'true';
+
+        if (useSession) {
+            bookingJsonString = sessionStorage.getItem('pendingBooking');
+            // We remove it immediately after reading to prevent re-use.
+            sessionStorage.removeItem('pendingBooking');
+        } else {
+            // This preserves your fallback for other booking types.
+            bookingJsonString = searchParams.get('booking');
         }
 
-        const bookingParam = searchParams.get('booking');
-        if (!bookingParam) {
+        if (!bookingJsonString) {
             setError('No booking information found.');
             setLoading(false);
             return;
         }
 
         try {
-            const parsedData = JSON.parse(decodeURIComponent(bookingParam));
-            
-            // This logic is now simplified. We only create the payment intent when we have user info.
-            if (isAuthenticated || isGuestInfoSubmitted) {
-                const finalBookingData = {
-                    ...parsedData,
-                    user: isAuthenticated ? user._id : null,
-                    guestName: !isAuthenticated ? guestName : null,
-                    guestEmail: !isAuthenticated ? guestEmail : null,
-                    contactInfo: {
-                        firstName: isAuthenticated ? user.firstName : guestName.split(' ')[0] || '',
-                        lastName: isAuthenticated ? user.lastName : guestName.split(' ').slice(1).join(' ') || '',
-                        email: isAuthenticated ? user.email : guestEmail,
-                    }
-                };
+            const parsedData = useSession 
+                ? JSON.parse(bookingJsonString) 
+                : JSON.parse(decodeURIComponent(bookingJsonString));
+            // Set the data into state, which will trigger the next hook.
+                 console.log("--- 2. [Payment Page] Received Booking Data ---");
+      console.log(JSON.stringify(parsedData, null, 2));
+            setBookingData(parsedData);
+        } catch (e) {
+            console.error("Error parsing booking data:", e);
+            setError('Invalid booking data.');
+            setLoading(false);
+        }
+    }, [searchParams, authLoading, bookingData]);
 
-                // Don't proceed if the email is missing (e.g., guest form not filled)
-                if (!finalBookingData.contactInfo.email) {
-                    setLoading(false);
-                    return;
+
+    // ✅ FIX 2: useEffect for PAYMENT LOGIC (reacts to data)
+    // This hook waits for bookingData to exist, then handles the payment intent creation.
+    useEffect(() => {
+        // Exit if we don't have data, auth is loading, or we already have a clientSecret.
+        if (!bookingData || authLoading || clientSecret) {
+            return;
+        }
+        
+        const isReadyToPay = isAuthenticated || isGuestInfoSubmitted;
+
+        if (isReadyToPay) {
+            setLoading(true);
+
+            const finalBookingData = {
+                ...bookingData,
+                user: isAuthenticated ? user._id : null,
+                guestName: !isAuthenticated ? guestName : `${user.firstName} ${user.lastName}`,
+                guestEmail: !isAuthenticated ? guestEmail : user.email,
+                contactInfo: {
+                    firstName: isAuthenticated ? user.firstName : guestName.split(' ')[0] || '',
+                    lastName: isAuthenticated ? user.lastName : guestName.split(' ').slice(1).join(' ') || '',
+                    email: isAuthenticated ? user.email : guestEmail,
                 }
-                
-                setBookingData(finalBookingData);
-                setLoading(true);
-
-                console.log('=== DEBUGGING PAYMENT DATA ===');
-console.log('isAuthenticated:', isAuthenticated);
-console.log('user object:', user);
-console.log('user._id:', user?._id);
-console.log('finalBookingData.user:', finalBookingData.user);
-console.log('Full finalBookingData:', finalBookingData);
-// --- START: MODIFIED FETCH CALL ---
+            };
+            
+            // This API call is now safe from the race condition.
             fetch('http://localhost:5000/api/payments/create-payment-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // THE FIX: Send the entire object under the "bookingData" key
-                body: JSON.stringify({
-                    bookingData: finalBookingData 
-                }),
+                body: JSON.stringify({ bookingData: finalBookingData }),
             })
             .then(res => {
-                if (!res.ok) {
-                    // This helps in debugging by showing the error from the backend
-                    return res.json().then(err => { throw new Error(err.error || 'Failed to create payment intent.') });
-                }
+                if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Failed to create payment intent.') });
                 return res.json();
             })
             .then(data => {
@@ -100,21 +111,13 @@ console.log('Full finalBookingData:', finalBookingData);
             })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-            // --- END: MODIFIED FETCH CALL ---
-
-            } else {
-                // User is not authenticated and hasn't submitted guest info yet
-                setBookingData(parsedData);
-                setLoading(false);
-            }
-        } catch (e) {
-            setError('Invalid booking data.');
+        } else {
+            // If the page is just waiting for user input (e.g., guest login choice), stop the main loader.
             setLoading(false);
         }
-    // CHANGE 3: Update dependency array
-    }, [searchParams, isAuthenticated, user, isGuestInfoSubmitted, guestName, guestEmail, authLoading]);
-    
-    const handleGuestSubmit = (e: React.FormEvent) => {
+    }, [bookingData, isAuthenticated, user, isGuestInfoSubmitted, guestName, guestEmail, authLoading, clientSecret]);
+
+const handleGuestSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if(guestName && guestEmail) {
             setIsGuestInfoSubmitted(true);

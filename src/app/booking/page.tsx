@@ -78,7 +78,8 @@ export default function BookingPage() {
       discountedPrice: activity?.discountedPrice,
       pricingType: activity?.pricingType
     };
-    
+    console.log("--- 1. [Booking Page] Creating Initial Booking Data ---");
+  console.log(JSON.stringify(bookingData, null, 2));
     const queryParam = encodeURIComponent(JSON.stringify(bookingData));
     router.push(`/payment?booking=${queryParam}&type=activity`);
   };

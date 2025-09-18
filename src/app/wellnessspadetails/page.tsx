@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./wellnessspadetails.module.css";
+import { useAuth } from "../contexts/AuthContext"; // 1. Import the useAuth hook
 
-// Simplified interfaces
+// Simplified interfaces (no changes needed here)
 interface Image { url: string; isMain?: boolean; }
 interface TimeSlot { startTime: string; endTime: string; _id?: string; }
 interface AvailableSlot { date: string; timeSlots: TimeSlot[]; _id?: string; }
@@ -67,6 +68,7 @@ function safeDecode(str: string): string {
 }
 
 // Calendar Component for Service Booking
+// ... (The ServiceCalendar component remains unchanged)
 interface ServiceCalendarProps {
   availableSlots: AvailableSlot[];
   selectedDate: string | null;
@@ -378,9 +380,12 @@ const ServiceCalendar: React.FC<ServiceCalendarProps> = ({ availableSlots, selec
   );
 };
 
+
 export default function WellnessSpaDetailsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth(); // 2. Use the auth hook
+  
   const [item, setItem] = useState<SpaItem | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("all");
@@ -396,7 +401,9 @@ export default function WellnessSpaDetailsPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
 
-  // Generate available slots from weekly availability - updated to show ongoing weekly schedule
+  // ... (generateAvailableSlots, fetchHostEmail, useEffects for data fetching and modal keypress remain unchanged)
+  
+    // Generate available slots from weekly availability - updated to show ongoing weekly schedule
   const generateAvailableSlots = (weeklyAvailability?: WeeklyDay[], dateExceptions?: DateException[], customClosures?: CustomClosure[]) => {
     if (!weeklyAvailability || weeklyAvailability.length === 0) return [];
     
@@ -528,8 +535,10 @@ export default function WellnessSpaDetailsPage() {
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [modalImage, currentModalIndex, modalImages]);
 
-  if (loading) return <div className={styles.container}>Loading wellness spa details...</div>;
 
+  // 3. Add a loading state for authentication
+  if (authLoading) return <div className={styles.container}>Loading your session...</div>;
+  if (loading) return <div className={styles.container}>Loading wellness spa details...</div>;
   if (error) {
     return (
       <div className={styles.container}>
@@ -543,13 +552,12 @@ export default function WellnessSpaDetailsPage() {
 
   if (!item) return <div className={styles.container}>No spa details found</div>;
 
-  // Filter services based on category and availability
+  // ... (filteredServices, categories, availabilityCounts, and formatting functions remain unchanged)
+
   const filteredServices = item.servicesOffered.filter(service => {
-    // Category filter
     const categoryMatch = selectedTab === "all" || 
       service.category.toLowerCase() === selectedTab.toLowerCase();
     
-    // Availability filter
     let availabilityMatch = true;
     if (selectedAvailabilityFilter !== "all") {
       const hasSlots = service.availableSlots && service.availableSlots.length > 0;
@@ -559,20 +567,17 @@ export default function WellnessSpaDetailsPage() {
     return categoryMatch && availabilityMatch;
   });
 
-  // Get unique categories for service tabs
   const categories = [
     "all",
     ...new Set(item.servicesOffered.map((service) => service.category.toLowerCase())),
   ];
 
-  // Get availability counts
   const availabilityCounts = {
     all: item.servicesOffered.length,
     available: item.servicesOffered.filter(s => s.availableSlots && s.availableSlots.length > 0).length,
     unavailable: item.servicesOffered.filter(s => !s.availableSlots || s.availableSlots.length === 0).length
   };
 
-  // Check if spa is currently open
   const getCurrentDayHours = () => {
     const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     return item.openingHours.find(hours => hours.day === currentDay);
@@ -580,7 +585,6 @@ export default function WellnessSpaDetailsPage() {
 
   const todayHours = getCurrentDayHours();
 
-  // Format date for TCI timezone
   const formatDate = (dateInput: string | Date) => {
     let dateString: string;
     
@@ -610,7 +614,6 @@ export default function WellnessSpaDetailsPage() {
     } else if (typeof dateInput === 'string') {
       dateString = dateInput;
     } else if (dateInput && typeof dateInput === 'object' && '$date' in dateInput) {
-      // Handle MongoDB date format
       dateString = dateInput.$date;
     } else {
       return 'Invalid Date';
@@ -636,7 +639,6 @@ export default function WellnessSpaDetailsPage() {
     });
   };
 
-  // Modal functions
   const openImageModal = (imageUrl: string, allImages: string[] = []) => {
     setModalImage(imageUrl);
     setModalImages(allImages.length > 0 ? allImages : [imageUrl]);
@@ -663,7 +665,6 @@ export default function WellnessSpaDetailsPage() {
     setModalImage(modalImages[newIndex]);
   };
 
-  // Booking functions
   const handleInquireNow = (program: WellnessProgram) => {
     const subject = `Inquiry about ${program.title} at ${item.name}`;
     const body = `Hello,\n\nI'm interested in the ${program.title} wellness program at ${item.name} (${program.durationDays} days, $${program.price}).\n\nCould you please provide me with more information?\n\nThank you.`;
@@ -689,46 +690,63 @@ export default function WellnessSpaDetailsPage() {
 
 const handleProceedToPayment = () => {
   if (!bookingDetails || !item) return;
-  
-  // Create a simplified booking object without problematic nested data
-  const simplifiedBookingInfo = {
-    spaId: item._id,
-    spaName: item.name,
-    serviceId: bookingDetails.serviceId,
-    serviceName: bookingDetails.serviceName,
+
+  const serviceDetails = item.servicesOffered.find(s => s._id === bookingDetails.serviceId);
+  if (!serviceDetails) {
+    console.error("Selected service not found.");
+    return;
+  }
+
+  const bookingData = {
+    // ✅ --- THE CRUCIAL MISSING LINE ---
+    // This tells the backend to use the "Spa" booking logic.
+    serviceType: 'Spa',
+
+    // All other required fields for the backend
+    user: user ? user._id : null,
     date: bookingDetails.date,
-    timeSlot: {
-      startTime: bookingDetails.timeSlot.startTime,
-      endTime: bookingDetails.timeSlot.endTime
-    },
+    timeSlot: bookingDetails.timeSlot,
+    totalPrice: bookingDetails.discountedPrice ?? bookingDetails.price,
+    numPeople: 1,
+time: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}`,
+
+    // Fields to match the schema for a 'spa' booking
+    service: bookingDetails.serviceId,
+    serviceName: bookingDetails.serviceName,
+    spa: item._id,
+    spaName: item.name,
+    
+    // The service's own category (e.g., "Facial", "Massage")
+    category: serviceDetails.category, 
+    
+    // Other useful details
     price: bookingDetails.price,
     discountedPrice: bookingDetails.discountedPrice,
+    duration: serviceDetails.duration,
     location: item.location,
     island: item.island,
-    spaType: item.spaType,
-    duration: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.duration || 60,
-    category: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.category || 'Wellness',
-    description: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.description || '',
-    // Simplify images to just URLs
-    images: item.servicesOffered.find(s => s._id === bookingDetails.serviceId)?.images?.map(img => img.url) || [],
+    description: serviceDetails.description || '',
+    images: serviceDetails.images?.map(img => img.url) || [],
     cancellationPolicy: item.cancellationPolicy,
-    paymentOptions: item.paymentOptions
   };
-  
+
   try {
-    // Double-encode to handle special characters properly
-    const bookingInfo = encodeURIComponent(JSON.stringify(simplifiedBookingInfo));
-router.push(`/wellnesspayment?booking=${bookingInfo}&type=spa`);
+    // Store the complete object in sessionStorage
+    sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+    
+    // Navigate to the payment page with a clean URL
+    router.push('/payment?type=spa&useSession=true');
   } catch (error) {
-    console.error('Error encoding booking data:', error);
-    // Fallback: use sessionStorage
-    sessionStorage.setItem('pendingBooking', JSON.stringify(simplifiedBookingInfo));
-    router.push('/wellnesspayment?type=spa&useSession=true');
+    console.error('Error preparing booking data for session storage:', error);
+    alert('An unexpected error occurred while preparing your booking. Please try again.');
   }
 };
 
+
   return (
     <div className={styles.container}>
+      {/* The rest of the JSX remains unchanged */}
+      {/* ... */}
       <button onClick={() => router.back()} className={styles.backButton}>
         Back
       </button>

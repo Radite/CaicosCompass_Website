@@ -1,12 +1,14 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { FaWifi, FaSwimmingPool, FaUmbrellaBeach, FaUtensils, FaCar, FaTv, FaSnowflake } from 'react-icons/fa';
 import { GiBarbecue } from 'react-icons/gi';
 import { MdPets, MdSelfImprovement, MdKitchen, MdLocalLaundryService, MdWork } from 'react-icons/md';
 import { IoMdTime } from 'react-icons/io';
 import styles from './staydetails.module.css';
+import { useAuth } from '../contexts/AuthContext'; // Import auth context
 
 interface Stay {
   _id: string;
@@ -80,7 +82,10 @@ interface Stay {
 
 export default function StayDetails() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth(); // Get auth state
   const id = searchParams.get('id');
+  
   const [stay, setStay] = useState<Stay | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -209,7 +214,19 @@ export default function StayDetails() {
     const diffTime = Math.abs(selectedDates.checkOut.getTime() - selectedDates.checkIn.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    return stay.pricePerNight * diffDays;
+    // Base price for nights
+    const nightsTotal = stay.pricePerNight * diffDays;
+    // Add cleaning fee and service fee
+    const cleaningFee = 100;
+    const serviceFee = 50;
+    
+    return nightsTotal + cleaningFee + serviceFee;
+  };
+
+  const calculateNights = () => {
+    if (!selectedDates.checkIn || !selectedDates.checkOut) return 0;
+    const diffTime = Math.abs(selectedDates.checkOut.getTime() - selectedDates.checkIn.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
   const getAvailableAmenities = () => {
@@ -224,6 +241,107 @@ export default function StayDetails() {
     if (!date) return '';
     return date.toISOString().split('T')[0];
   };
+
+  // Handle Reserve button click
+// Enhanced handleReserve function with debugging
+const handleReserve = () => {
+  console.log('=== RESERVE BUTTON CLICKED ===');
+  
+  // Validation
+  if (!selectedDates.checkIn || !selectedDates.checkOut) {
+    alert('Please select both check-in and check-out dates.');
+    return;
+  }
+
+  if (selectedDates.checkIn >= selectedDates.checkOut) {
+    alert('Check-out date must be after check-in date.');
+    return;
+  }
+
+  if (!stay) {
+    alert('Stay information not available.');
+    return;
+  }
+
+  console.log('All validations passed');
+  console.log('User:', user);
+  console.log('Stay:', stay._id);
+  console.log('Selected dates:', selectedDates);
+  console.log('Guest count:', guestCount);
+
+  // Create booking data for stay
+  const bookingData = {
+    // Essential info for the booking record
+    serviceType: 'Stay',
+    category: 'stay', // Add this - your backend expects this field
+    stay: stay._id,
+    user: user ? user._id : null,
+    guestName: user ? `${user.firstName} ${user.lastName}` : null,
+    guestEmail: user ? user.email : null,
+    startDate: selectedDates.checkIn.toISOString().split('T')[0],
+    endDate: selectedDates.checkOut.toISOString().split('T')[0],
+    numOfPeople: guestCount,
+    totalPrice: calculateTotalPrice(),
+
+    // Display info for the payment page
+    stayName: stay.name,
+    pricePerNight: stay.pricePerNight,
+    nights: calculateNights(),
+    cleaningFee: 100,
+    serviceFee: 50,
+    mainImage: stay.images?.[0]?.url || stay.stayImages?.[0] || '',
+    location: stay.location,
+    island: stay.island,
+    
+    // Contact info if user is logged in
+    contactInfo: user ? {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone || ''
+    } : {}
+  };
+
+  console.log('Booking data created:', bookingData);
+  console.log('Booking data size:', JSON.stringify(bookingData).length, 'characters');
+
+  try {
+    // Clear any existing booking data first
+    sessionStorage.removeItem('pendingBooking');
+    console.log('Cleared existing sessionStorage data');
+    
+    // Store the booking data in sessionStorage
+    const bookingDataString = JSON.stringify(bookingData);
+    sessionStorage.setItem('pendingBooking', bookingDataString);
+    console.log('Data stored in sessionStorage');
+    
+    // Verify it was stored correctly
+    const retrievedData = sessionStorage.getItem('pendingBooking');
+    console.log('Data retrieved from sessionStorage:', retrievedData ? 'SUCCESS' : 'FAILED');
+    
+    if (retrievedData) {
+      const parsedData = JSON.parse(retrievedData);
+      console.log('Parsed data matches:', JSON.stringify(parsedData) === JSON.stringify(bookingData));
+    }
+    
+    console.log('Navigating to payment page...');
+    
+    // Navigate to payment page
+    router.push('/stay-checkout');
+  } catch (error) {
+    console.error('Error in handleReserve:', error);
+    alert('An error occurred while preparing your booking. Please try again.');
+  }
+};
+
+  // Show loading while auth is being determined
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className={`animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 ${styles.loadingSpinner}`}></div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -387,6 +505,7 @@ export default function StayDetails() {
                       ...selectedDates,
                       checkIn: e.target.value ? new Date(e.target.value) : null
                     })}
+                    min={new Date().toISOString().split('T')[0]} // Prevent past dates
                   />
                 </div>
                 <div className={styles.datePickerCell}>
@@ -399,6 +518,9 @@ export default function StayDetails() {
                       ...selectedDates,
                       checkOut: e.target.value ? new Date(e.target.value) : null
                     })}
+                    min={selectedDates.checkIn ? 
+                      new Date(selectedDates.checkIn.getTime() + 86400000).toISOString().split('T')[0] : 
+                      new Date().toISOString().split('T')[0]} // At least 1 day after check-in
                   />
                 </div>
               </div>
@@ -418,17 +540,25 @@ export default function StayDetails() {
               </div>
             </div>
 
-            <button className={styles.reserveButton}>
-              Reserve
+            <button 
+              className={styles.reserveButton}
+              onClick={handleReserve}
+              disabled={!selectedDates.checkIn || !selectedDates.checkOut}
+              style={{ 
+                opacity: (!selectedDates.checkIn || !selectedDates.checkOut) ? 0.6 : 1,
+                cursor: (!selectedDates.checkIn || !selectedDates.checkOut) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {(!selectedDates.checkIn || !selectedDates.checkOut) ? 'Select Dates' : 'Reserve'}
             </button>
 
             {selectedDates.checkIn && selectedDates.checkOut && (
               <div className={styles.priceBreakdown}>
                 <div className={styles.priceRow}>
                   <span className={styles.priceLink}>
-                    ${stay.pricePerNight} x {Math.ceil(Math.abs((selectedDates.checkOut.getTime() - selectedDates.checkIn.getTime()) / (1000 * 60 * 60 * 24)))} nights
+                    ${stay.pricePerNight} x {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
                   </span>
-                  <span>${calculateTotalPrice()}</span>
+                  <span>${stay.pricePerNight * calculateNights()}</span>
                 </div>
                 <div className={styles.priceRow}>
                   <span className={styles.priceLink}>Cleaning fee</span>
@@ -441,7 +571,7 @@ export default function StayDetails() {
                 <div className={styles.priceDivider}></div>
                 <div className={styles.totalRow}>
                   <span>Total</span>
-                  <span>${calculateTotalPrice() + 150}</span>
+                  <span>${calculateTotalPrice()}</span>
                 </div>
               </div>
             )}
