@@ -1,0 +1,414 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+  color: white;
+  padding: 5rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.content {
+  max-width: 1000px;
+  margin: -2rem auto 0;
+  padding: 0 2rem;
+}
+
+.stepsSection {
+  margin-bottom: 3rem;
+}
+
+.step {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.stepIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #b3e5fc 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0275d8;
+  flex-shrink: 0;
+}
+
+.stepContent h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.stepContent p {
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.stepContent ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.stepContent li {
+  margin-bottom: 0.75rem;
+  color: #555;
+}
+
+.tipBox {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.tipBox svg {
+  flex-shrink: 0;
+  color: #856404;
+  margin-top: 0.25rem;
+}
+
+.tipBox p {
+  margin: 0;
+  color: #856404;
+  line-height: 1.6;
+}
+
+.securityBox {
+  background: #d4edda;
+  border-left: 4px solid #28a745;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.securityBox svg {
+  flex-shrink: 0;
+  color: #155724;
+  margin-top: 0.25rem;
+}
+
+.securityBox strong {
+  display: block;
+  color: #155724;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.securityBox p {
+  margin: 0;
+  color: #155724;
+  line-height: 1.6;
+}
+
+.section {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #2c3e50;
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.benefitCard {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.benefitIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.benefitCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.benefitCard p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.featureBox {
+  display: flex;
+  align-items: start;
+  gap: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.featureIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.featureContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.featureContent p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.featureButton {
+  display: inline-block;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.featureButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faqItem {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-left: 4px solid #0275d8;
+  border-radius: 8px;
+}
+
+.faqItem h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.faqItem p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ctaSection {
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  padding: 4rem 3rem;
+  margin-top: 3rem;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+}
+
+.ctaSection h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.ctaSection p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-block;
+  padding: 1rem 3rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.primaryButton {
+  background: white;
+  color: #0275d8;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
+}
+
+.secondaryButton {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 992px) {
+  .step {
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+  }
+
+  .stepIcon {
+    grid-column: 1 / -1;
+    margin: 0 auto;
+  }
+
+  .stepContent {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .section {
+    padding: 2rem 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .step {
+    padding: 2rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .stepNumber {
+    margin: 0 auto;
+  }
+
+  .stepContent h2 {
+    font-size: 1.6rem;
+  }
+
+  .featureBox {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

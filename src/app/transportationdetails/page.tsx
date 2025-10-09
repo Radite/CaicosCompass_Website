@@ -1,211 +1,140 @@
+// Updated Transportation Details Page - Car Rental Style
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import axios from "axios";
 import styles from "./transportationdetails.module.css";
-import { FaArrowLeft, FaCar, FaCalendarAlt, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import { 
+  FaArrowLeft, 
+  FaCar, 
+  FaCalendarAlt, 
+  FaMapMarkerAlt, 
+  FaMoneyBillWave,
+  FaStar,
+  FaPhone,
+  FaEnvelope,
+  FaGlobe,
+  FaClock,
+  FaUsers,
+  FaShieldAlt,
+  FaTags,
+  FaRoute,
+  FaGift,
+  FaGasPump,
+  FaCog,
+  FaSnowflake,
+  FaWifi,
+  FaBluetooth,
+  FaCheck,
+  FaInfoCircle
+} from "react-icons/fa";
 
-interface Location {
-  locationName: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-}
-
-interface RentalDetails {
-  make?: string;
-  model?: string;
-  year?: number;
-  fuelType?: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
-  transmission?: 'Automatic' | 'Manual';
-  dailyMileageLimit?: number;
-  excessMileageCharge?: number;
-}
-
-interface TransportationItem {
-  _id: string;
-  category: string;
-  pricingModel: string;
-  basePrice: number;
-  flatPrice?: number;
-  perMilePrice?: number;
-  perHourPrice?: number;
-  perDayPrice?: number;
-  capacity?: number;
-  amenities?: string[];
-  locationsServed?: Location[];
-  rentalDetails?: RentalDetails;
-  contactDetails: {
-    phone: string;
-    email?: string;
-    website?: string;
-  };
-  longTermDiscounts?: Array<{
-    duration: 'weekly' | 'monthly';
-    discountPercentage: number;
-  }>;
-}
+// ... (keep all the existing interfaces but focus on Fleet interface)
 
 export default function TransportationDetailsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [item, setItem] = useState<TransportationItem | null>(null);
+  const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   
   // Booking state
-  const [pickupLocation, setPickupLocation] = useState<string>('');
-  const [dropoffLocation, setDropoffLocation] = useState<string>('');
-  const [pickupDateTime, setPickupDateTime] = useState<string>('');
-  const [dropoffDateTime, setDropoffDateTime] = useState<string>('');
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [rentalDuration, setRentalDuration] = useState<number>(0);
-  const [durationDays, setDurationDays] = useState<number>(0);
-  const [durationHours, setDurationHours] = useState<number>(0);
-  const [distance, setDistance] = useState<number>(0);
-  const [discountApplied, setDiscountApplied] = useState<string>('');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [dropoffLocation, setDropoffLocation] = useState('');
+  const [pickupDateTime, setPickupDateTime] = useState('');
+  const [dropoffDateTime, setDropoffDateTime] = useState('');
+  const [selectedExtras, setSelectedExtras] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [rentalDays, setRentalDays] = useState(1);
+
+  // Vehicle categories for filtering
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const vehicleCategories = ['All', 'Economy', 'Compact', 'Mid-size', 'Full-size', 'Premium', 'Luxury', 'SUV', '4x4'];
 
   useEffect(() => {
-    const itemParam = searchParams.get("item");
-    if (itemParam) {
-      try {
-        const parsed: TransportationItem = JSON.parse(decodeURIComponent(itemParam));
-        setItem(parsed);
-        // Set default start date as today
-        const today = new Date();
-        const formattedDate = today.toISOString().slice(0, 16);
-        setPickupDateTime(formattedDate);
-        
-        // Set default return date as tomorrow for rentals
-        if (parsed.category.includes('Rental')) {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          setDropoffDateTime(tomorrow.toISOString().slice(0, 16));
-        }
-      } catch (error) {
-        console.error("Error parsing transportation item:", error);
-      } finally {
-        setLoading(false);
-      }
+    const itemId = searchParams.get("id");
+    if (itemId) {
+      fetchTransportationDetails(itemId);
     }
   }, [searchParams]);
 
-  // For ground transport with per-mile pricing, simulate distance calculation
-  const calculateDistance = (pickup: string, dropoff: string) => {
-    // This would ideally use a maps API, but for demo we'll use a simple simulation
-    const locations = {
-      "Airport": { lat: 22.3, lng: 114.2 },
-      "Downtown": { lat: 22.28, lng: 114.17 },
-      "Hotel Zone": { lat: 22.29, lng: 114.19 },
-      "Beach Area": { lat: 22.27, lng: 114.21 },
-      "Shopping District": { lat: 22.31, lng: 114.18 }
-    };
-    
-    // Calculate simulated distance if we have both locations
-    if (pickup in locations && dropoff in locations) {
-      const p = locations[pickup as keyof typeof locations];
-      const d = locations[dropoff as keyof typeof locations];
+  const fetchTransportationDetails = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/services/type/transportations/${id}`);
+      setItem(response.data);
       
-      // Simple Euclidean distance * 100 to get realistic km values
-      const dist = Math.sqrt(
-        Math.pow(p.lat - d.lat, 2) + Math.pow(p.lng - d.lng, 2)
-      ) * 100;
+      // Set default dates
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
       
-      return parseFloat(dist.toFixed(1));
+      setPickupDateTime(now.toISOString().slice(0, 16));
+      setDropoffDateTime(tomorrow.toISOString().slice(0, 16));
+      
+      // Auto-select first available vehicle
+      if (response.data.fleet?.length > 0) {
+        const available = response.data.fleet.find(v => v.status === 'available');
+        if (available) setSelectedVehicle(available);
+      }
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setLoading(false);
     }
-    
-    return 10; // Default distance if locations don't match our predefined set
+  };
+
+  const calculateRentalDays = () => {
+    if (pickupDateTime && dropoffDateTime) {
+      const pickup = new Date(pickupDateTime);
+      const dropoff = new Date(dropoffDateTime);
+      const diffTime = Math.abs(dropoff - pickup);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setRentalDays(Math.max(1, diffDays));
+      return Math.max(1, diffDays);
+    }
+    return 1;
   };
 
   useEffect(() => {
-    // Calculate rental duration and total price when dates change
-    if (pickupDateTime && dropoffDateTime && item) {
-      const pickup = new Date(pickupDateTime);
-      const dropoff = new Date(dropoffDateTime);
-      
-      if (dropoff <= pickup) {
-        return; // Invalid date range
-      }
-      
-      // Calculate duration
-      const durationMs = dropoff.getTime() - pickup.getTime();
-      const hours = durationMs / (1000 * 60 * 60);
-      const days = hours / 24;
-
-      setDurationHours(Math.ceil(hours));
-      setDurationDays(Math.ceil(days));
-      setRentalDuration(hours);
-
-      // Calculate distance for per-mile pricing models
-      if (pickupLocation && dropoffLocation && 
-          (item.pricingModel === 'per-mile' || item.category === 'Taxi' || 
-           item.category === 'Airport Transfer' || item.category === 'Private VIP Transport')) {
-        const dist = calculateDistance(pickupLocation, dropoffLocation);
-        setDistance(dist);
-      }
-
-      // Calculate price based on transportation category and pricing model
-      calculateTotalPrice(item, days, hours);
+    const days = calculateRentalDays();
+    if (selectedVehicle) {
+      const basePrice = (selectedVehicle.priceOverride || item?.perDayPrice || item?.basePrice || 0) * days;
+      const extrasTotal = selectedExtras.reduce((sum, extra) => sum + (extra.price * (extra.perDay ? days : 1)), 0);
+      setTotalPrice(basePrice + extrasTotal);
     }
-  }, [item, pickupDateTime, dropoffDateTime, pickupLocation, dropoffLocation]);
+  }, [selectedVehicle, pickupDateTime, dropoffDateTime, selectedExtras, item]);
 
-  const calculateTotalPrice = (item: TransportationItem, days: number, hours: number) => {
-    let calculatedPrice = 0;
-    let appliedDiscount = '';
-
-    switch(item.pricingModel) {
-      case 'per-day':
-        // For car, jeep, scooter rentals
-        calculatedPrice = (item.perDayPrice || item.basePrice) * Math.ceil(days);
-        
-        // Apply long-term discounts
-        if (item.longTermDiscounts) {
-          const weeklyDiscount = item.longTermDiscounts.find(d => d.duration === 'weekly');
-          const monthlyDiscount = item.longTermDiscounts.find(d => d.duration === 'monthly');
-          
-          if (days >= 30 && monthlyDiscount) {
-            calculatedPrice *= (1 - monthlyDiscount.discountPercentage / 100);
-            appliedDiscount = `${monthlyDiscount.discountPercentage}% monthly discount`;
-          } else if (days >= 7 && weeklyDiscount) {
-            calculatedPrice *= (1 - weeklyDiscount.discountPercentage / 100);
-            appliedDiscount = `${weeklyDiscount.discountPercentage}% weekly discount`;
-          }
-        }
-        break;
-      
-      case 'per-hour':
-        // For hourly services
-        calculatedPrice = (item.perHourPrice || item.basePrice) * Math.ceil(hours);
-        break;
-      
-      case 'per-mile':
-        // For distance-based pricing like taxis
-        if (distance > 0 && item.perMilePrice) {
-          calculatedPrice = item.basePrice + (item.perMilePrice * distance);
-        } else {
-          calculatedPrice = item.basePrice;
-        }
-        break;
-      
-      case 'flat':
-      case 'per-trip':
-        // For fixed-price transfers and services
-        calculatedPrice = item.flatPrice || item.basePrice;
-        break;
-      
-      default:
-        calculatedPrice = item.basePrice;
+  const getVehicleImage = (vehicle) => {
+    if (vehicle.images?.length > 0) {
+      return vehicle.images.find(img => img.isMain)?.url || vehicle.images[0].url;
     }
-
-    setTotalPrice(calculatedPrice);
-    setDiscountApplied(appliedDiscount);
+    return `/images/vehicles/${vehicle.category.toLowerCase()}-default.jpg`;
   };
+
+  const getAmenityIcon = (amenity) => {
+    const iconMap = {
+      'air conditioning': FaSnowflake,
+      'bluetooth': FaBluetooth,
+      'wifi': FaWifi,
+      'automatic': FaCog,
+      'gps': FaRoute,
+      'usb': FaBluetooth
+    };
+    return iconMap[amenity.toLowerCase()] || FaCheck;
+  };
+
+  const filteredVehicles = item?.fleet?.filter(vehicle => 
+    (selectedCategory === 'All' || vehicle.category === selectedCategory) &&
+    vehicle.status === 'available'
+  ) || [];
 
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loadingSpinner}>
-          <div></div><div></div><div></div><div></div>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading available vehicles...</p>
         </div>
       </div>
     );
@@ -215,7 +144,7 @@ export default function TransportationDetailsPage() {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>
-          <h2>Transportation details not found</h2>
+          <h2>Rental service not found</h2>
           <button onClick={() => router.back()} className={styles.backButton}>
             <FaArrowLeft /> Go Back
           </button>
@@ -224,395 +153,263 @@ export default function TransportationDetailsPage() {
     );
   }
 
-  const isRental = ['Car Rental', 'Jeep & 4x4 Rental', 'Scooter & Moped Rental'].includes(item.category);
-  const isTransfer = ['Taxi', 'Airport Transfer', 'Private VIP Transport'].includes(item.category);
-
-  const renderBookingForm = () => {
-    if (isRental) {
-      return (
-        <div className={styles.bookingSection}>
-          <h2 className={styles.sectionTitle}>Rental Booking</h2>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              <FaMapMarkerAlt /> Pickup Location
-            </label>
-            <select 
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-              className={styles.formSelect}
-            >
-              <option value="">Select Pickup Location</option>
-              {item.locationsServed?.map((loc, index) => (
-                <option key={index} value={loc.locationName}>
-                  {loc.locationName}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              <FaMapMarkerAlt /> Return Location
-            </label>
-            <select 
-              value={dropoffLocation}
-              onChange={(e) => setDropoffLocation(e.target.value)}
-              className={styles.formSelect}
-            >
-              <option value="">Select Return Location</option>
-              <option value={pickupLocation}>Same as pickup</option>
-              {item.locationsServed?.map((loc, index) => (
-                <option key={index} value={loc.locationName}>
-                  {loc.locationName}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className={styles.dateTimeContainer}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                <FaCalendarAlt /> Pickup Date & Time
-              </label>
-              <input 
-                type="datetime-local" 
-                value={pickupDateTime}
-                onChange={(e) => setPickupDateTime(e.target.value)}
-                className={styles.formInput}
-                min={new Date().toISOString().slice(0, 16)}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                <FaCalendarAlt /> Return Date & Time
-              </label>
-              <input 
-                type="datetime-local" 
-                value={dropoffDateTime}
-                onChange={(e) => setDropoffDateTime(e.target.value)}
-                className={styles.formInput}
-                min={pickupDateTime} 
-              />
-            </div>
-          </div>
-          
-          {durationDays > 0 && (
-            <div className={styles.durationDisplay}>
-              <p>Rental Duration: {durationDays} {durationDays === 1 ? 'day' : 'days'}</p>
-            </div>
-          )}
-        </div>
-      );
-    } else if (isTransfer) {
-      return (
-        <div className={styles.bookingSection}>
-          <h2 className={styles.sectionTitle}>Transport Booking</h2>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              <FaMapMarkerAlt /> Pickup Location
-            </label>
-            <select
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-              className={styles.formSelect}
-            >
-              <option value="">Select Pickup Location</option>
-              <option value="Airport">Airport</option>
-              <option value="Downtown">Downtown</option>
-              <option value="Hotel Zone">Hotel Zone</option>
-              <option value="Beach Area">Beach Area</option>
-              <option value="Shopping District">Shopping District</option>
-            </select>
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              <FaMapMarkerAlt /> Dropoff Location
-            </label>
-            <select
-              value={dropoffLocation}
-              onChange={(e) => setDropoffLocation(e.target.value)}
-              className={styles.formSelect}
-            >
-              <option value="">Select Dropoff Location</option>
-              <option value="Airport">Airport</option>
-              <option value="Downtown">Downtown</option>
-              <option value="Hotel Zone">Hotel Zone</option>
-              <option value="Beach Area">Beach Area</option>
-              <option value="Shopping District">Shopping District</option>
-            </select>
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              <FaCalendarAlt /> Pickup Date & Time
-            </label>
-            <input 
-              type="datetime-local" 
-              value={pickupDateTime}
-              onChange={(e) => setPickupDateTime(e.target.value)}
-              className={styles.formInput}
-              min={new Date().toISOString().slice(0, 16)}
-            />
-          </div>
-          
-          {distance > 0 && (
-            <div className={styles.distanceDisplay}>
-              <p>Estimated Distance: {distance} km</p>
-            </div>
-          )}
-        </div>
-      );
-    } else {
-      // For other transportation types (ferry, flight)
-      return (
-        <div className={styles.bookingSection}>
-          <h2 className={styles.sectionTitle}>Booking</h2>
-          <p className={styles.noticeText}>
-            Please contact us directly to book this type of transportation.
-          </p>
-          <div className={styles.contactInfo}>
-            <p>Phone: {item.contactDetails.phone}</p>
-            {item.contactDetails.email && <p>Email: {item.contactDetails.email}</p>}
-          </div>
-        </div>
-      );
-    }
-  };
-
-  const renderPricingDetails = () => {
-    return (
-      <div className={styles.pricingCard}>
-        <h2 className={styles.sectionTitle}>
-          <FaMoneyBillWave /> Pricing Details
-        </h2>
-        
-        <div className={styles.priceDetails}>
-          {item.pricingModel === 'per-day' && (
-            <div className={styles.priceRow}>
-              <span>Daily Rate:</span>
-              <span>${item.perDayPrice || item.basePrice}</span>
-            </div>
-          )}
-          
-          {item.pricingModel === 'per-hour' && (
-            <div className={styles.priceRow}>
-              <span>Hourly Rate:</span>
-              <span>${item.perHourPrice || item.basePrice}</span>
-            </div>
-          )}
-          
-          {item.pricingModel === 'per-mile' && (
-            <>
-              <div className={styles.priceRow}>
-                <span>Base Fare:</span>
-                <span>${item.basePrice}</span>
-              </div>
-              <div className={styles.priceRow}>
-                <span>Per Kilometer:</span>
-                <span>${item.perMilePrice}</span>
-              </div>
-            </>
-          )}
-          
-          {item.pricingModel === 'flat' && (
-            <div className={styles.priceRow}>
-              <span>Flat Rate:</span>
-              <span>${item.flatPrice || item.basePrice}</span>
-            </div>
-          )}
-          
-          {discountApplied && (
-            <div className={styles.discountRow}>
-              <span>Discount:</span>
-              <span>{discountApplied}</span>
-            </div>
-          )}
-          
-          <div className={styles.totalPriceRow}>
-            <span>Total Price:</span>
-            <span>${totalPrice.toFixed(2)}</span>
-          </div>
-        </div>
-        
-        <button className={styles.bookNowButton}>
-          Book Now
-        </button>
-      </div>
-    );
-  };
-
   return (
     <div className={styles.container}>
       <button onClick={() => router.back()} className={styles.backButton}>
-        <FaArrowLeft /> Back
+        <FaArrowLeft /> Back to Transportation
       </button>
 
-      <div className={styles.heroSection}>
-        <div className={styles.mainImageContainer}>
-          <img 
-            src={`/api/placeholder/800/400`} 
-            alt={item.category} 
-            className={styles.mainImage}
-          />
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.companyInfo}>
+          <h1 className={styles.companyName}>{item.vendor?.businessProfile?.businessName || item.vendor?.name}</h1>
+          <div className={styles.companyDetails}>
+            <div className={styles.rating}>
+              <FaStar /> {(item.performanceMetrics?.averageRating || 4.2).toFixed(1)}
+              <span>({item.performanceMetrics?.totalReviews || item.reviews?.length || 0} reviews)</span>
+            </div>
+            <div className={styles.location}>
+              <FaMapMarkerAlt /> {item.location}, {item.island}
+            </div>
+          </div>
         </div>
-        
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>{item.category}</h1>
-          <div className={styles.infoBox}>
-            {item.rentalDetails?.make && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Vehicle</span>
-                <span>{item.rentalDetails.make} {item.rentalDetails.model} {item.rentalDetails.year}</span>
+
+        {/* Rental Details Form */}
+        <div className={styles.rentalDetailsCard}>
+          <h3>Rental Details</h3>
+          <div className={styles.rentalForm}>
+            <div className={styles.locationRow}>
+              <div className={styles.formGroup}>
+                <label><FaMapMarkerAlt /> Pick-up Location</label>
+                <select value={pickupLocation} onChange={(e) => setPickupLocation(e.target.value)}>
+                  <option value="">Select location</option>
+                  {item.presetLocations?.map((loc, idx) => (
+                    <option key={idx} value={loc.name}>{loc.name}</option>
+                  ))}
+                </select>
               </div>
-            )}
-            
-            {item.capacity && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Capacity</span>
-                <span>{item.capacity} people</span>
+              <div className={styles.formGroup}>
+                <label><FaMapMarkerAlt /> Drop-off Location</label>
+                <select value={dropoffLocation} onChange={(e) => setDropoffLocation(e.target.value)}>
+                  <option value="">Select location</option>
+                  <option value={pickupLocation}>Same as pick-up</option>
+                  {item.presetLocations?.map((loc, idx) => (
+                    <option key={idx} value={loc.name}>{loc.name}</option>
+                  ))}
+                </select>
               </div>
-            )}
-            
-            {item.pricingModel === 'per-day' && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Daily Rate</span>
-                <span>${item.perDayPrice || item.basePrice}</span>
+            </div>
+
+            <div className={styles.dateRow}>
+              <div className={styles.formGroup}>
+                <label><FaCalendarAlt /> Pick-up Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  value={pickupDateTime}
+                  onChange={(e) => setPickupDateTime(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                />
               </div>
-            )}
-            
-            {item.pricingModel === 'flat' && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Flat Rate</span>
-                <span>${item.flatPrice || item.basePrice}</span>
+              <div className={styles.formGroup}>
+                <label><FaCalendarAlt /> Drop-off Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  value={dropoffDateTime}
+                  onChange={(e) => setDropoffDateTime(e.target.value)}
+                  min={pickupDateTime}
+                />
               </div>
-            )}
+            </div>
+
+            <div className={styles.rentalSummary}>
+              <span className={styles.rentalDays}>{rentalDays} day{rentalDays > 1 ? 's' : ''}</span>
+              {selectedVehicle && (
+                <span className={styles.totalPrice}>Total: ${totalPrice.toFixed(2)}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className={styles.contentWrapper}>
-        <div className={styles.mainContent}>
-          {renderBookingForm()}
-          
-          {item.rentalDetails && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <FaCar /> Vehicle Details
-              </h2>
-              <div className={styles.vehicleSpecs}>
-                {item.rentalDetails.make && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Make:</span>
-                    <span>{item.rentalDetails.make}</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.model && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Model:</span>
-                    <span>{item.rentalDetails.model}</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.year && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Year:</span>
-                    <span>{item.rentalDetails.year}</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.fuelType && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Fuel Type:</span>
-                    <span>{item.rentalDetails.fuelType}</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.transmission && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Transmission:</span>
-                    <span>{item.rentalDetails.transmission}</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.dailyMileageLimit && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Daily Mileage Limit:</span>
-                    <span>{item.rentalDetails.dailyMileageLimit} km</span>
-                  </div>
-                )}
-                
-                {item.rentalDetails.excessMileageCharge && (
-                  <div className={styles.specItem}>
-                    <span className={styles.specLabel}>Excess Mileage Charge:</span>
-                    <span>${item.rentalDetails.excessMileageCharge}/km</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {item.amenities && item.amenities.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Amenities</h2>
-              <div className={styles.amenitiesList}>
-                {item.amenities.map((amenity, index) => (
-                  <div key={index} className={styles.amenityTag}>{amenity}</div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {item.locationsServed && item.locationsServed.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Locations Served</h2>
-              <div className={styles.locationsList}>
-                {item.locationsServed.map((location, index) => (
-                  <div key={index} className={styles.locationItem}>
-                    {location.locationName}
-                  </div>
-                ))}
-              </div>
-              <div className={styles.mapContainer}>
-                <div className={styles.mapPlaceholder}>
-                  <div className={styles.mapOverlay}>Interactive Map Available</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <div className={styles.sidebarSection}>
-          {renderPricingDetails()}
-          
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Contact Details</h2>
-            <div className={styles.contactDetails}>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>Phone:</span>
-                <span className={styles.contactValue}>{item.contactDetails.phone}</span>
-              </div>
-              
-              {item.contactDetails.email && (
-                <div className={styles.contactItem}>
-                  <span className={styles.contactLabel}>Email:</span>
-                  <span className={styles.contactValue}>{item.contactDetails.email}</span>
-                </div>
-              )}
-              
-              {item.contactDetails.website && (
-                <div className={styles.contactItem}>
-                  <span className={styles.contactLabel}>Website:</span>
-                  <span className={styles.contactValue}>{item.contactDetails.website}</span>
-                </div>
-              )}
-            </div>
+      <div className={styles.mainContent}>
+        {/* Vehicle Categories Filter */}
+        <div className={styles.categoryFilter}>
+          <h3>Vehicle Categories</h3>
+          <div className={styles.categoryTabs}>
+            {vehicleCategories.map(category => (
+              <button
+                key={category}
+                className={`${styles.categoryTab} ${selectedCategory === category ? styles.active : ''}`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Vehicle Selection Grid */}
+        <div className={styles.vehicleGrid}>
+          {filteredVehicles.map((vehicle) => (
+            <div 
+              key={vehicle.vehicleId}
+              className={`${styles.vehicleCard} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
+            >
+              {/* Vehicle Image */}
+              <div className={styles.vehicleImageContainer}>
+                <img 
+                  src={getVehicleImage(vehicle)}
+                  alt={`${vehicle.make} ${vehicle.model}`}
+                  className={styles.vehicleImage}
+                  onError={(e) => {
+                    e.target.src = '/images/default-car.jpg';
+                  }}
+                />
+                <div className={styles.vehicleCategory}>{vehicle.category}</div>
+              </div>
+
+              {/* Vehicle Details */}
+              <div className={styles.vehicleDetails}>
+                <div className={styles.vehicleHeader}>
+                  <h3 className={styles.vehicleName}>
+                    {vehicle.make} {vehicle.model}
+                  </h3>
+                  <span className={styles.vehicleYear}>({vehicle.year})</span>
+                </div>
+
+                {/* Vehicle Specs */}
+                <div className={styles.vehicleSpecs}>
+                  <div className={styles.specItem}>
+                    <FaUsers /> {vehicle.capacity} passengers
+                  </div>
+                  <div className={styles.specItem}>
+                    <FaGasPump /> {vehicle.fuelType}
+                  </div>
+                  <div className={styles.specItem}>
+                    <FaCog /> {vehicle.transmission}
+                  </div>
+                </div>
+
+                {/* Vehicle Features */}
+                <div className={styles.vehicleFeatures}>
+                  {vehicle.amenities?.slice(0, 4).map((amenity, idx) => {
+                    const IconComponent = getAmenityIcon(amenity);
+                    return (
+                      <div key={idx} className={styles.featureItem}>
+                        <IconComponent className={styles.featureIcon} />
+                        <span>{amenity}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pricing */}
+                <div className={styles.vehiclePricing}>
+                  <div className={styles.dailyRate}>
+                    <span className={styles.priceLabel}>Per day</span>
+                    <span className={styles.price}>
+                      ${vehicle.priceOverride || item.perDayPrice || item.basePrice}
+                    </span>
+                  </div>
+                  <div className={styles.totalCost}>
+                    <span className={styles.totalLabel}>Total ({rentalDays} days)</span>
+                    <span className={styles.totalPrice}>
+                      ${((vehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Select Button */}
+                <button 
+                  className={`${styles.selectVehicleBtn} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
+                  onClick={() => setSelectedVehicle(vehicle)}
+                >
+                  {selectedVehicle?.vehicleId === vehicle.vehicleId ? 'Selected' : 'Select Vehicle'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Selected Vehicle Summary */}
+        {selectedVehicle && (
+          <div className={styles.selectedVehicleSummary}>
+            <h3>Selected Vehicle</h3>
+            <div className={styles.summaryCard}>
+              <img 
+                src={getVehicleImage(selectedVehicle)}
+                alt={`${selectedVehicle.make} ${selectedVehicle.model}`}
+                className={styles.summaryImage}
+              />
+              <div className={styles.summaryDetails}>
+                <h4>{selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})</h4>
+                <p>{selectedVehicle.category} • {selectedVehicle.capacity} passengers</p>
+                <div className={styles.summaryPricing}>
+                  <span>${selectedVehicle.priceOverride || item.perDayPrice || item.basePrice}/day × {rentalDays} days</span>
+                  <strong>${((selectedVehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Extras & Add-ons */}
+        {item.rentalDetails?.additionalServices && (
+          <div className={styles.extrasSection}>
+            <h3>Extras & Add-ons</h3>
+            <div className={styles.extrasGrid}>
+              {item.rentalDetails.additionalServices.map((extra, idx) => (
+                <label key={idx} className={styles.extraOption}>
+                  <input 
+                    type="checkbox"
+                    checked={selectedExtras.some(e => e.name === extra.name)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedExtras([...selectedExtras, extra]);
+                      } else {
+                        setSelectedExtras(selectedExtras.filter(e => e.name !== extra.name));
+                      }
+                    }}
+                  />
+                  <div className={styles.extraInfo}>
+                    <span className={styles.extraName}>{extra.name}</span>
+                    <span className={styles.extraPrice}>
+                      ${extra.price} {extra.perDay ? '/day' : ''}
+                    </span>
+                    <span className={styles.extraDescription}>{extra.description}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Booking Summary */}
+        {selectedVehicle && (
+          <div className={styles.bookingSummary}>
+            <h3>Booking Summary</h3>
+            <div className={styles.summaryBreakdown}>
+              <div className={styles.summaryRow}>
+                <span>Vehicle rental ({rentalDays} days)</span>
+                <span>${((selectedVehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}</span>
+              </div>
+              {selectedExtras.map((extra, idx) => (
+                <div key={idx} className={styles.summaryRow}>
+                  <span>{extra.name} {extra.perDay ? `(${rentalDays} days)` : ''}</span>
+                  <span>${(extra.price * (extra.perDay ? rentalDays : 1)).toFixed(2)}</span>
+                </div>
+              ))}
+              <div className={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <button className={styles.bookNowBtn}>
+              <FaCar /> Reserve Now
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

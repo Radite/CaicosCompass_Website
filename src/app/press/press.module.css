@@ -1,0 +1,545 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+  color: white;
+  padding: 5rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.content {
+  max-width: 1000px;
+  margin: -2rem auto 0;
+  padding: 0 2rem;
+}
+
+.section {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: #4834d4;
+}
+
+.sectionHeader svg {
+  flex-shrink: 0;
+}
+
+.sectionHeader h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.lead {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.quickFacts {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.quickFacts h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.factsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.factCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.factLabel {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.factValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4834d4;
+}
+
+.missionBox,
+.visionBox {
+  background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.missionBox h3,
+.visionBox h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #0c5460;
+  margin-bottom: 1rem;
+}
+
+.missionBox p,
+.visionBox p {
+  color: #0c5460;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.serviceCard {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid #4834d4;
+}
+
+.serviceCard h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.serviceCard ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.serviceCard li {
+  margin-bottom: 0.75rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.assetsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.assetCard {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.assetPreview {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.logoPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #4834d4;
+  font-weight: 600;
+}
+
+.assetCard h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.assetCard p {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.downloadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 52, 212, 0.3);
+}
+
+.brandColors {
+  margin-top: 3rem;
+}
+
+.brandColors h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.colorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.colorSwatch {
+  text-align: center;
+}
+
+.colorBox {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.colorName {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.colorHex {
+  font-family: monospace;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.newsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.newsItem {
+  padding: 2rem;
+  background: #f8f9fa;
+  border-left: 4px solid #4834d4;
+  border-radius: 8px;
+}
+
+.newsDate {
+  color: #4834d4;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.newsItem h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.newsItem p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.readMore {
+  color: #4834d4;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.readMore:hover {
+  transform: translateX(5px);
+}
+
+.awardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.awardItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.awardIcon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.awardItem h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #2c3e50;
+}
+
+.awardItem p {
+  color: #666;
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.statBox {
+  background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #4834d4;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  color: #0c5460;
+  font-weight: 500;
+}
+
+.contactBox {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+}
+
+.contactIntro {
+  font-size: 1.05rem;
+  color: #555;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.contactDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.contactItem strong {
+  min-width: 100px;
+  color: #2c3e50;
+}
+
+.contactItem a {
+  color: #4834d4;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contactItem a:hover {
+  text-decoration: underline;
+}
+
+.downloadFullKit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.downloadFullKit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 52, 212, 0.3);
+}
+
+.responseTime {
+  font-style: italic;
+  color: #666;
+  text-align: center;
+  margin: 0;
+}
+
+.boilerplate {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid #4834d4;
+}
+
+.boilerplate p {
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.boilerplate p:last-child {
+  margin-bottom: 0;
+}
+
+.usageGuidelines {
+  background: white;
+  padding: 3rem;
+  margin-top: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.usageGuidelines h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.guidelinesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.guideline {
+  display: flex;
+  align-items: start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.guidelineIcon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: center;
+}
+
+.guideline p {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .section,
+  .usageGuidelines {
+    padding: 2rem 1.5rem;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .factsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .assetsGrid,
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .awardItem {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .contactItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contactItem strong {
+    min-width: auto;
+  }
+}

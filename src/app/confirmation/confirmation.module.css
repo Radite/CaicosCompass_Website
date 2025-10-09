@@ -1,73 +1,213 @@
-/* Main container for the confirmation page */
+/* confirmation.module.css */
+
+/* --- Base & Variables --- */
+:root {
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --loading-color: #007bff;
+  --light-gray: #f8f9fa;
+  --medium-gray: #6c757d;
+  --dark-gray: #343a40;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Main Container --- */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-  min-height: 70vh; /* Ensures it takes up a good portion of the screen */
-  background-color: #f4f7f6; /* A soft, neutral background */
+  min-height: 80vh;
+  background: linear-gradient(to top, #f3f5f7, #ffffff);
 }
 
-/* Base styles for the confirmation card */
+/* --- Card Styling --- */
 .card {
   background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
   text-align: center;
-  max-width: 500px;
+  max-width: 550px;
   width: 100%;
-  border-top: 5px solid #4caf50; /* Green for success */
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeInUp 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Heading styles (e.g., "Your booking is confirmed!") */
-.card h2 {
-  font-size: 1.75rem;
-  color: #2e7d32; /* Darker green for text */
-  margin-bottom: 1rem;
+/* --- Typography --- */
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 20px 0 10px;
+  color: var(--dark-gray);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--medium-gray);
+  line-height: 1.6;
+  margin-bottom: 30px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Animated Status Icons --- */
+.iconWrapper {
+  margin: 0 auto 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  animation: popIn 0.5s ease-out 0.2s both;
 }
 
-/* Paragraph text styles */
-.card p {
+.iconSuccess {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.iconError {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* CSS Animated Checkmark */
+.checkmark {
+  width: 40px;
+  height: 80px;
+  transform: rotate(45deg);
+}
+
+.checkmarkStem {
+  position: absolute;
+  width: 5px;
+  height: 0;
+  background-color: var(--success-color);
+  left: 55px; /* Adjust positioning */
+  top: 15px;
+  animation: drawLine 0.4s ease-out 0.5s forwards;
+}
+
+.checkmarkKick {
+  position: absolute;
+  width: 5px;
+  height: 0;
+  background-color: var(--success-color);
+  left: 30px; /* Adjust positioning */
+  top: 50px;
+  animation: drawLine 0.6s ease-out 0.7s forwards;
+  transform: rotate(90deg);
+}
+
+/* CSS Animated Cross */
+.cross {
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--error-color);
+}
+
+/* --- Booking Details Section --- */
+.bookingDetails {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: var(--light-gray);
+  border-radius: 12px;
+  text-align: left;
+  border: 1px solid #e9ecef;
+}
+
+.detailsHeader {
+  font-size: 1.25rem;
+  color: var(--dark-gray);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
   font-size: 1rem;
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 1rem;
 }
 
-/* Styling for the booking ID to make it stand out */
-.card p strong {
-  font-family: monospace;
-  background-color: #e8f5e9; /* Light green background */
-  color: #1b5e20;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 1.1rem;
+.item:not(:last-child) {
+  border-bottom: 1px solid #e9ecef;
 }
 
-/* Modifier class for the error state card */
-.error {
-  border-top-color: #d32f2f; /* Red for error */
+.item strong {
+  color: var(--medium-gray);
+  font-weight: 500;
 }
 
-/* Heading style specifically for the error card */
-.error h2 {
-  color: #c62828; /* Darker red */
+.item span {
+  color: var(--dark-gray);
+  font-weight: 600;
+  font-family: monospace, sans-serif;
 }
 
-/* Animation for the card to fade in smoothly */
-@keyframes fadeIn {
+/* --- Button Styling --- */
+.homeButton {
+  margin-top: 30px;
+  padding: 14px 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.homeButtonSuccess {
+  background-color: var(--success-color);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+
+.homeButtonSuccess:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.homeButtonError {
+  background-color: var(--error-color);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.homeButtonError:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+}
+
+
+/* --- Animations --- */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drawLine {
+  to {
+    height: 100%;
   }
 }

@@ -1,0 +1,337 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  color: white;
+  padding: 5rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.content {
+  max-width: 1000px;
+  margin: -2rem auto 0;
+  padding: 0 2rem;
+}
+
+.section {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: #0275d8;
+}
+
+.sectionHeader svg {
+  flex-shrink: 0;
+}
+
+.sectionHeader h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.section p {
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.missionText {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #0275d8;
+  border-left: 4px solid #0275d8;
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  line-height: 1.8;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.valueCard {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.valueCard:hover {
+  transform: translateY(-5px);
+  border-color: #0275d8;
+  box-shadow: 0 8px 16px rgba(2, 117, 216, 0.15);
+}
+
+.valueIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  color: white;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
+
+.valueCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.valueCard p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.offeringsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.offeringCard {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid #0275d8;
+}
+
+.offeringCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.offeringCard p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.statsSection {
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  padding: 4rem 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+}
+
+.statsSection h2 {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  font-weight: 700;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.statCard {
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: #ffd700;
+}
+
+.statLabel {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.commitmentBox {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-left: 4px solid #0275d8;
+}
+
+.commitmentBox h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.commitmentBox ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.commitmentBox li {
+  margin-bottom: 0.75rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.ctaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #0275d8;
+}
+
+.ctaCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #0275d8;
+}
+
+.ctaCard p {
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.ctaButton {
+  display: inline-block;
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(2, 117, 216, 0.3);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(2, 117, 216, 0.4);
+}
+
+.contactBox {
+  background: #f8f9fa;
+  border-left: 4px solid #0275d8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.contactBox p {
+  margin-bottom: 0.5rem;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.socialLinks a {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: #0275d8;
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.socialLinks a:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .section {
+    padding: 2rem 1.5rem;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1.6rem;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .valuesGrid,
+  .offeringsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsSection {
+    padding: 3rem 1.5rem;
+  }
+
+  .statsSection h2 {
+    font-size: 2rem;
+  }
+
+  .statNumber {
+    font-size: 2.5rem;
+  }
+}

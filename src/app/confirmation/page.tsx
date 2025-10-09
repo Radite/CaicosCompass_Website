@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import styles from './confirmation.module.css'; // We'll create this CSS file next
-import Spinner from '../payment/components/Spinner'; // Reuse your spinner component
+import styles from './confirmation.module.css';
+import Spinner from '../payment/components/Spinner'; // Assuming this is a nice spinner
 
 // Define a type for the booking data for better code safety
 type BookingDetails = {
@@ -36,22 +36,20 @@ function ConfirmationContent() {
     useEffect(() => {
         if (!paymentIntentId) {
             setStatus('error');
-            setMessage('No payment information was found in the URL.');
+            setMessage('No payment information was found. Please check the link or contact support.');
             return;
         }
 
         let attempts = 0;
-        const maxAttempts = 5; // Will try to fetch for 10 seconds (5 attempts * 2s delay)
+        const maxAttempts = 5; // Will try to fetch for 10 seconds
 
         const fetchBooking = async () => {
             try {
-                // Fetch the booking using the new backend route
-const response = await fetch(`http://localhost:5000/api/bookings/by-payment-intent/${paymentIntentId}`);
+                const response = await fetch(`http://localhost:5000/api/bookings/by-payment-intent/${paymentIntentId}`);
                 
-                // If not found, the webhook might be slightly delayed. Let's retry.
                 if (response.status === 404 && attempts < maxAttempts) {
                     attempts++;
-                    setMessage(`Waiting for confirmation... (Attempt ${attempts})`);
+                    setMessage(`Waiting for confirmation... (Attempt ${attempts}/${maxAttempts})`);
                     setTimeout(fetchBooking, 2000); // Wait 2 seconds and try again
                     return;
                 }
@@ -64,11 +62,10 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
                 const result = await response.json();
                 setBooking(result.data);
                 setStatus('success');
-                setMessage('Your booking is confirmed!');
-
+                // The main title will be static, the subtitle will be dynamic
             } catch (err) {
                 setStatus('error');
-                setMessage(err instanceof Error ? err.message : "An unknown error occurred.");
+                setMessage(err instanceof Error ? err.message : "An unknown error occurred while fetching your booking.");
             }
         };
 
@@ -76,7 +73,11 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
 
     }, [paymentIntentId]);
 
-    const formatDate = (dateString: string) => new Date(dateString + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
 
     return (
         <div className={styles.container}>
@@ -85,15 +86,23 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
                     <>
                         <Spinner />
                         <h1 className={styles.title}>{message}</h1>
-                        <p className={styles.subtitle}>Please wait while we finalize your details.</p>
+                        <p className={styles.subtitle}>Please wait while we finalize the details. This shouldn't take long.</p>
                     </>
                 )}
 
                 {status === 'success' && booking && (
                     <>
-                        <div className={styles.icon}>✅</div>
-                        <h1 className={styles.title}>{message}</h1>
-                        <p className={styles.subtitle}>Thank you, {booking.guestName}. A confirmation email has been sent.</p>
+                        <div className={`${styles.iconWrapper} ${styles.iconSuccess}`}>
+                           {/* Animated Checkmark */}
+                           <div className={styles.checkmark}>
+                             <div className={styles.checkmarkStem}></div>
+                             <div className={styles.checkmarkKick}></div>
+                           </div>
+                        </div>
+                        <h1 className={styles.title}>Booking Confirmed!</h1>
+                        <p className={styles.subtitle}>
+                            Thank you, {booking.guestName}! A confirmation email has been sent to your address.
+                        </p>
                         
                         <div className={styles.bookingDetails}>
                             <h2 className={styles.detailsHeader}>Booking Summary</h2>
@@ -115,7 +124,7 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
                             )}
                         </div>
 
-                        <button className={styles.homeButton} onClick={() => router.push('/')}>
+                        <button className={`${styles.homeButton} ${styles.homeButtonSuccess}`} onClick={() => router.push('/')}>
                             Back to Home
                         </button>
                     </>
@@ -123,12 +132,13 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
 
                 {status === 'error' && (
                     <>
-                        <div className={`${styles.icon} ${styles.iconError}`}>❌</div>
+                        <div className={`${styles.iconWrapper} ${styles.iconError}`}>
+                            <div className={styles.cross}>×</div>
+                        </div>
                         <h1 className={styles.title}>Booking Failed</h1>
-                        <p className={`${styles.subtitle} ${styles.subtitleError}`}>{message}</p>
-                        <p className={styles.supportText}>Please contact support if you believe this is an error.</p>
-                        <button className={styles.homeButton} onClick={() => router.push('/')}>
-                            Try Again
+                        <p className={styles.subtitle}>{message}</p>
+                        <button className={`${styles.homeButton} ${styles.homeButtonError}`} onClick={() => router.push('/')}>
+                            Back to Home
                         </button>
                     </>
                 )}
@@ -140,7 +150,14 @@ const response = await fetch(`http://localhost:5000/api/bookings/by-payment-inte
 // Main page export that includes Suspense
 export default function ConfirmationPage() {
     return (
-        <Suspense fallback={<div className={styles.container}><Spinner /></div>}>
+        <Suspense fallback={
+            <div className={styles.container}>
+                <div className={styles.card}>
+                    <Spinner />
+                    <h1 className={styles.title}>Loading...</h1>
+                </div>
+            </div>
+        }>
             <ConfirmationContent />
         </Suspense>
     );

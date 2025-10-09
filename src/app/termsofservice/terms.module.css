@@ -1,0 +1,149 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #0275d8 0%, #0056b3 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerIcon {
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.content {
+  max-width: 900px;
+  margin: -2rem auto 0;
+  padding: 0 2rem;
+}
+
+.section {
+  background: white;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  color: #0275d8;
+}
+
+.sectionHeader svg {
+  flex-shrink: 0;
+}
+
+.sectionHeader h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  color: #34495e;
+}
+
+.section p {
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.section ul {
+  margin: 1rem 0 1rem 1.5rem;
+  line-height: 1.8;
+}
+
+.section li {
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.section strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.contactBox {
+  background: #f8f9fa;
+  border-left: 4px solid #0275d8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.contactBox p {
+  margin-bottom: 0.5rem;
+}
+
+.acknowledgment {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 2px solid #ffc107;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.acknowledgment svg {
+  flex-shrink: 0;
+  color: #856404;
+  margin-top: 0.25rem;
+}
+
+.acknowledgment p {
+  margin: 0;
+  color: #856404;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 1.5rem;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+}

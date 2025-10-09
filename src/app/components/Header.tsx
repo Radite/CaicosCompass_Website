@@ -13,7 +13,8 @@ import {
   faSignOutAlt,
   faGift,
   faStore,
-  faChartLine
+  faChartLine,
+  faCoins // Added for credits icon
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import logo2 from "../assets/logo2.png";
@@ -24,6 +25,7 @@ export default function Header() {
   const [userRole, setUserRole] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [vendorData, setVendorData] = useState(null);
+  const [caicosCredits, setCaicosCredits] = useState(0); // NEW: Store credits
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -44,12 +46,44 @@ export default function Header() {
       if (role === 'business-manager') {
         fetchVendorData();
       } else {
-        setLoading(false);
+        // NEW: Fetch user data including credits for regular users
+        fetchUserData();
       }
     } else {
       setLoading(false);
     }
   }, []);
+
+  // NEW: Fetch user data for regular users
+  const fetchUserData = async () => {
+    try {
+      const [profileResponse, creditsResponse] = await Promise.all([
+        axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`,
+          { headers: getAuthHeaders() }
+        ),
+        axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/caicos-credits`,
+          { headers: getAuthHeaders() }
+        )
+      ]);
+      
+      // Set user initials from actual name
+      if (profileResponse.data.name) {
+        const names = profileResponse.data.name.split(' ');
+        const initials = names.map(name => name.charAt(0).toUpperCase()).join('').substring(0, 2);
+        setUserInitials(initials);
+      }
+      
+      // Set Caicos Credits
+      setCaicosCredits(creditsResponse.data.caicosCredits || 0);
+      
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchVendorData = async () => {
     try {
@@ -156,7 +190,6 @@ export default function Header() {
                   borderRadius: "6px"
                 }}
                 onError={(e) => {
-                  // Fallback to store icon if image fails to load
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.parentElement.style.background = "linear-gradient(135deg, #0C54CF, #D4AF37)";
                   e.currentTarget.parentElement.innerHTML = '<i class="fas fa-store"></i>';
@@ -192,7 +225,7 @@ export default function Header() {
     );
   };
 
-  // Render regular user interface
+  // Render regular user interface - UPDATED with credits display
   const renderUserInterface = () => (
     <li className="nav-item dropdown">
       <button
@@ -200,6 +233,32 @@ export default function Header() {
         onClick={toggleDropdown}
         style={{ cursor: "pointer" }}
       >
+        {/* NEW: Credits Badge */}
+        <div 
+          className="d-flex align-items-center me-3 px-3 py-1"
+          style={{
+            background: "linear-gradient(135deg, #D4AF37, #F4D03F)",
+            borderRadius: "20px",
+            boxShadow: "0 2px 8px rgba(212, 175, 55, 0.3)",
+            transition: "all 0.3s ease"
+          }}
+          title="Caicos Credits"
+        >
+          <FontAwesomeIcon 
+            icon={faCoins} 
+            style={{ color: "#0C54CF", marginRight: "6px" }} 
+            size="sm"
+          />
+          <span style={{ 
+            color: "#0C54CF", 
+            fontWeight: "700",
+            fontSize: "0.9rem",
+            letterSpacing: "0.5px"
+          }}>
+            {caicosCredits.toLocaleString()}
+          </span>
+        </div>
+
         <div
           style={{
             width: 40,
@@ -272,8 +331,8 @@ export default function Header() {
     </li>
   );
 
-  // Show loading state for vendors while fetching data
-  if (loading && userRole === 'business-manager') {
+  // Show loading state for all logged in users while fetching data
+  if (loading && isLoggedIn) {
     return (
       <nav className="navbar navbar-expand-lg navbar-light sticky-top" style={{ 
         background: "rgba(255, 255, 255, 0.95)",

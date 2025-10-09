@@ -1,0 +1,500 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  padding: 5rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.headerIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.content {
+  max-width: 1000px;
+  margin: -2rem auto 0;
+  padding: 0 2rem;
+}
+
+.stepsSection {
+  margin-bottom: 3rem;
+}
+
+.step {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.stepIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #495057;
+  flex-shrink: 0;
+}
+
+.stepContent h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.stepContent p {
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.stepContent ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.stepContent li {
+  margin-bottom: 0.75rem;
+  color: #555;
+}
+
+.subsectionTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  color: #495057;
+}
+
+.requirementsBox {
+  background: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.requirementsBox h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.requirementsBox ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.stepButton {
+  display: inline-block;
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.stepButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.tipBox {
+  background: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.tipBox svg {
+  flex-shrink: 0;
+  color: #0c5460;
+  margin-top: 0.25rem;
+}
+
+.tipBox p {
+  margin: 0;
+  color: #0c5460;
+  line-height: 1.6;
+}
+
+.criteriaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.criteriaCard {
+  background: #e9ecef;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.criteriaIcon {
+  font-size: 1.5rem;
+}
+
+.criteriaCard p {
+  margin: 0;
+  font-weight: 500;
+  color: #495057;
+}
+
+.serviceTypes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.serviceTag {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  border: 2px solid #dee2e6;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 500;
+  color: #495057;
+  display: inline-block;
+}
+
+.responseBox {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.responseBox h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #856404;
+}
+
+.responseBox p {
+  margin: 0;
+  color: #856404;
+  line-height: 1.6;
+}
+
+.pricingBox {
+  background: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+}
+
+.pricingBox h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #155724;
+  text-align: center;
+}
+
+.pricingTiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.pricingTier {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tierBadge {
+  background: #28a745;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.tierRate {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #28a745;
+  margin-bottom: 0.5rem;
+}
+
+.pricingTier p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.section {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #2c3e50;
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.benefitCard {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.benefitNumber {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.benefitCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+}
+
+.benefitCard p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.supportSection {
+  background: white;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.supportSection h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.supportSection > p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.supportGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  text-align: left;
+}
+
+.supportCard {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid #6c757d;
+}
+
+.supportCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.supportCard ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.supportCard li {
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.ctaSection {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  padding: 4rem 3rem;
+  margin-top: 3rem;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+}
+
+.ctaSection h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.ctaSection > p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.ctaButton {
+  display: inline-block;
+  background: white;
+  color: #495057;
+  padding: 1rem 3rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
+}
+
+.ctaSubtext {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.ctaSubtext a {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 992px) {
+  .step {
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+  }
+
+  .stepIcon {
+    grid-column: 1 / -1;
+    margin: 0 auto;
+  }
+
+  .stepContent {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .section,
+  .supportSection {
+    padding: 2rem 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .step {
+    padding: 2rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .stepNumber {
+    margin: 0 auto;
+  }
+
+  .stepContent h2 {
+    font-size: 1.6rem;
+  }
+
+  .pricingTiers {
+    grid-template-columns: 1fr;
+  }
+}
