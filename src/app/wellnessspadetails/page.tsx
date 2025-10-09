@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./wellnessspadetails.module.css";
 import { useAuth } from "../contexts/AuthContext"; // 1. Import the useAuth hook
+import { useCart } from "../contexts/CartContext"; // Add this line
+
 
 // Simplified interfaces (no changes needed here)
 interface Image { url: string; isMain?: boolean; }
@@ -74,6 +76,7 @@ interface ServiceCalendarProps {
   selectedDate: string | null;
   onDateSelect: (date: string) => void;
 }
+
 
 const ServiceCalendar: React.FC<ServiceCalendarProps> = ({ availableSlots, selectedDate, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -385,7 +388,9 @@ export default function WellnessSpaDetailsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth(); // 2. Use the auth hook
-  
+  const { addToCart } = useCart(); // Add cart functionality
+const [addingToCart, setAddingToCart] = useState(false);
+const [addedToCart, setAddedToCart] = useState(false);
   const [item, setItem] = useState<SpaItem | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("all");
@@ -400,6 +405,17 @@ export default function WellnessSpaDetailsPage() {
   const [hostEmail, setHostEmail] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+  const [toast, setToast] = useState<{
+  show: boolean;
+  message: string;
+  type: 'success' | 'error';
+} | null>(null);
+const showToast = (message: string, type: 'success' | 'error') => {
+  setToast({ show: true, message, type });
+  setTimeout(() => {
+    setToast(null);
+  }, 3000);
+};
 
   // ... (generateAvailableSlots, fetchHostEmail, useEffects for data fetching and modal keypress remain unchanged)
   
@@ -739,6 +755,75 @@ time: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}
   } catch (error) {
     console.error('Error preparing booking data for session storage:', error);
     alert('An unexpected error occurred while preparing your booking. Please try again.');
+  }
+};
+
+const handleAddToCart = async () => {
+  // Check if user is logged in
+  if (!user) {
+    alert('Please log in to add items to your cart');
+    router.push('/login?redirect=/wellnessspadetails');
+    return;
+  }
+
+  // Validation - use bookingDetails from modal
+  if (!bookingDetails) {
+    alert('Please select a service, date, and time slot');
+    return;
+  }
+
+  const service = item.servicesOffered.find(s => s._id === bookingDetails.serviceId);
+  if (!service) {
+    alert('Service not found');
+    return;
+  }
+
+  setAddingToCart(true);
+
+  const cartItemData = {
+    serviceId: item._id,
+    serviceType: 'WellnessSpa',
+    category: 'spa',
+    selectedDate: bookingDetails.date,
+    selectedTime: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}`,
+    timeSlot: {
+      startTime: bookingDetails.timeSlot.startTime,
+      endTime: bookingDetails.timeSlot.endTime
+    },
+    serviceName: bookingDetails.serviceName,
+    optionId: bookingDetails.serviceId,
+    numPeople: 1,
+    totalPrice: bookingDetails.discountedPrice || bookingDetails.price,
+    priceBreakdown: {
+      basePrice: bookingDetails.price,
+      fees: 0,
+      taxes: 0,
+      discounts: bookingDetails.discountedPrice ? (bookingDetails.price - bookingDetails.discountedPrice) : 0
+    },
+    notes: `${item.name} - ${bookingDetails.serviceName} (${service.duration} mins)`
+  };
+
+  try {
+    const success = await addToCart(cartItemData);
+    
+if (success) {
+  // Close modal immediately
+  setShowConfirmation(false);
+  
+  // Show success feedback
+  setAddedToCart(true);
+  setTimeout(() => setAddedToCart(false), 3000);
+  
+  // Show toast notification
+  showToast('✓ Added to cart! Continue browsing or check your cart in the header.', 'success');
+} else {
+  showToast('Failed to add to cart. Please try again.', 'error');
+}
+} catch (error) {
+console.error('Error adding to cart:', error);
+showToast('An error occurred while adding to cart.', 'error');
+  } finally {
+    setAddingToCart(false);
   }
 };
 
@@ -1325,17 +1410,17 @@ time: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}
                                 {service.availableSlots?.find(slot => slot.date === selectedDate)?.timeSlots.length || 0} slots available
                               </div>
                             </div>
-                            <div className={styles.timeSelector}>
-                              {service.availableSlots?.find(slot => slot.date === selectedDate)?.timeSlots.map((timeSlot, index) => (
-                                <button
-                                  key={index}
-                                  className={styles.timeButton}
-                                  onClick={() => handleBookNow(service._id, timeSlot)}
-                                >
-                                  {timeSlot.startTime} - {timeSlot.endTime}
-                                </button>
-                              )) || <p className={styles.noAvailability}>No available times for selected date</p>}
-                            </div>
+<div className={styles.timeSelector}>
+  {service.availableSlots?.find(slot => slot.date === selectedDate)?.timeSlots.map((timeSlot, index) => (
+    <button
+      key={index}
+      className={styles.timeButton}
+      onClick={() => handleBookNow(service._id, timeSlot)}
+    >
+      {timeSlot.startTime} - {timeSlot.endTime}
+    </button>
+  )) || <p className={styles.noAvailability}>No available times for selected date</p>}
+</div>
                           </>
                         )}
                       </div>
@@ -1483,20 +1568,39 @@ time: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}
               </div>
             </div>
             
-            <div className={styles.confirmationActions}>
-              <button 
-                className={styles.cancelButton}
-                onClick={() => setShowConfirmation(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className={styles.confirmButton}
-                onClick={handleProceedToPayment}
-              >
-                Proceed to Payment
-              </button>
-            </div>
+<div className={styles.confirmationActions}>
+  <button 
+    className={styles.cancelButton}
+    onClick={() => setShowConfirmation(false)}
+  >
+    Cancel
+  </button>
+  <button 
+    onClick={handleAddToCart}
+    disabled={addingToCart || addedToCart}
+    style={{
+      flex: 1,
+      padding: '12px 24px',
+      background: addedToCart ? '#28a745' : 'white',
+      color: addedToCart ? 'white' : '#0C54CF',
+      border: `2px solid ${addedToCart ? '#28a745' : '#0C54CF'}`,
+      borderRadius: '8px',
+      cursor: addingToCart || addedToCart ? 'not-allowed' : 'pointer',
+      fontWeight: '600',
+      fontSize: '0.95rem',
+      transition: 'all 0.3s ease',
+      opacity: addingToCart || addedToCart ? 0.7 : 1
+    }}
+  >
+    {addedToCart ? '✓ Added to Cart' : addingToCart ? 'Adding...' : '🛒 Add to Cart'}
+  </button>
+  <button 
+    className={styles.confirmButton}
+    onClick={handleProceedToPayment}
+  >
+    💳 Proceed to Payment
+  </button>
+</div>
           </div>
         </div>
       )}
@@ -1641,6 +1745,50 @@ time: `${bookingDetails.timeSlot.startTime} - ${bookingDetails.timeSlot.endTime}
           </div>
         </div>
       )}
+      {/* Toast Notification */}
+{toast && (
+  <div
+    style={{
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      backgroundColor: toast.type === 'success' ? '#28a745' : '#dc3545',
+      color: 'white',
+      padding: '16px 24px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      zIndex: 10000,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      minWidth: '300px',
+      maxWidth: '500px',
+      animation: 'slideInRight 0.3s ease-out',
+      fontSize: '0.95rem',
+      fontWeight: '500'
+    }}
+  >
+    <span style={{ fontSize: '1.2rem' }}>
+      {toast.type === 'success' ? '✓' : '✕'}
+    </span>
+    <span style={{ flex: 1 }}>{toast.message}</span>
+    <button
+      onClick={() => setToast(null)}
+      style={{
+        background: 'transparent',
+        border: 'none',
+        color: 'white',
+        cursor: 'pointer',
+        fontSize: '1.2rem',
+        padding: '0',
+        lineHeight: '1',
+        opacity: 0.8
+      }}
+    >
+      ×
+    </button>
+  </div>
+)}
     </div>
   );
 }

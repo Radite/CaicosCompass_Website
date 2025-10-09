@@ -16,6 +16,7 @@ export const calculateTotalPrice = (
   return pricePerUnit * numPeople;
 };
 
+
 export const getAvailableTimeslots = (
   selectedDate: string,
   selectedOption: Option | null,

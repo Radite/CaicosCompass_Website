@@ -14,20 +14,27 @@ import {
   faGift,
   faStore,
   faChartLine,
-  faCoins // Added for credits icon
+  faCoins,
+  faShoppingCart // NEW: Cart icon
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import logo2 from "../assets/logo2.png";
+import { useSafeCart } from "../hooks/useSafeCart"; // NEW: Import safe cart hook
+import { useAuth } from "../contexts/AuthContext"; // Add this import
 
 export default function Header() {
+  const { isAuthenticated: authContextIsAuthenticated } = useAuth(); // NEW: Get auth state from context
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInitials, setUserInitials] = useState("JM");
   const [userRole, setUserRole] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [vendorData, setVendorData] = useState(null);
-  const [caicosCredits, setCaicosCredits] = useState(0); // NEW: Store credits
+  const [caicosCredits, setCaicosCredits] = useState(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  
+  // NEW: Get cart data (with safe fallback)
+const { itemCount } = useSafeCart();
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('authToken');
@@ -42,11 +49,9 @@ export default function Header() {
       setIsLoggedIn(true);
       setUserRole(role || "");
       
-      // If it's a vendor, fetch their business data
       if (role === 'business-manager') {
         fetchVendorData();
       } else {
-        // NEW: Fetch user data including credits for regular users
         fetchUserData();
       }
     } else {
@@ -54,7 +59,6 @@ export default function Header() {
     }
   }, []);
 
-  // NEW: Fetch user data for regular users
   const fetchUserData = async () => {
     try {
       const [profileResponse, creditsResponse] = await Promise.all([
@@ -68,14 +72,12 @@ export default function Header() {
         )
       ]);
       
-      // Set user initials from actual name
       if (profileResponse.data.name) {
         const names = profileResponse.data.name.split(' ');
         const initials = names.map(name => name.charAt(0).toUpperCase()).join('').substring(0, 2);
         setUserInitials(initials);
       }
       
-      // Set Caicos Credits
       setCaicosCredits(creditsResponse.data.caicosCredits || 0);
       
     } catch (error) {
@@ -93,7 +95,6 @@ export default function Header() {
       );
       setVendorData(response.data);
       
-      // Set user initials from actual name
       if (response.data.name) {
         const names = response.data.name.split(' ');
         const initials = names.map(name => name.charAt(0).toUpperCase()).join('').substring(0, 2);
@@ -140,107 +141,176 @@ export default function Header() {
     setDropdownOpen(!dropdownOpen);
   };
 
-  // Render vendor interface with actual business data
+  // NEW: Handle cart click
+// NEW: Handle cart click
+const handleCartClick = () => {
+  if (!authContextIsAuthenticated) {
+    router.push('/login?redirect=/cart');
+  } else {
+    router.push('/cart');
+  }
+};
+
+  // NEW: Cart Icon Component
+// NEW: Cart Icon Component - Only shows badge when authenticated
+// NEW: Cart Icon Component - Only shows badge when authenticated
+const CartIcon = () => (
+  <button
+    onClick={handleCartClick}
+    className="btn position-relative border-0 bg-transparent"
+    style={{
+      padding: "8px 12px",
+      marginRight: "10px", // Add space for the badge
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      position: "relative", // Ensure relative positioning
+      overflow: "visible" // Prevent badge from being clipped
+    }}
+    title={authContextIsAuthenticated ? `Cart (${itemCount} items)` : "Cart (Login required)"}
+    onMouseOver={(e) => {
+      e.currentTarget.style.transform = "scale(1.1)";
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+    }}
+  >
+    <FontAwesomeIcon 
+      icon={faShoppingCart} 
+      size="lg"
+      style={{ color: "#0C54CF" }}
+    />
+    {authContextIsAuthenticated && itemCount > 0 && (
+      <span 
+        className="badge rounded-pill"
+        style={{
+          position: "absolute",
+          top: "-5px",
+          right: "-8px",
+          background: "linear-gradient(135deg, #ef4444, #dc2626)",
+          color: "white",
+          fontSize: "0.65rem",
+          fontWeight: "700",
+          padding: "0.3em 0.5em",
+          boxShadow: "0 2px 6px rgba(220, 38, 38, 0.4)",
+          border: "2px solid white",
+          minWidth: "20px",
+          lineHeight: "1",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        {itemCount > 99 ? '99+' : itemCount}
+      </span>
+    )}
+  </button>
+);
+
+  // Render vendor interface with cart
   const renderVendorInterface = () => {
     const businessName = vendorData?.businessProfile?.businessName || "Business Portal";
     const businessLogo = vendorData?.businessProfile?.logo;
     
     return (
-      <li className="nav-item d-flex align-items-center">
-        <button
-          onClick={handleVendorDashboard}
-          className="btn d-flex align-items-center border-0 bg-transparent"
-          style={{ cursor: "pointer" }}
-          title="Vendor Dashboard"
-        >
-          <div
-            style={{
-              width: 45,
-              height: 45,
-              borderRadius: "8px",
-              background: businessLogo ? "transparent" : "linear-gradient(135deg, #0C54CF, #D4AF37)",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: "10px",
-              fontWeight: 600,
-              boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
-              transition: "all 0.3s ease",
-              overflow: "hidden",
-              border: businessLogo ? "2px solid #e0e0e0" : "none"
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.2)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.15)";
-            }}
+      <>
+        {/* NEW: Cart Icon for vendors */}
+        <li className="nav-item">
+          <CartIcon />
+        </li>
+        
+        <li className="nav-item d-flex align-items-center">
+          <button
+            onClick={handleVendorDashboard}
+            className="btn d-flex align-items-center border-0 bg-transparent"
+            style={{ cursor: "pointer" }}
+            title="Vendor Dashboard"
           >
-            {businessLogo ? (
-              <img 
-                src={businessLogo} 
-                alt="Business Logo"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "6px"
-                }}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement.style.background = "linear-gradient(135deg, #0C54CF, #D4AF37)";
-                  e.currentTarget.parentElement.innerHTML = '<i class="fas fa-store"></i>';
-                }}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faStore} size="lg" />
-            )}
-          </div>
-          <div className="d-flex flex-column align-items-start">
-            <span style={{ 
-              color: "#0C54CF", 
-              fontWeight: "600", 
-              fontSize: "0.9rem",
-              lineHeight: "1.2",
-              maxWidth: "180px",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis"
-            }}>
-              {businessName}
-            </span>
-            <span style={{ 
-              color: "#666", 
-              fontSize: "0.75rem",
-              lineHeight: "1"
-            }}>
-              {vendorData?.businessProfile?.isApproved ? "✓ Verified Business" : "Pending Approval"}
-            </span>
-          </div>
-        </button>
-      </li>
+            <div
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: "8px",
+                background: businessLogo ? "transparent" : "linear-gradient(135deg, #0C54CF, #D4AF37)",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: "10px",
+                fontWeight: 600,
+                boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
+                transition: "all 0.3s ease",
+                overflow: "hidden",
+                border: businessLogo ? "2px solid #e0e0e0" : "none"
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.2)";
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.15)";
+              }}
+            >
+              {businessLogo ? (
+                <img 
+                  src={businessLogo} 
+                  alt="Business Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "6px"
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement.style.background = "linear-gradient(135deg, #0C54CF, #D4AF37)";
+                    e.currentTarget.parentElement.innerHTML = '<i class="fas fa-store"></i>';
+                  }}
+                />
+              ) : (
+                <FontAwesomeIcon icon={faStore} size="lg" />
+              )}
+            </div>
+            <div className="d-flex flex-column align-items-start">
+              <span style={{ 
+                color: "#0C54CF", 
+                fontWeight: "600", 
+                fontSize: "0.9rem",
+                lineHeight: "1.2",
+                maxWidth: "180px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis"
+              }}>
+                {businessName}
+              </span>
+              <span style={{ 
+                color: "#666", 
+                fontSize: "0.75rem",
+                lineHeight: "1"
+              }}>
+                {vendorData?.businessProfile?.isApproved ? "✓ Verified Business" : "Pending Approval"}
+              </span>
+            </div>
+          </button>
+        </li>
+      </>
     );
   };
 
-  // Render regular user interface - UPDATED with credits display
+  // Render regular user interface with cart
   const renderUserInterface = () => (
-    <li className="nav-item dropdown">
-      <button
-        className="nav-link dropdown-toggle d-flex align-items-center border-0 bg-transparent"
-        onClick={toggleDropdown}
-        style={{ cursor: "pointer" }}
-      >
-        {/* NEW: Credits Badge */}
+    <>
+      {/* Credits Badge */}
+      <li className="nav-item">
         <div 
-          className="d-flex align-items-center me-3 px-3 py-1"
+          className="d-flex align-items-center px-3 py-1"
           style={{
             background: "linear-gradient(135deg, #D4AF37, #F4D03F)",
             borderRadius: "20px",
             boxShadow: "0 2px 8px rgba(212, 175, 55, 0.3)",
-            transition: "all 0.3s ease"
+            transition: "all 0.3s ease",
+            marginRight: "8px"
           }}
           title="Caicos Credits"
         >
@@ -258,77 +328,97 @@ export default function Header() {
             {caicosCredits.toLocaleString()}
           </span>
         </div>
+      </li>
 
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #0C54CF, #D4AF37)",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: "8px",
-            fontWeight: 600,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+      {/* NEW: Cart Icon */}
+      <li className="nav-item">
+        <CartIcon />
+      </li>
+
+      {/* Profile Dropdown */}
+      <li className="nav-item dropdown">
+        <button
+          className="nav-link dropdown-toggle d-flex align-items-center border-0 bg-transparent"
+          onClick={toggleDropdown}
+          style={{ cursor: "pointer" }}
+        >
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #0C54CF, #D4AF37)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: "8px",
+              fontWeight: 600,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+            }}
+          >
+            {userInitials}
+          </div>
+          <i className="fa fa-chevron-down"></i>
+        </button>
+        <ul
+          className={`dropdown-menu dropdown-menu-end ${dropdownOpen ? "show" : ""}`}
+          style={{ 
+            display: dropdownOpen ? "block" : "none",
+            borderRadius: "8px",
+            border: "none",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+            padding: "0.5rem 0"
           }}
         >
-          {userInitials}
-        </div>
-        <i className="fa fa-chevron-down"></i>
-      </button>
-      <ul
-        className={`dropdown-menu dropdown-menu-end ${dropdownOpen ? "show" : ""}`}
-        style={{ 
-          display: dropdownOpen ? "block" : "none",
-          borderRadius: "8px",
-          border: "none",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-          padding: "0.5rem 0"
-        }}
-      >
-        <li>
-          <Link href="/profile" className="dropdown-item py-2">
-            <FontAwesomeIcon icon={faUser} className="me-2" style={{ color: "#0C54CF" }} />
-            Profile
-          </Link>
-        </li>
-        <li>
-          <Link href="/itinerary" className="dropdown-item py-2">
-            <FontAwesomeIcon icon={faBook} className="me-2" style={{ color: "#0C54CF" }} />
-            Bookings
-          </Link>
-        </li>
-        <li>
-          <Link href="/wishlist" className="dropdown-item py-2">
-            <FontAwesomeIcon icon={faHeart} className="me-2" style={{ color: "#0C54CF" }} />
-            Wishlist
-          </Link>
-        </li>
-        <li>
-          <Link href="/rewards" className="dropdown-item py-2">
-            <FontAwesomeIcon icon={faGift} className="me-2" style={{ color: "#0C54CF" }} />
-            Rewards
-          </Link>
-        </li>
-        <li>
-          <Link href="/faq" className="dropdown-item py-2">
-            <FontAwesomeIcon icon={faQuestionCircle} className="me-2" style={{ color: "#0C54CF" }} />
-            FAQ
-          </Link>
-        </li>
-        <li>
-          <hr className="dropdown-divider" style={{ margin: "0.5rem 1rem" }} />
-        </li>
-        <li>
-          <button type="button" className="dropdown-item py-2" onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} className="me-2" style={{ color: "#0C54CF" }} />
-            Logout
-          </button>
-        </li>
-      </ul>
-    </li>
+          <li>
+            <Link href="/profile" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faUser} className="me-2" style={{ color: "#0C54CF" }} />
+              Profile
+            </Link>
+          </li>
+          <li>
+            <Link href="/itinerary" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faBook} className="me-2" style={{ color: "#0C54CF" }} />
+              Bookings
+            </Link>
+          </li>
+          <li>
+            <Link href="/cart" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faShoppingCart} className="me-2" style={{ color: "#0C54CF" }} />
+              Cart {itemCount > 0 && `(${itemCount})`}
+            </Link>
+          </li>
+          <li>
+            <Link href="/wishlist" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faHeart} className="me-2" style={{ color: "#0C54CF" }} />
+              Wishlist
+            </Link>
+          </li>
+          <li>
+            <Link href="/rewards" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faGift} className="me-2" style={{ color: "#0C54CF" }} />
+              Rewards
+            </Link>
+          </li>
+          <li>
+            <Link href="/faq" className="dropdown-item py-2">
+              <FontAwesomeIcon icon={faQuestionCircle} className="me-2" style={{ color: "#0C54CF" }} />
+              FAQ
+            </Link>
+          </li>
+          <li>
+            <hr className="dropdown-divider" style={{ margin: "0.5rem 1rem" }} />
+          </li>
+          <li>
+            <button type="button" className="dropdown-item py-2" onClick={handleLogout}>
+              <FontAwesomeIcon icon={faSignOutAlt} className="me-2" style={{ color: "#0C54CF" }} />
+              Logout
+            </button>
+          </li>
+        </ul>
+      </li>
+    </>
   );
 
   // Show loading state for all logged in users while fetching data
@@ -394,23 +484,26 @@ export default function Header() {
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav align-items-center">
-            {isLoggedIn ? (
-              userRole === 'business-manager' ? renderVendorInterface() : renderUserInterface()
-            ) : (
-              <li className="nav-item">
-                <Link 
-                  href="/login" 
-                  className="nav-link btn btn-outline-primary rounded-pill px-4 py-2"
-                  style={{ 
-                    borderColor: "#0C54CF",
-                    fontWeight: "600",
-                    transition: "all 0.3s ease"
-                  }}
-                >
-                  Login / Sign Up
-                </Link>
-              </li>
-            )}
+           {isLoggedIn ? (
+  userRole === 'business-manager' ? renderVendorInterface() : renderUserInterface()
+) : (
+  <>
+    {/* REMOVED: Cart icon for non-logged-in users */}
+    <li className="nav-item">
+      <Link 
+        href="/login" 
+        className="nav-link btn btn-outline-primary rounded-pill px-4 py-2"
+        style={{ 
+          borderColor: "#0C54CF",
+          fontWeight: "600",
+          transition: "all 0.3s ease"
+        }}
+      >
+        Login / Sign Up
+      </Link>
+    </li>
+  </>
+)}
           </ul>
         </div>
       </div>

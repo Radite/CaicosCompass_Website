@@ -11,7 +11,10 @@ interface BookingSummaryProps {
   selectedTime: TimeSlot | null;
   numPeople: number;
   onContinue: () => void;
-  totalPrice: number; // Add totalPrice to the props interface
+  onAddToCart: () => void; // NEW: Add to cart handler
+  addingToCart: boolean; // NEW: Loading state
+  addedToCart: boolean; // NEW: Success state
+  totalPrice: number;
 }
 
 const BookingSummary: React.FC<BookingSummaryProps> = ({ 
@@ -21,7 +24,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   selectedTime, 
   numPeople,
   onContinue,
-  totalPrice // Receive totalPrice from props
+  onAddToCart, // NEW
+  addingToCart, // NEW
+  addedToCart, // NEW
+  totalPrice
 }) => {
   return (
     <div className={styles.bookingSection}>
@@ -56,13 +62,35 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         <span className={styles.totalPrice}>${totalPrice.toFixed(2)}</span>
       </div>
       
-      <button 
-        onClick={onContinue} 
-        className={styles.continueButton}
-        disabled={!selectedTime}
-      >
-        Continue to Payment
-      </button>
+      {/* NEW: Two button layout */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+        <button 
+          onClick={onAddToCart}
+          className={styles.continueButton}
+          disabled={!selectedTime || addingToCart || addedToCart}
+          style={{
+            background: addedToCart ? '#28a745' : 'white',
+            color: addedToCart ? 'white' : '#0C54CF',
+            border: `2px solid ${addedToCart ? '#28a745' : '#0C54CF'}`,
+            opacity: (!selectedTime || addingToCart || addedToCart) ? 0.6 : 1,
+            cursor: (!selectedTime || addingToCart || addedToCart) ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {addedToCart ? '✓ Added to Cart' : addingToCart ? 'Adding...' : '🛒 Add to Cart'}
+        </button>
+        
+        <button 
+          onClick={onContinue} 
+          className={styles.continueButton}
+          disabled={!selectedTime}
+          style={{
+            opacity: !selectedTime ? 0.6 : 1,
+            cursor: !selectedTime ? 'not-allowed' : 'pointer'
+          }}
+        >
+          Continue to Payment
+        </button>
+      </div>
       
       <div className={styles.tipContainer}>
         <p className={styles.tipText}>

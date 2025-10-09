@@ -9,6 +9,7 @@ import { MdPets, MdSelfImprovement, MdKitchen, MdLocalLaundryService, MdWork } f
 import { IoMdTime } from 'react-icons/io';
 import styles from './staydetails.module.css';
 import { useAuth } from '../contexts/AuthContext'; // Import auth context
+import { useCart } from '../contexts/CartContext'; // Add this import
 
 interface Stay {
   _id: string;
@@ -81,6 +82,14 @@ interface Stay {
 }
 
 export default function StayDetails() {
+  const { addToCart } = useCart(); // Add cart functionality
+const [addingToCart, setAddingToCart] = useState(false);
+const [addedToCart, setAddedToCart] = useState(false);
+const [toast, setToast] = useState<{
+  show: boolean;
+  message: string;
+  type: 'success' | 'error';
+} | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth(); // Get auth state
@@ -98,6 +107,12 @@ export default function StayDetails() {
   });
   const [guestCount, setGuestCount] = useState(1);
 
+  const showToast = (message: string, type: 'success' | 'error') => {
+  setToast({ show: true, message, type });
+  setTimeout(() => {
+    setToast(null);
+  }, 3000);
+};
   // Read URL parameters for dates and guests
   useEffect(() => {
     const checkInParam = searchParams.get('checkIn');
@@ -242,6 +257,68 @@ export default function StayDetails() {
     return date.toISOString().split('T')[0];
   };
 
+  // Handle Add to Cart button click
+const handleAddToCart = async () => {
+  // Check if user is logged in
+  if (!user) {
+    alert('Please log in to add items to your cart');
+    router.push('/login?redirect=/stay-details?id=' + id);
+    return;
+  }
+
+  // Validation
+  if (!selectedDates.checkIn || !selectedDates.checkOut) {
+    showToast('Please select both check-in and check-out dates.', 'error');
+    return;
+  }
+
+  if (selectedDates.checkIn >= selectedDates.checkOut) {
+    showToast('Check-out date must be after check-in date.', 'error');
+    return;
+  }
+
+  if (!stay) {
+    showToast('Stay information not available.', 'error');
+    return;
+  }
+
+  setAddingToCart(true);
+
+  const cartItemData = {
+    serviceId: stay._id,
+    serviceType: 'Stay',
+    category: 'stay',
+    selectedDate: selectedDates.checkIn.toISOString().split('T')[0],
+    checkOutDate: selectedDates.checkOut.toISOString().split('T')[0],
+    serviceName: stay.name,
+    numPeople: guestCount,
+    totalPrice: calculateTotalPrice(),
+    priceBreakdown: {
+      basePrice: stay.pricePerNight * calculateNights(),
+      fees: 100, // cleaning fee
+      taxes: 50, // service fee
+      discounts: 0
+    },
+    notes: `${stay.name} - ${calculateNights()} nights in ${stay.location}, ${stay.island}`
+  };
+
+  try {
+    const success = await addToCart(cartItemData);
+    
+    if (success) {
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 3000);
+      showToast('✓ Added to cart! Continue browsing or check your cart in the header.', 'success');
+    } else {
+      showToast('Failed to add to cart. Please try again.', 'error');
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    showToast('An error occurred while adding to cart.', 'error');
+  } finally {
+    setAddingToCart(false);
+  }
+};
   // Handle Reserve button click
 // Enhanced handleReserve function with debugging
 const handleReserve = () => {
@@ -540,17 +617,41 @@ const handleReserve = () => {
               </div>
             </div>
 
-            <button 
-              className={styles.reserveButton}
-              onClick={handleReserve}
-              disabled={!selectedDates.checkIn || !selectedDates.checkOut}
-              style={{ 
-                opacity: (!selectedDates.checkIn || !selectedDates.checkOut) ? 0.6 : 1,
-                cursor: (!selectedDates.checkIn || !selectedDates.checkOut) ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {(!selectedDates.checkIn || !selectedDates.checkOut) ? 'Select Dates' : 'Reserve'}
-            </button>
+{/* Buttons Container */}
+<div style={{ 
+  display: 'flex', 
+  gap: '10px', 
+  marginTop: '20px' 
+}}>
+  <button 
+    className={styles.reserveButton}
+    onClick={handleAddToCart}
+    disabled={!selectedDates.checkIn || !selectedDates.checkOut || addingToCart || addedToCart}
+    style={{ 
+      flex: 1,
+      opacity: (!selectedDates.checkIn || !selectedDates.checkOut || addingToCart || addedToCart) ? 0.6 : 1,
+      cursor: (!selectedDates.checkIn || !selectedDates.checkOut || addingToCart || addedToCart) ? 'not-allowed' : 'pointer',
+      background: addedToCart ? '#28a745' : 'white',
+      color: addedToCart ? 'white' : '#0C54CF',
+      border: `2px solid ${addedToCart ? '#28a745' : '#0C54CF'}`
+    }}
+  >
+    {addedToCart ? '✓ Added to Cart' : addingToCart ? 'Adding...' : '🛒 Add to Cart'}
+  </button>
+  
+  <button 
+    className={styles.reserveButton}
+    onClick={handleReserve}
+    disabled={!selectedDates.checkIn || !selectedDates.checkOut}
+    style={{ 
+      flex: 1,
+      opacity: (!selectedDates.checkIn || !selectedDates.checkOut) ? 0.6 : 1,
+      cursor: (!selectedDates.checkIn || !selectedDates.checkOut) ? 'not-allowed' : 'pointer'
+    }}
+  >
+    {(!selectedDates.checkIn || !selectedDates.checkOut) ? 'Select Dates' : 'Reserve Now'}
+  </button>
+</div>
 
             {selectedDates.checkIn && selectedDates.checkOut && (
               <div className={styles.priceBreakdown}>
@@ -578,6 +679,51 @@ const handleReserve = () => {
           </div>
         </div>
       </div>
+      
+{/* Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: toast.type === 'success' ? '#28a745' : '#dc3545',
+            color: 'white',
+            padding: '16px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            minWidth: '300px',
+            maxWidth: '500px',
+            animation: 'slideInRight 0.3s ease-out',
+            fontSize: '0.95rem',
+            fontWeight: '500'
+          }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>
+            {toast.type === 'success' ? '✓' : '✕'}
+          </span>
+          <span style={{ flex: 1 }}>{toast.message}</span>
+          <button
+            onClick={() => setToast(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '1.2rem',
+              padding: '0',
+              lineHeight: '1',
+              opacity: 0.8
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }
