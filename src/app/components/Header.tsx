@@ -15,15 +15,16 @@ import {
   faStore,
   faChartLine,
   faCoins,
-  faShoppingCart // NEW: Cart icon
+  faShoppingCart,
+  faUserShield // NEW: For admin icon
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import logo2 from "../assets/logo2.png";
-import { useSafeCart } from "../hooks/useSafeCart"; // NEW: Import safe cart hook
-import { useAuth } from "../contexts/AuthContext"; // Add this import
+import { useSafeCart } from "../hooks/useSafeCart";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Header() {
-  const { isAuthenticated: authContextIsAuthenticated } = useAuth(); // NEW: Get auth state from context
+  const { isAuthenticated: authContextIsAuthenticated } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInitials, setUserInitials] = useState("JM");
   const [userRole, setUserRole] = useState("");
@@ -33,8 +34,7 @@ export default function Header() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
-  // NEW: Get cart data (with safe fallback)
-const { itemCount } = useSafeCart();
+  const { itemCount } = useSafeCart();
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('authToken');
@@ -51,6 +51,8 @@ const { itemCount } = useSafeCart();
       
       if (role === 'business-manager') {
         fetchVendorData();
+      } else if (role === 'admin') {
+        fetchAdminData(); // NEW: Separate fetch for admins
       } else {
         fetchUserData();
       }
@@ -107,6 +109,26 @@ const { itemCount } = useSafeCart();
     }
   };
 
+  // NEW: Fetch admin data
+  const fetchAdminData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`,
+        { headers: getAuthHeaders() }
+      );
+      
+      if (response.data.name) {
+        const names = response.data.name.split(' ');
+        const initials = names.map(name => name.charAt(0).toUpperCase()).join('').substring(0, 2);
+        setUserInitials(initials);
+      }
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -137,86 +159,141 @@ const { itemCount } = useSafeCart();
     router.push("/vendor/dashboard");
   };
 
+  // NEW: Handle admin dashboard
+  const handleAdminDashboard = () => {
+    router.push("/admin/dashboard");
+  };
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  // NEW: Handle cart click
-// NEW: Handle cart click
-const handleCartClick = () => {
-  if (!authContextIsAuthenticated) {
-    router.push('/login?redirect=/cart');
-  } else {
-    router.push('/cart');
-  }
-};
+  const handleCartClick = () => {
+    if (!authContextIsAuthenticated) {
+      router.push('/login?redirect=/cart');
+    } else {
+      router.push('/cart');
+    }
+  };
 
-  // NEW: Cart Icon Component
-// NEW: Cart Icon Component - Only shows badge when authenticated
-// NEW: Cart Icon Component - Only shows badge when authenticated
-const CartIcon = () => (
-  <button
-    onClick={handleCartClick}
-    className="btn position-relative border-0 bg-transparent"
-    style={{
-      padding: "8px 12px",
-      marginRight: "10px", // Add space for the badge
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      position: "relative", // Ensure relative positioning
-      overflow: "visible" // Prevent badge from being clipped
-    }}
-    title={authContextIsAuthenticated ? `Cart (${itemCount} items)` : "Cart (Login required)"}
-    onMouseOver={(e) => {
-      e.currentTarget.style.transform = "scale(1.1)";
-    }}
-    onMouseOut={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-    }}
-  >
-    <FontAwesomeIcon 
-      icon={faShoppingCart} 
-      size="lg"
-      style={{ color: "#0C54CF" }}
-    />
-    {authContextIsAuthenticated && itemCount > 0 && (
-      <span 
-        className="badge rounded-pill"
-        style={{
-          position: "absolute",
-          top: "-5px",
-          right: "-8px",
-          background: "linear-gradient(135deg, #ef4444, #dc2626)",
-          color: "white",
-          fontSize: "0.65rem",
-          fontWeight: "700",
-          padding: "0.3em 0.5em",
-          boxShadow: "0 2px 6px rgba(220, 38, 38, 0.4)",
-          border: "2px solid white",
-          minWidth: "20px",
-          lineHeight: "1",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-        {itemCount > 99 ? '99+' : itemCount}
-      </span>
-    )}
-  </button>
-);
+  const CartIcon = () => (
+    <button
+      onClick={handleCartClick}
+      className="btn position-relative border-0 bg-transparent"
+      style={{
+        padding: "8px 12px",
+        marginRight: "10px",
+        cursor: "pointer",
+        transition: "all 0.3s ease",
+        position: "relative",
+        overflow: "visible"
+      }}
+      title={authContextIsAuthenticated ? `Cart (${itemCount} items)` : "Cart (Login required)"}
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = "scale(1.1)";
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+      }}
+    >
+      <FontAwesomeIcon 
+        icon={faShoppingCart} 
+        size="lg"
+        style={{ color: "#0C54CF" }}
+      />
+      {authContextIsAuthenticated && itemCount > 0 && (
+        <span 
+          className="badge rounded-pill"
+          style={{
+            position: "absolute",
+            top: "-5px",
+            right: "-8px",
+            background: "linear-gradient(135deg, #ef4444, #dc2626)",
+            color: "white",
+            fontSize: "0.65rem",
+            fontWeight: "700",
+            padding: "0.3em 0.5em",
+            boxShadow: "0 2px 6px rgba(220, 38, 38, 0.4)",
+            border: "2px solid white",
+            minWidth: "20px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          {itemCount > 99 ? '99+' : itemCount}
+        </span>
+      )}
+    </button>
+  );
 
-  // Render vendor interface with cart
+  // NEW: Admin interface - NO credits, NO cart
+  const renderAdminInterface = () => (
+    <>
+      <li className="nav-item d-flex align-items-center">
+        <button
+          onClick={handleAdminDashboard}
+          className="btn d-flex align-items-center border-0 bg-transparent"
+          style={{ cursor: "pointer" }}
+          title="Admin Dashboard"
+        >
+          <div
+            style={{
+              width: 45,
+              height: 45,
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #DC2626, #991B1B)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: "10px",
+              fontWeight: 600,
+              boxShadow: "0 4px 15px rgba(220, 38, 38, 0.3)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(220, 38, 38, 0.4)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 15px rgba(220, 38, 38, 0.3)";
+            }}
+          >
+            <FontAwesomeIcon icon={faUserShield} size="lg" />
+          </div>
+          <div className="d-flex flex-column align-items-start">
+            <span style={{ 
+              color: "#DC2626", 
+              fontWeight: "600", 
+              fontSize: "0.9rem",
+              lineHeight: "1.2"
+            }}>
+              Admin Panel
+            </span>
+            <span style={{ 
+              color: "#666", 
+              fontSize: "0.75rem",
+              lineHeight: "1"
+            }}>
+              System Administrator
+            </span>
+          </div>
+        </button>
+      </li>
+    </>
+  );
+
+  // UPDATED: Vendor interface - NO credits, NO cart
   const renderVendorInterface = () => {
     const businessName = vendorData?.businessProfile?.businessName || "Business Portal";
     const businessLogo = vendorData?.businessProfile?.logo;
     
     return (
       <>
-        {/* NEW: Cart Icon for vendors */}
-        <li className="nav-item">
-          <CartIcon />
-        </li>
+        {/* REMOVED: Cart Icon for vendors */}
         
         <li className="nav-item d-flex align-items-center">
           <button
@@ -298,7 +375,7 @@ const CartIcon = () => (
     );
   };
 
-  // Render regular user interface with cart
+  // Regular user interface - WITH credits and cart
   const renderUserInterface = () => (
     <>
       {/* Credits Badge */}
@@ -330,7 +407,7 @@ const CartIcon = () => (
         </div>
       </li>
 
-      {/* NEW: Cart Icon */}
+      {/* Cart Icon */}
       <li className="nav-item">
         <CartIcon />
       </li>
@@ -421,7 +498,6 @@ const CartIcon = () => (
     </>
   );
 
-  // Show loading state for all logged in users while fetching data
   if (loading && isLoggedIn) {
     return (
       <nav className="navbar navbar-expand-lg navbar-light sticky-top" style={{ 
@@ -484,26 +560,28 @@ const CartIcon = () => (
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav align-items-center">
-           {isLoggedIn ? (
-  userRole === 'business-manager' ? renderVendorInterface() : renderUserInterface()
-) : (
-  <>
-    {/* REMOVED: Cart icon for non-logged-in users */}
-    <li className="nav-item">
-      <Link 
-        href="/login" 
-        className="nav-link btn btn-outline-primary rounded-pill px-4 py-2"
-        style={{ 
-          borderColor: "#0C54CF",
-          fontWeight: "600",
-          transition: "all 0.3s ease"
-        }}
-      >
-        Login / Sign Up
-      </Link>
-    </li>
-  </>
-)}
+            {/* UPDATED: Check for admin, business-manager, or regular user */}
+            {isLoggedIn ? (
+              userRole === 'admin' ? renderAdminInterface() :
+              userRole === 'business-manager' ? renderVendorInterface() : 
+              renderUserInterface()
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link 
+                    href="/login" 
+                    className="nav-link btn btn-outline-primary rounded-pill px-4 py-2"
+                    style={{ 
+                      borderColor: "#0C54CF",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease"
+                    }}
+                  >
+                    Login / Sign Up
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

@@ -114,11 +114,12 @@ function CartCheckoutContent() {
           if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Failed to create payment intent.') });
           return res.json();
         })
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          setClientSecret(data.clientSecret);
-          sessionStorage.setItem('pendingCartBookingIds', JSON.stringify(data.bookingIds));
-        })
+.then(data => {
+  if (data.error) throw new Error(data.error);
+  setClientSecret(data.clientSecret);
+  // Store payment intent ID (not booking IDs since they don't exist yet)
+  sessionStorage.setItem('cartPaymentIntentId', data.paymentIntentId);
+})
         .catch(err => {
           setError(err.message);
           showToast(err.message, 'error');
