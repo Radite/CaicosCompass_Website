@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
   DollarSign, TrendingUp, Download, RefreshCw, 
-  Calendar, Filter
+  Calendar, Filter, Award, Package
 } from 'lucide-react';
 import styles from '../admin.module.css';
 
@@ -46,6 +46,14 @@ export default function RevenueAnalytics({}: RevenueAnalyticsProps) {
   };
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+  
+  // Icon mapping for categories
+  const categoryIcons: any = {
+    'Transportation': '🚗',
+    'Stay': '🏨',
+    'Dining': '🍽️',
+    'Activity': '🎯'
+  };
 
   if (loading) {
     return (
@@ -94,7 +102,7 @@ export default function RevenueAnalytics({}: RevenueAnalyticsProps) {
               <p>${revenueData?.totalRevenue?.toLocaleString() || '0'}</p>
               <div className={`${styles.statCardChange} ${styles.textGreen}`}>
                 <TrendingUp size={16} />
-                12.5% from last period
+                {revenueData?.growthMetrics?.revenueGrowth?.toFixed(1) || 0}% from last period
               </div>
             </div>
             <div className={`${styles.statCardIconContainer} ${styles.bgGreen}`}>
@@ -107,10 +115,10 @@ export default function RevenueAnalytics({}: RevenueAnalyticsProps) {
           <div className={styles.statCardContent}>
             <div className={styles.statCardInfo}>
               <h3>Average Order Value</h3>
-              <p>${Math.round((revenueData?.totalRevenue || 0) / Math.max(1, revenueData?.monthlyRevenue?.reduce((sum: number, month: any) => sum + month.bookings, 0) || 1))}</p>
+              <p>${revenueData?.averageOrderValue?.toLocaleString() || '0'}</p>
               <div className={`${styles.statCardChange} ${styles.textGreen}`}>
                 <TrendingUp size={16} />
-                8.2% from last period
+                {revenueData?.growthMetrics?.aovGrowth?.toFixed(1) || 0}% from last period
               </div>
             </div>
             <div className={`${styles.statCardIconContainer} ${styles.bgBlue}`}>
@@ -123,10 +131,10 @@ export default function RevenueAnalytics({}: RevenueAnalyticsProps) {
           <div className={styles.statCardContent}>
             <div className={styles.statCardInfo}>
               <h3>Total Bookings</h3>
-              <p>{revenueData?.monthlyRevenue?.reduce((sum: number, month: any) => sum + month.bookings, 0) || 0}</p>
+              <p>{revenueData?.totalBookings || 0}</p>
               <div className={`${styles.statCardChange} ${styles.textGreen}`}>
                 <TrendingUp size={16} />
-                15.3% from last period
+                {revenueData?.growthMetrics?.bookingGrowth?.toFixed(1) || 0}% from last period
               </div>
             </div>
             <div className={`${styles.statCardIconContainer} ${styles.bgYellow}`}>
@@ -143,74 +151,162 @@ export default function RevenueAnalytics({}: RevenueAnalyticsProps) {
         </div>
         <ResponsiveContainer width="100%" height={400}>
           <AreaChart data={revenueData?.monthlyRevenue || []}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']} />
-            <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.1} />
+            <defs>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis 
+              dataKey="month" 
+              stroke="#64748b"
+              style={{ fontSize: '12px', fontWeight: 500 }}
+            />
+            <YAxis 
+              stroke="#64748b"
+              style={{ fontSize: '12px', fontWeight: 500 }}
+            />
+            <Tooltip 
+              formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+              contentStyle={{
+                backgroundColor: 'white',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#3B82F6" 
+              strokeWidth={3}
+              fill="url(#colorRevenue)" 
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
       {/* Revenue by Category and Top Vendors */}
       <div className={`${styles.grid} ${styles.gridCols1} ${styles.gridLgCols2}`}>
-        <div className={styles.card}>
+        {/* Revenue by Category */}
+        <div className={`${styles.card} ${styles.revenueCard}`}>
           <div className={styles.cardHeader}>
-            <h3 className={styles.cardTitle}>Revenue by Category</h3>
+            <div className={styles.revenueCardHeaderContent}>
+              <Package size={20} className={styles.revenueCardIcon} />
+              <h3 className={styles.cardTitle}>Revenue by Category</h3>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={revenueData?.revenueByCategory || []}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                dataKey="revenue"
-                nameKey="category"
-              >
-                {(revenueData?.revenueByCategory || []).map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-2 mt-4">
+          
+          <div className={styles.categoryChartContainer}>
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={revenueData?.revenueByCategory || []}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={110}
+                  dataKey="revenue"
+                  nameKey="category"
+                  paddingAngle={3}
+                >
+                  {(revenueData?.revenueByCategory || []).map((entry: any, index: number) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="white"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className={styles.categoryLegendGrid}>
             {(revenueData?.revenueByCategory || []).map((category: any, index: number) => (
-              <div key={index} className="flex items-center">
-                <div 
-                  className="w-3 h-3 rounded-full mr-2" 
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                ></div>
-                <span className="text-sm text-gray-600">{category.category}</span>
+              <div key={index} className={styles.categoryLegendItem}>
+                <div className={styles.categoryLegendHeader}>
+                  <div className={styles.categoryLegendDot} style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <div className={styles.categoryLegendInfo}>
+                    <div className={styles.categoryLegendName}>
+                      <span className={styles.categoryEmoji}>{categoryIcons[category.category] || '📦'}</span>
+                      {category.category}
+                    </div>
+                    <div className={styles.categoryLegendBookings}>{category.bookings} bookings</div>
+                  </div>
+                </div>
+                <div className={styles.categoryLegendStats}>
+                  <div className={styles.categoryLegendRevenue}>${category.revenue?.toLocaleString()}</div>
+                  <div className={styles.categoryLegendPercentage}>
+                    {((category.revenue / revenueData.totalRevenue) * 100).toFixed(1)}%
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className={styles.card}>
+        {/* Top Vendors */}
+        <div className={`${styles.card} ${styles.vendorsCard}`}>
           <div className={styles.cardHeader}>
-            <h3 className={styles.cardTitle}>Top Vendors by Revenue</h3>
+            <div className={styles.vendorsCardHeaderContent}>
+              <Award size={20} className={styles.vendorsCardIcon} />
+              <h3 className={styles.cardTitle}>Top Vendors by Revenue</h3>
+            </div>
           </div>
-          <div className="space-y-4">
+          
+          <div className={styles.vendorsList}>
             {(revenueData?.topVendors || []).slice(0, 8).map((vendor: any, index: number) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-medium text-gray-900">{vendor.vendorName}</div>
-                  <div className="text-sm text-gray-500">{vendor.bookings} bookings</div>
+              <div key={index} className={styles.vendorItem}>
+                <div className={styles.vendorRank}>
+                  <span className={styles.vendorRankNumber}>#{index + 1}</span>
                 </div>
-                <div className="text-right">
-                  <div className="font-medium text-gray-900">
-                    ${vendor.revenue.toLocaleString()}
+                <div className={styles.vendorInfo}>
+                  <div className={styles.vendorName}>{vendor.vendorName}</div>
+                  <div className={styles.vendorMeta}>
+                    <span className={styles.vendorBookings}>
+                      <Calendar size={12} />
+                      {vendor.bookings} bookings
+                    </span>
+                    <span className={styles.vendorDivider}>•</span>
+                    <span className={styles.vendorAvg}>
+                      ${Math.round(vendor.revenue / vendor.bookings)} avg
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    ${Math.round(vendor.revenue / vendor.bookings)} avg
+                </div>
+                <div className={styles.vendorRevenue}>
+                  <div className={styles.vendorRevenueAmount}>${vendor.revenue.toLocaleString()}</div>
+                  <div className={styles.vendorRevenueBar}>
+                    <div 
+                      className={styles.vendorRevenueBarFill}
+                      style={{ 
+                        width: `${(vendor.revenue / revenueData.topVendors[0].revenue) * 100}%`,
+                        background: `linear-gradient(135deg, ${COLORS[index % COLORS.length]} 0%, ${COLORS[(index + 1) % COLORS.length]} 100%)`
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {(revenueData?.topVendors || []).length === 0 && (
+            <div className={styles.emptyState}>
+              <Award size={48} className={styles.emptyStateIcon} />
+              <p className={styles.emptyStateText}>No vendor data available</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

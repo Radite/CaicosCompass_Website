@@ -75,6 +75,7 @@ export default function SignupForm({
     } finally {
       setLoading(false);
     }
+    
   };
 
   return (
