@@ -4,9 +4,30 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt, faStar, faImage } from "@fortawesome/free-solid-svg-icons";
-import { Activity } from "../utils/fetchActivities";
-import { getAverageRating, getLowestPrice, getHighestPrice, formatRating } from "../utils/filters";
+// We no longer need getAverageRating from filters since the backend provides the value
+import { getLowestPrice, getHighestPrice, formatRating } from "../utils/filters";
 import styles from "../ThingsToDo.module.css";
+// import { Activity } from "../utils/fetchActivities"; // Commented out to use local interface for clarity
+
+// Define the shape based on your MongoDB Service Model
+interface Activity {
+  _id: string;
+  name: string;
+  location: string;
+  island: string;
+  price?: number;
+  images: { url: string; isMain: boolean }[];
+  category?: string;
+  options?: any[];
+  // These fields now exist on your Service model
+  averageRating?: number;
+  totalReviews?: number;
+  host?: {
+    _id: string;
+    name: string;
+  } | string;
+  reviews?: any[]; // Kept for backward compatibility if needed
+}
 
 interface Props {
   activity: Activity;
@@ -23,6 +44,7 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
     router.push(`/booking?activity=${queryParam}`);
   };
 
+  // --- Pricing Logic ---
   let priceDisplay = "Pricing varies";
   let priceLabel = "From";
 
@@ -42,9 +64,13 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
     }
   }
 
-  const avgRating = getAverageRating(activity.reviews);
+  // --- Rating Logic (Updated) ---
+  // Use the pre-calculated fields from the Service model (populated by your Review system)
+  // Fallback to 0 if undefined
+  const avgRating = activity.averageRating || 0;
+  const reviewCount = activity.totalReviews || 0;
 
-  // Get the main image URL
+  // --- Image Logic ---
   const mainImage = activity.images?.find((img) => img.isMain);
   const imageUrl = mainImage?.url;
 
@@ -58,7 +84,6 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
     setImageError(false);
   };
 
-  // Render image content
   const renderImageContent = () => {
     if (imageError || !imageUrl) {
       return (
@@ -82,40 +107,6 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
     );
   };
 
-  // Alternative: Background image approach (uncomment to use)
-  /*
-  const renderBackgroundImage = () => {
-    const backgroundStyle = {
-      backgroundImage: imageUrl && !imageError ? `url(${imageUrl})` : 'none',
-      backgroundColor: '#f8f9fa'
-    };
-
-    return (
-      <div 
-        className={`${styles.cardImageContainer_bg} ${imageLoading ? styles.imageLoading : ''}`}
-        style={backgroundStyle}
-      >
-        {(!imageUrl || imageError) && (
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            color: '#6c757d'
-          }}>
-            <FontAwesomeIcon icon={faImage} style={{ fontSize: '24px', marginBottom: '8px' }} />
-            <div>No Image Available</div>
-          </div>
-        )}
-        {activity.category && (
-          <span className={styles.categoryTag}>{activity.category}</span>
-        )}
-      </div>
-    );
-  };
-  */
-
   return (
     <div className={styles.card}>
       <div className={styles.cardImageContainer}>
@@ -136,11 +127,14 @@ const ActivityCard: React.FC<Props> = ({ activity, sortOption }) => {
           </p>
         </div>
 
-        {activity.reviews && activity.reviews.length > 0 && (
+        {/* REVIEW SECTION UPDATED */}
+        {/* Only show if reviewCount > 0 */}
+        {reviewCount > 0 && (
           <div className={styles.ratingContainer}>
             <FontAwesomeIcon icon={faStar} className={styles.starIcon} />
             <span className={styles.ratingText}>
-              {formatRating(avgRating)} ({activity.reviews.length} {activity.reviews.length === 1 ? 'review' : 'reviews'})
+              {/* formatRating usually ensures 1 decimal place e.g., "4.5" */}
+              {formatRating(avgRating)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         )}

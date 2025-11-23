@@ -1,0 +1,602 @@
+/* components/BookingPage/reviewsmodal.module.css */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  position: fixed;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+.header {
+  padding: 24px;
+  border-bottom: 1px solid #E0E0E0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.count {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #FFC107;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reviewCard {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  transition: all 0.2s ease;
+}
+
+.reviewCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d0;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 16px;
+}
+
+.reviewerInfo {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.reviewerName {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.reviewDate {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.ratingText {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  margin-left: 4px;
+}
+
+.reviewSubject {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.reviewDescription {
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.reviewImages {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.imageWrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  aspect-ratio: 1;
+  background-color: #e5e5e5;
+}
+
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.imageWrapper:hover img {
+  transform: scale(1.05);
+}
+
+.imageCaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.vendorResponse {
+  background-color: #e3f2fd;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border-left: 3px solid #2196F3;
+}
+
+.vendorResponseLabel {
+  font-weight: 600;
+  color: #1565c0;
+  font-size: 0.85rem;
+  margin: 0 0 6px 0;
+}
+
+.vendorResponseText {
+  color: #333;
+  font-size: 0.9rem;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.vendorResponseDate {
+  font-size: 0.75rem;
+  color: #999;
+  margin: 0;
+}
+
+.reviewFooter {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 12px;
+}
+
+.helpfulBtn {
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.helpfulBtn:hover {
+  border-color: #999;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.pagination {
+  padding: 16px 24px;
+  border-top: 1px solid #E0E0E0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.paginationBtn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  background-color: #FFC107;
+  border-color: #FFC107;
+  color: white;
+}
+
+.paginationBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, -40%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+/* Scrollbar styling */
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .reviewCard {
+    padding: 12px;
+  }
+
+  .reviewHeader {
+    flex-direction: column;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .paginationBtn {
+    width: 100%;
+  }
+
+  .pageInfo {
+    text-align: center;
+  }
+}
+/* CSS to add to reviewsmodal.module.css */
+
+/* Image wrapper - make it clickable */
+.imageWrapper {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.imageWrapper:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.imageWrapper:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.reviewImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Lightbox backdrop */
+.lightboxBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1300;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Lightbox modal */
+.lightboxModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1301;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideUp 0.3s ease;
+  margin-top: 60px;
+}
+
+.lightboxImage {
+  max-width: 90vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Lightbox navigation buttons */
+.lightboxPrevBtn,
+.lightboxNextBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1302;
+  width: 56px;
+  height: 56px;
+}
+
+.lightboxPrevBtn:hover,
+.lightboxNextBtn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightboxPrevBtn:active,
+.lightboxNextBtn:active {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(0.95);
+}
+
+.lightboxPrevBtn {
+  left: 16px;
+}
+
+.lightboxNextBtn {
+  right: 16px;
+}
+
+.lightboxCaption {
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 90vw;
+  word-wrap: break-word;
+  margin-bottom: 8px;
+}
+
+.lightboxFooter {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.lightboxCounter {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.lightboxCloseBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1302;
+  width: 48px;
+  height: 48px;
+}
+
+.lightboxCloseBtn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.lightboxCloseBtn:active {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .lightboxImage {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+
+  .lightboxCloseBtn {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .lightboxPrevBtn,
+  .lightboxNextBtn {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    padding: 8px 12px;
+  }
+
+  .lightboxPrevBtn {
+    left: 8px;
+  }
+
+  .lightboxNextBtn {
+    right: 8px;
+  }
+}

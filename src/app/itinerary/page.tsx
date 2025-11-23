@@ -27,7 +27,7 @@ interface Booking {
   startDate?: string;
   endDate?: string;
   numOfPeople: number;
-  status: 'confirmed' | 'pending' | 'canceled';
+  status: 'confirmed' | 'pending' | 'canceled' | 'completed' | 'reviewed';
   pickupLocation?: string;
   dropoffLocation?: string;
   paymentDetails: {
@@ -52,7 +52,7 @@ export default function ItineraryPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
   const [sortBy, setSortBy] = useState<'date' | 'category' | 'status'>('date');
 useEffect(() => {
   console.log("Auth Context State:", {
@@ -178,14 +178,18 @@ const fetchBookings = async (authToken: string) => {
     });
   };
 
-  const getStatusClass = (status: string) => {
-    switch(status) {
-      case 'confirmed': return styles.confirmed;
-      case 'pending': return styles.pending;
-      case 'canceled': return styles.canceled;
-      default: return '';
-    }
-  };
+const getStatusClass = (status: string) => {
+  switch(status) {
+    case 'confirmed': return styles.confirmed;
+    case 'pending': return styles.pending;
+    case 'canceled': return styles.canceled;
+    // Add styling for the new statuses
+    case 'completed': 
+    case 'reviewed': 
+      return styles.confirmed; // Or create a specific styles.completed class
+    default: return '';
+  }
+};
 
   const getCategoryIcon = (category: string) => {
     switch(category) {
@@ -644,9 +648,9 @@ const fetchBookings = async (authToken: string) => {
               <div className="col-md-3">
                 <div className={styles.summaryCard}>
                   <div className={styles.summaryNumber}>
-                    {bookings.filter(b => b.status === 'confirmed').length}
+                    {bookings.filter(b => b.status === 'completed' || b.status === 'reviewed').length}
                   </div>
-                  <div className={styles.summaryLabel}>Confirmed</div>
+                  <div className={styles.summaryLabel}>Completed</div>
                 </div>
               </div>
               <div className="col-md-3">

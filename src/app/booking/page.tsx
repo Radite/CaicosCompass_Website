@@ -7,19 +7,22 @@ import styles from "./bookingpage.module.css";
 
 // Types
 import { TimeSlot, BookingData } from "./types";
-import { useAuth } from "../contexts/AuthContext"; // 1. Import your auth hook
-import { useCart } from "../contexts/CartContext"; // Add this import
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+
 // Components
 import BackButton from "./components/ui/BackButton";
 import InfoItem from "./components/ui/InfoItem";
 import ImageGallery from "./components/BookingPage/ImageGallery";
 import BookingForm from "./components/BookingPage/BookingForm";
 import BookingSummary from "./components/BookingPage/BookingSummary";
+import ReviewsModal from "./components/BookingPage/ReviewsModal";
 
 // Hooks & Utils
 import { useAvailability } from "./hooks/useAvailability";
 import { useActivityParser } from "./hooks/useActivityParser";
-import { calculateAverageRating, calculateTotalPrice } from "./utils/bookingUtils";
+// REMOVED: calculateAverageRating import
+import { calculateTotalPrice } from "./utils/bookingUtils"; 
 
 export default function BookingPage() {
   const searchParams = useSearchParams();
@@ -29,87 +32,92 @@ export default function BookingPage() {
   );
   const [numPeople, setNumPeople] = useState<number>(1);
   const [multiUser, setMultiUser] = useState<boolean>(false);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
 
   const { activity, selectedOption, allImages, handleOptionChange } = useActivityParser(searchParams);
   const { availableTimeslots, selectedTime, setSelectedTime } = useAvailability(activity, selectedOption, selectedDate);
-  const averageRating = calculateAverageRating(activity);
+
+  // --- CHANGED: Use DB fields instead of calculating on the fly ---
+  const averageRating = activity?.averageRating || 0;
+  const totalReviews = activity?.totalReviews || 0;
+  // ---------------------------------------------------------------
 
   const { user, loading: authLoading } = useAuth();
-const { addToCart } = useCart(); // Add cart functionality
-const [addingToCart, setAddingToCart] = useState(false);
-const [addedToCart, setAddedToCart] = useState(false);
-const [toast, setToast] = useState<{
-  show: boolean;
-  message: string;
-  type: 'success' | 'error';
-} | null>(null);
-const showToast = (message: string, type: 'success' | 'error') => {
-  setToast({ show: true, message, type });
-  setTimeout(() => {
-    setToast(null);
-  }, 3000);
-};
-  // Calculate totalPrice here, in the parent component
+  const { addToCart } = useCart();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
+
   const totalPrice = calculateTotalPrice(selectedOption, activity, numPeople);
 
   const handleAddToCart = async () => {
-  // Check if user is logged in
-  if (!user) {
-    alert('Please log in to add items to your cart');
-    router.push('/login?redirect=/bookingpage?activity=' + searchParams.get('activity'));
-    return;
-  }
+    if (!user) {
+      alert('Please log in to add items to your cart');
+      router.push('/login?redirect=/bookingpage?activity=' + searchParams.get('activity'));
+      return;
+    }
 
-  // Validation
-  if (!selectedTime) {
-    showToast('Please select a time slot.', 'error');
-    return;
-  }
+    if (!selectedTime) {
+      showToast('Please select a time slot.', 'error');
+      return;
+    }
 
-  if (!activity) {
-    showToast('Activity information not available.', 'error');
-    return;
-  }
+    if (!activity) {
+      showToast('Activity information not available.', 'error');
+      return;
+    }
 
-  setAddingToCart(true);
+    setAddingToCart(true);
 
-  const cartItemData = {
-    serviceId: activity._id,
-    serviceType: activity.serviceType || 'Activity',
-    category: activity.category || 'activity',
-    selectedDate: selectedDate,
-    selectedTime: `${selectedTime.startTime} - ${selectedTime.endTime}`,
-    timeSlot: selectedTime,
-    serviceName: selectedOption ? selectedOption.title : activity.name,
-    optionId: selectedOption?._id || null,
-    numPeople: numPeople,
-    totalPrice: totalPrice,
-    priceBreakdown: {
-      basePrice: selectedOption ? selectedOption.cost : activity.price,
-      fees: 0,
-      taxes: 0,
-      discounts: activity.discountedPrice ? (activity.price - activity.discountedPrice) : 0
-    },
-    notes: `${activity.name}${selectedOption ? ` - ${selectedOption.title}` : ''} in ${activity.location}, ${activity.island}`
+    const cartItemData = {
+      serviceId: activity._id,
+      serviceType: activity.serviceType || 'Activity',
+      category: activity.category || 'activity',
+      selectedDate: selectedDate,
+      selectedTime: `${selectedTime.startTime} - ${selectedTime.endTime}`,
+      timeSlot: selectedTime,
+      serviceName: selectedOption ? selectedOption.title : activity.name,
+      optionId: selectedOption?._id || null,
+      numPeople: numPeople,
+      totalPrice: totalPrice,
+      priceBreakdown: {
+        basePrice: selectedOption ? selectedOption.cost : activity.price,
+        fees: 0,
+        taxes: 0,
+        discounts: activity.discountedPrice ? (activity.price - activity.discountedPrice) : 0
+      },
+      notes: `${activity.name}${selectedOption ? ` - ${selectedOption.title}` : ''} in ${activity.location}, ${activity.island}`
+    };
+
+    try {
+      const success = await addToCart(cartItemData);
+      
+      if (success) {
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 3000);
+        showToast('✓ Added to cart! Continue browsing or check your cart in the header.', 'success');
+      } else {
+        showToast('Failed to add to cart. Please try again.', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showToast('An error occurred while adding to cart.', 'error');
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
-  try {
-    const success = await addToCart(cartItemData);
-    
-    if (success) {
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 3000);
-      showToast('✓ Added to cart! Continue browsing or check your cart in the header.', 'success');
-    } else {
-      showToast('Failed to add to cart. Please try again.', 'error');
-    }
-  } catch (error) {
-    console.error('Error adding to cart:', error);
-    showToast('An error occurred while adding to cart.', 'error');
-  } finally {
-    setAddingToCart(false);
-  }
-};
   const handleContinue = () => {
     if (!selectedTime) {
       alert("Please select a time slot.");
@@ -119,10 +127,7 @@ const showToast = (message: string, type: 'success' | 'error') => {
     const pricePerUnit = selectedOption ? selectedOption.cost : activity?.price || 0;
     
     const bookingData: BookingData = {
-            // --- 3. ADD THE USER ID HERE ---
-      user: user ? user.id : null, // Add the user's ID if they exist
-      
-
+      user: user ? user.id : null,
       activityId: activity?._id,
       activityName: activity?.name,
       optionId: selectedOption?._id || null,
@@ -132,7 +137,7 @@ const showToast = (message: string, type: 'success' | 'error') => {
       timeSlot: selectedTime,
       numPeople,
       multiUser,
-      totalPrice: totalPrice, // Use the authoritative totalPrice
+      totalPrice: totalPrice,
       price: pricePerUnit,
       basePrice: pricePerUnit,
       serviceType: activity?.serviceType || 'Activity',
@@ -149,21 +154,21 @@ const showToast = (message: string, type: 'success' | 'error') => {
       discountedPrice: activity?.discountedPrice,
       pricingType: activity?.pricingType
     };
+
     console.log("--- 1. [Booking Page] Creating Initial Booking Data ---");
-  console.log(JSON.stringify(bookingData, null, 2));
+    console.log(JSON.stringify(bookingData, null, 2));
     const queryParam = encodeURIComponent(JSON.stringify(bookingData));
     router.push(`/payment?booking=${queryParam}&type=activity`);
   };
 
-    // --- FIX #2: Show a loading indicator until authentication is ready ---
   if (authLoading) {
     return (
       <div className={styles.loadingContainer}>
-        {/* You can use a dedicated Spinner component here */}
         <h2>Loading Your Session...</h2>
       </div>
     );
   }
+
   return (
     <div className={styles.container}>
       <BackButton />
@@ -185,11 +190,36 @@ const showToast = (message: string, type: 'success' | 'error') => {
               text={`${activity?.location} - ${activity?.island}`} 
             />
             
-            {averageRating && (
-              <InfoItem 
-                icon={<FaStar />} 
-                text={`${averageRating} stars (${activity?.reviews?.length} reviews)`} 
-              />
+            {/* UPDATED: Rating Display using direct DB values */}
+            {totalReviews > 0 && (
+              <div
+                onClick={() => setShowReviewsModal(true)}
+                style={{
+                  cursor: 'pointer',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  width: 'fit-content'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 193, 7, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <FaStar style={{ color: '#FFC107', fontSize: '1.1rem' }} />
+                <span style={{ fontWeight: '600', color: '#333' }}>
+                  {/* Ensure we display 1 decimal place (e.g., 3.5, 5.0) */}
+                  {Number(averageRating).toFixed(1)} ({totalReviews} reviews)
+                </span>
+              </div>
             )}
             
             {activity?.duration && (
@@ -216,18 +246,18 @@ const showToast = (message: string, type: 'success' | 'error') => {
 
       <div className={styles.contentWrapper}>
         <div className={styles.sidebarSection}>
-<BookingSummary 
-  activity={activity}
-  selectedOption={selectedOption}
-  selectedDate={selectedDate}
-  selectedTime={selectedTime}
-  numPeople={numPeople}
-  onContinue={handleContinue}
-  onAddToCart={handleAddToCart} // Add this prop
-  addingToCart={addingToCart} // Add this prop
-  addedToCart={addedToCart} // Add this prop
-  totalPrice={totalPrice}
-/>
+          <BookingSummary 
+            activity={activity}
+            selectedOption={selectedOption}
+            selectedDate={selectedDate}
+            selectedTime={selectedTime}
+            numPeople={numPeople}
+            onContinue={handleContinue}
+            onAddToCart={handleAddToCart}
+            addingToCart={addingToCart}
+            addedToCart={addedToCart}
+            totalPrice={totalPrice}
+          />
         </div>
 
         <BookingForm 
@@ -245,8 +275,15 @@ const showToast = (message: string, type: 'success' | 'error') => {
           setMultiUser={setMultiUser}
         />
       </div>
-      
-{/* Toast Notification */}
+
+      {showReviewsModal && (
+        <ReviewsModal
+          serviceId={activity?._id}
+          serviceName={activity?.name}
+          onClose={() => setShowReviewsModal(false)}
+        />
+      )}
+
       {toast && (
         <div
           style={{
