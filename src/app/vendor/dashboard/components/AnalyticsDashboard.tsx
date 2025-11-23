@@ -2,11 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { 
+  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
+} from 'recharts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faChartLine, faChartBar, faChartPie, faDollarSign,
-  faCalendarAlt, faUsers, faArrowUp, faArrowDown,
-  faDownload, faRefresh
+  faChartLine, faChartBar, faDollarSign,
+  faCalendarAlt, faArrowUp, faArrowDown,
+  faDownload, faRefresh, faStar, faBox
 } from '@fortawesome/free-solid-svg-icons';
 import styles from '../dashboard.module.css';
 
@@ -118,11 +122,11 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
         }
       );
 
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const blob = new Blob([response.data], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -142,33 +146,66 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
     return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
+  const COLORS = {
+    primary: '#0D4C92',
+    success: '#28a745',
+    warning: '#ffc107',
+    danger: '#dc3545',
+    info: '#17a2b8'
+  };
+
+  const PIE_COLORS = [COLORS.success, COLORS.warning, COLORS.danger, COLORS.primary, COLORS.info];
+
   const renderRevenueChart = () => {
     if (!revenueData) return null;
 
-    const dailyData = Object.entries(revenueData.dailyRevenue).map(([date, revenue]) => ({
-      date,
-      revenue
-    }));
+    const dailyData = Object.entries(revenueData.dailyRevenue)
+      .map(([date, revenue]) => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        revenue
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
       <div className={styles.chartContainer}>
         <h4>Revenue Trend</h4>
-        <div className={styles.chartWrapper}>
-          <div className={styles.mockLineChart}>
-            {dailyData.map((data, index) => (
-              <div
-                key={index}
-                className={styles.chartPoint}
-                style={{
-                  left: `${(index / (dailyData.length - 1)) * 100}%`,
-                  bottom: `${(data.revenue / Math.max(...dailyData.map(d => d.revenue))) * 80 + 10}%`
-                }}
-                title={`${data.date}: ${formatCurrency(data.revenue)}`}
-              />
-            ))}
-            <div className={styles.chartLine} />
-          </div>
-        </div>
+        <ResponsiveContainer width="100%" height={350}>
+          <AreaChart data={dailyData}>
+            <defs>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="date" 
+              stroke="#666"
+              style={{ fontSize: '12px' }}
+            />
+            <YAxis 
+              stroke="#666"
+              style={{ fontSize: '12px' }}
+              tickFormatter={(value) => `$${value}`}
+            />
+            <Tooltip 
+              formatter={(value: any) => formatCurrency(value)}
+              contentStyle={{ 
+                backgroundColor: '#fff', 
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '10px'
+              }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke={COLORS.primary} 
+              fillOpacity={1} 
+              fill="url(#colorRevenue)" 
+            />
+          </AreaChart>
+        </ResponsiveContainer>
         
         <div className={styles.chartStats}>
           <div className={styles.chartStat}>
@@ -182,7 +219,7 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
           <div className={styles.chartStat}>
             <span className={styles.statLabel}>Growth</span>
             <span className={`${styles.statValue} ${revenueData.revenueGrowth >= 0 ? styles.positive : styles.negative}`}>
-              <FontAwesomeIcon icon={revenueData.revenueGrowth >= 0 ? faTrendUp : faTrendDown} />
+              <FontAwesomeIcon icon={revenueData.revenueGrowth >= 0 ? faArrowUp : faArrowDown} />
               {formatPercentage(revenueData.revenueGrowth)}
             </span>
           </div>
@@ -194,50 +231,134 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
   const renderBookingsChart = () => {
     if (!bookingData) return null;
 
+    // Prepare status breakdown data for pie chart
+    const statusData = Object.entries(bookingData.statusBreakdown).map(([status, count]) => ({
+      name: status.charAt(0).toUpperCase() + status.slice(1),
+      value: count as number
+    }));
+
+    // Prepare category breakdown data
+    const categoryData = Object.entries(bookingData.categoryBreakdown).map(([category, count]) => ({
+      name: category.charAt(0).toUpperCase() + category.slice(1),
+      value: count as number
+    }));
+
+    // Daily bookings trend
+    const dailyData = Object.entries(bookingData.dailyBookings)
+      .map(([date, bookings]) => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        bookings
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
     return (
       <div className={styles.chartContainer}>
         <h4>Booking Analytics</h4>
         
+        {/* Daily Bookings Trend */}
+        <div style={{ marginBottom: '30px' }}>
+          <h5 style={{ marginBottom: '15px', color: '#666' }}>Booking Trend</h5>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={dailyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="date" 
+                stroke="#666"
+                style={{ fontSize: '12px' }}
+              />
+              <YAxis 
+                stroke="#666"
+                style={{ fontSize: '12px' }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '10px'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="bookings" 
+                stroke={COLORS.primary} 
+                strokeWidth={2}
+                dot={{ fill: COLORS.primary, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Pie Charts Grid */}
         <div className={styles.chartGrid}>
           {/* Status Breakdown */}
           <div className={styles.pieChartContainer}>
             <h5>Bookings by Status</h5>
-            <div className={styles.pieChart}>
-              {Object.entries(bookingData.statusBreakdown).map(([status, count], index) => {
-                const colors = ['#28a745', '#ffc107', '#dc3545', '#0D4C92'];
-                return (
-                  <div key={status} className={styles.pieSegment}>
-                    <div 
-                      className={styles.pieLabel}
-                      style={{ color: colors[index % colors.length] }}
-                    >
-                      <span className={styles.pieDot} style={{ backgroundColor: colors[index % colors.length] }} />
-                      {status}: {count}
-                    </div>
-                  </div>
-                );
-              })}
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={70}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className={styles.pieLegend}>
+              {statusData.map((entry, index) => (
+                <div key={entry.name} className={styles.legendItem}>
+                  <span 
+                    className={styles.legendDot} 
+                    style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                  />
+                  <span>{entry.name}: {entry.value}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Category Breakdown */}
           <div className={styles.pieChartContainer}>
             <h5>Bookings by Category</h5>
-            <div className={styles.pieChart}>
-              {Object.entries(bookingData.categoryBreakdown).map(([category, count], index) => {
-                const colors = ['#0D4C92', '#28a745', '#ffc107', '#dc3545'];
-                return (
-                  <div key={category} className={styles.pieSegment}>
-                    <div 
-                      className={styles.pieLabel}
-                      style={{ color: colors[index % colors.length] }}
-                    >
-                      <span className={styles.pieDot} style={{ backgroundColor: colors[index % colors.length] }} />
-                      {category}: {count}
-                    </div>
-                  </div>
-                );
-              })}
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={70}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className={styles.pieLegend}>
+              {categoryData.map((entry, index) => (
+                <div key={entry.name} className={styles.legendItem}>
+                  <span 
+                    className={styles.legendDot} 
+                    style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                  />
+                  <span>{entry.name}: {entry.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -270,7 +391,7 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
         <div className={styles.performanceGrid}>
           {/* Top Performers by Revenue */}
           <div className={styles.topPerformersSection}>
-            <h5>Top Revenue Generators</h5>
+            <h5><FontAwesomeIcon icon={faDollarSign} /> Top Revenue Generators</h5>
             <div className={styles.performersList}>
               {performanceData.topPerformers.byRevenue.slice(0, 5).map((listing, index) => (
                 <div key={listing.listingId} className={styles.performerItem}>
@@ -289,7 +410,7 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
 
           {/* Top Performers by Bookings */}
           <div className={styles.topPerformersSection}>
-            <h5>Most Booked</h5>
+            <h5><FontAwesomeIcon icon={faCalendarAlt} /> Most Booked</h5>
             <div className={styles.performersList}>
               {performanceData.topPerformers.byBookings.slice(0, 5).map((listing, index) => (
                 <div key={listing.listingId} className={styles.performerItem}>
@@ -307,23 +428,25 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
           </div>
 
           {/* Top Performers by Rating */}
-          <div className={styles.topPerformersSection}>
-            <h5>Highest Rated</h5>
-            <div className={styles.performersList}>
-              {performanceData.topPerformers.byRating.slice(0, 5).map((listing, index) => (
-                <div key={listing.listingId} className={styles.performerItem}>
-                  <div className={styles.performerRank}>#{index + 1}</div>
-                  <div className={styles.performerInfo}>
-                    <h6>{listing.name}</h6>
-                    <span className={styles.performerCategory}>{listing.category}</span>
+          {performanceData.topPerformers.byRating && performanceData.topPerformers.byRating.length > 0 && (
+            <div className={styles.topPerformersSection}>
+              <h5><FontAwesomeIcon icon={faStar} /> Highest Rated</h5>
+              <div className={styles.performersList}>
+                {performanceData.topPerformers.byRating.slice(0, 5).map((listing, index) => (
+                  <div key={listing.listingId} className={styles.performerItem}>
+                    <div className={styles.performerRank}>#{index + 1}</div>
+                    <div className={styles.performerInfo}>
+                      <h6>{listing.name}</h6>
+                      <span className={styles.performerCategory}>{listing.category}</span>
+                    </div>
+                    <div className={styles.performerValue}>
+                      {listing.averageRating.toFixed(1)} ★
+                    </div>
                   </div>
-                  <div className={styles.performerValue}>
-                    {listing.averageRating.toFixed(1)} ★
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.chartStats}>
@@ -337,7 +460,9 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
           </div>
           <div className={styles.chartStat}>
             <span className={styles.statLabel}>Average Rating</span>
-            <span className={styles.statValue}>{performanceData.overview.averageRating.toFixed(1)} ★</span>
+            <span className={styles.statValue}>
+              {performanceData.overview.averageRating.toFixed(1)} ★
+            </span>
           </div>
         </div>
       </div>
@@ -411,7 +536,7 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
             <p>Total Revenue</p>
             {revenueData && (
               <span className={`${styles.metricChange} ${revenueData.revenueGrowth >= 0 ? styles.positive : styles.negative}`}>
-                <FontAwesomeIcon icon={revenueData.revenueGrowth >= 0 ? faTrendUp : faTrendDown} />
+                <FontAwesomeIcon icon={revenueData.revenueGrowth >= 0 ? faArrowUp : faArrowDown} />
                 {formatPercentage(revenueData.revenueGrowth)}
               </span>
             )}
@@ -433,7 +558,7 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
 
         <div className={styles.metricCard}>
           <div className={styles.metricIcon} style={{ backgroundColor: '#ffc10720', color: '#ffc107' }}>
-            <FontAwesomeIcon icon={faUsers} />
+            <FontAwesomeIcon icon={faChartLine} />
           </div>
           <div className={styles.metricContent}>
             <h3>{bookingData?.conversionRate.toFixed(1) || 0}%</h3>
@@ -446,13 +571,13 @@ export default function AnalyticsDashboard({ vendorData }: AnalyticsDashboardPro
 
         <div className={styles.metricCard}>
           <div className={styles.metricIcon} style={{ backgroundColor: '#dc354520', color: '#dc3545' }}>
-            <FontAwesomeIcon icon={faChartLine} />
+            <FontAwesomeIcon icon={faBox} />
           </div>
           <div className={styles.metricContent}>
-            <h3>{performanceData?.overview.averageRating.toFixed(1) || 0} ★</h3>
-            <p>Average Rating</p>
+            <h3>{performanceData?.overview.totalListings || 0}</h3>
+            <p>Total Listings</p>
             <span className={styles.metricSubtext}>
-              Across all listings
+              {performanceData?.overview.activeListings || 0} active
             </span>
           </div>
         </div>

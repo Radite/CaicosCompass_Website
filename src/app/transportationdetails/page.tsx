@@ -1,4 +1,4 @@
-// Updated Transportation Details Page - Car Rental Style
+// Enhanced Transportation Details Page - Car Rental Style with Better UX
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -27,10 +27,14 @@ import {
   FaWifi,
   FaBluetooth,
   FaCheck,
-  FaInfoCircle
+  FaInfoCircle,
+  FaHeart,
+  FaShare,
+  FaChartLine,
+  FaDollarSign,
+  FaThumbsUp,
+  FaWarning
 } from "react-icons/fa";
-
-// ... (keep all the existing interfaces but focus on Fleet interface)
 
 export default function TransportationDetailsPage() {
   const searchParams = useSearchParams();
@@ -38,6 +42,8 @@ export default function TransportationDetailsPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [vehicleImageIndex, setVehicleImageIndex] = useState({});
+  const [favorites, setFavorites] = useState(new Set());
   
   // Booking state
   const [pickupLocation, setPickupLocation] = useState('');
@@ -47,6 +53,7 @@ export default function TransportationDetailsPage() {
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [rentalDays, setRentalDays] = useState(1);
+  const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
 
   // Vehicle categories for filtering
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -107,9 +114,14 @@ export default function TransportationDetailsPage() {
 
   const getVehicleImage = (vehicle) => {
     if (vehicle.images?.length > 0) {
-      return vehicle.images.find(img => img.isMain)?.url || vehicle.images[0].url;
+      const first = vehicle.images[0];
+      if (typeof first === 'string') {
+        return first;
+      } else if (first?.url) {
+        return vehicle.images.find(img => img.isMain)?.url || first.url;
+      }
     }
-    return `/images/vehicles/${vehicle.category.toLowerCase()}-default.jpg`;
+    return `/images/vehicles/${vehicle.category?.toLowerCase() || 'car'}-default.jpg`;
   };
 
   const getAmenityIcon = (amenity) => {
@@ -124,10 +136,45 @@ export default function TransportationDetailsPage() {
     return iconMap[amenity.toLowerCase()] || FaCheck;
   };
 
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Economy': '#10b981',
+      'Compact': '#3b82f6',
+      'Mid-size': '#8b5cf6',
+      'Full-size': '#f59e0b',
+      'Premium': '#ec4899',
+      'Luxury': '#fbbf24',
+      'SUV': '#6366f1',
+      '4x4': '#ef4444'
+    };
+    return colors[category] || '#6b7280';
+  };
+
   const filteredVehicles = item?.fleet?.filter(vehicle => 
     (selectedCategory === 'All' || vehicle.category === selectedCategory) &&
     vehicle.status === 'available'
   ) || [];
+
+  const toggleFavorite = (vehicleId) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(vehicleId)) {
+      newFavorites.delete(vehicleId);
+    } else {
+      newFavorites.add(vehicleId);
+    }
+    setFavorites(newFavorites);
+  };
+
+  const savingsPercentage = () => {
+    if (selectedVehicle && item?.basePrice) {
+      const original = item.basePrice;
+      const current = selectedVehicle.priceOverride || item.perDayPrice || item.basePrice;
+      if (current < original) {
+        return Math.round(((original - current) / original) * 100);
+      }
+    }
+    return 0;
+  };
 
   if (loading) {
     return (
@@ -162,7 +209,9 @@ export default function TransportationDetailsPage() {
       {/* Header Section */}
       <div className={styles.headerSection}>
         <div className={styles.companyInfo}>
-          <h1 className={styles.companyName}>{item.vendor?.businessProfile?.businessName || item.vendor?.name}</h1>
+          <h1 className={styles.companyName}>
+            {item.vendor?.businessProfile?.businessName || item.vendor?.name}
+          </h1>
           <div className={styles.companyDetails}>
             <div className={styles.rating}>
               <FaStar /> {(item.performanceMetrics?.averageRating || 4.2).toFixed(1)}
@@ -171,12 +220,34 @@ export default function TransportationDetailsPage() {
             <div className={styles.location}>
               <FaMapMarkerAlt /> {item.location}, {item.island}
             </div>
+            <div style={{ marginTop: '12px', display: 'flex', gap: '16px' }}>
+              <button style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#f59e0b', 
+                cursor: 'pointer',
+                fontSize: '18px',
+                padding: 0
+              }}>
+                <FaHeart /> Save
+              </button>
+              <button style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#3b82f6', 
+                cursor: 'pointer',
+                fontSize: '18px',
+                padding: 0
+              }}>
+                <FaShare /> Share
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Rental Details Form */}
         <div className={styles.rentalDetailsCard}>
-          <h3>Rental Details</h3>
+          <h3>📅 Rental Details</h3>
           <div className={styles.rentalForm}>
             <div className={styles.locationRow}>
               <div className={styles.formGroup}>
@@ -222,9 +293,9 @@ export default function TransportationDetailsPage() {
             </div>
 
             <div className={styles.rentalSummary}>
-              <span className={styles.rentalDays}>{rentalDays} day{rentalDays > 1 ? 's' : ''}</span>
+              <span className={styles.rentalDays}>⏱️ {rentalDays} day{rentalDays > 1 ? 's' : ''}</span>
               {selectedVehicle && (
-                <span className={styles.totalPrice}>Total: ${totalPrice.toFixed(2)}</span>
+                <span className={styles.totalPrice}>💰 Total: ${totalPrice.toFixed(2)}</span>
               )}
             </div>
           </div>
@@ -234,7 +305,7 @@ export default function TransportationDetailsPage() {
       <div className={styles.mainContent}>
         {/* Vehicle Categories Filter */}
         <div className={styles.categoryFilter}>
-          <h3>Vehicle Categories</h3>
+          <h3>🚗 Vehicle Categories</h3>
           <div className={styles.categoryTabs}>
             {vehicleCategories.map(category => (
               <button
@@ -250,91 +321,137 @@ export default function TransportationDetailsPage() {
 
         {/* Vehicle Selection Grid */}
         <div className={styles.vehicleGrid}>
-          {filteredVehicles.map((vehicle) => (
-            <div 
-              key={vehicle.vehicleId}
-              className={`${styles.vehicleCard} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
-            >
-              {/* Vehicle Image */}
-              <div className={styles.vehicleImageContainer}>
-                <img 
-                  src={getVehicleImage(vehicle)}
-                  alt={`${vehicle.make} ${vehicle.model}`}
-                  className={styles.vehicleImage}
-                  onError={(e) => {
-                    e.target.src = '/images/default-car.jpg';
-                  }}
-                />
-                <div className={styles.vehicleCategory}>{vehicle.category}</div>
+          {filteredVehicles.map((vehicle) => {
+            const isFavorite = favorites.has(vehicle.vehicleId);
+            const savings = savingsPercentage();
+            return (
+              <div 
+                key={vehicle.vehicleId}
+                className={`${styles.vehicleCard} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
+              >
+                {/* Vehicle Image */}
+                <div className={styles.vehicleImageContainer}>
+                  <img 
+                    src={getVehicleImage(vehicle)}
+                    alt={`${vehicle.make} ${vehicle.model}`}
+                    className={styles.vehicleImage}
+                    onError={(e) => {
+                      e.target.src = '/images/default-car.jpg';
+                    }}
+                  />
+                  <div className={styles.vehicleCategory} style={{ background: getCategoryColor(vehicle.category) }}>
+                    {vehicle.category}
+                  </div>
+                  {savings > 0 && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      background: '#ef4444',
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                      Save {savings}%
+                    </div>
+                  )}
+                  <button
+                    onClick={() => toggleFavorite(vehicle.vehicleId)}
+                    style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      right: '10px',
+                      background: isFavorite ? '#ef4444' : 'rgba(255, 255, 255, 0.9)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '40px',
+                      height: '40px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      color: isFavorite ? 'white' : '#ef4444',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                    title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <FaHeart />
+                  </button>
+                </div>
+
+                {/* Vehicle Details */}
+                <div className={styles.vehicleDetails}>
+                  <div className={styles.vehicleHeader}>
+                    <h3 className={styles.vehicleName}>
+                      {vehicle.make} {vehicle.model}
+                    </h3>
+                    <span className={styles.vehicleYear}>({vehicle.year})</span>
+                  </div>
+
+                  {/* Vehicle Specs */}
+                  <div className={styles.vehicleSpecs}>
+                    <div className={styles.specItem}>
+                      <FaUsers /> {vehicle.capacity} passengers
+                    </div>
+                    <div className={styles.specItem}>
+                      <FaGasPump /> {vehicle.fuelType}
+                    </div>
+                    <div className={styles.specItem}>
+                      <FaCog /> {vehicle.transmission}
+                    </div>
+                  </div>
+
+                  {/* Vehicle Features */}
+                  <div className={styles.vehicleFeatures}>
+                    {vehicle.amenities?.slice(0, 4).map((amenity, idx) => {
+                      const IconComponent = getAmenityIcon(amenity);
+                      return (
+                        <div key={idx} className={styles.featureItem}>
+                          <IconComponent className={styles.featureIcon} />
+                          <span>{amenity}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pricing */}
+                  <div className={styles.vehiclePricing}>
+                    <div className={styles.dailyRate}>
+                      <span className={styles.priceLabel}>Per day</span>
+                      <span className={styles.price}>
+                        ${vehicle.priceOverride || item.perDayPrice || item.basePrice}
+                      </span>
+                    </div>
+                    <div className={styles.totalCost}>
+                      <span className={styles.totalLabel}>Total ({rentalDays} days)</span>
+                      <span className={styles.totalPrice}>
+                        ${((vehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Select Button */}
+                  <button 
+                    className={`${styles.selectVehicleBtn} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
+                    onClick={() => setSelectedVehicle(vehicle)}
+                  >
+                    {selectedVehicle?.vehicleId === vehicle.vehicleId ? '✓ Selected' : 'Select Vehicle'}
+                  </button>
+                </div>
               </div>
-
-              {/* Vehicle Details */}
-              <div className={styles.vehicleDetails}>
-                <div className={styles.vehicleHeader}>
-                  <h3 className={styles.vehicleName}>
-                    {vehicle.make} {vehicle.model}
-                  </h3>
-                  <span className={styles.vehicleYear}>({vehicle.year})</span>
-                </div>
-
-                {/* Vehicle Specs */}
-                <div className={styles.vehicleSpecs}>
-                  <div className={styles.specItem}>
-                    <FaUsers /> {vehicle.capacity} passengers
-                  </div>
-                  <div className={styles.specItem}>
-                    <FaGasPump /> {vehicle.fuelType}
-                  </div>
-                  <div className={styles.specItem}>
-                    <FaCog /> {vehicle.transmission}
-                  </div>
-                </div>
-
-                {/* Vehicle Features */}
-                <div className={styles.vehicleFeatures}>
-                  {vehicle.amenities?.slice(0, 4).map((amenity, idx) => {
-                    const IconComponent = getAmenityIcon(amenity);
-                    return (
-                      <div key={idx} className={styles.featureItem}>
-                        <IconComponent className={styles.featureIcon} />
-                        <span>{amenity}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Pricing */}
-                <div className={styles.vehiclePricing}>
-                  <div className={styles.dailyRate}>
-                    <span className={styles.priceLabel}>Per day</span>
-                    <span className={styles.price}>
-                      ${vehicle.priceOverride || item.perDayPrice || item.basePrice}
-                    </span>
-                  </div>
-                  <div className={styles.totalCost}>
-                    <span className={styles.totalLabel}>Total ({rentalDays} days)</span>
-                    <span className={styles.totalPrice}>
-                      ${((vehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Select Button */}
-                <button 
-                  className={`${styles.selectVehicleBtn} ${selectedVehicle?.vehicleId === vehicle.vehicleId ? styles.selected : ''}`}
-                  onClick={() => setSelectedVehicle(vehicle)}
-                >
-                  {selectedVehicle?.vehicleId === vehicle.vehicleId ? 'Selected' : 'Select Vehicle'}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Selected Vehicle Summary */}
         {selectedVehicle && (
           <div className={styles.selectedVehicleSummary}>
-            <h3>Selected Vehicle</h3>
+            <h3>Your Selected Vehicle</h3>
             <div className={styles.summaryCard}>
               <img 
                 src={getVehicleImage(selectedVehicle)}
@@ -343,7 +460,7 @@ export default function TransportationDetailsPage() {
               />
               <div className={styles.summaryDetails}>
                 <h4>{selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})</h4>
-                <p>{selectedVehicle.category} • {selectedVehicle.capacity} passengers</p>
+                <p>{selectedVehicle.category} • {selectedVehicle.capacity} passengers • {selectedVehicle.transmission}</p>
                 <div className={styles.summaryPricing}>
                   <span>${selectedVehicle.priceOverride || item.perDayPrice || item.basePrice}/day × {rentalDays} days</span>
                   <strong>${((selectedVehicle.priceOverride || item.perDayPrice || item.basePrice) * rentalDays).toFixed(2)}</strong>
@@ -356,7 +473,7 @@ export default function TransportationDetailsPage() {
         {/* Extras & Add-ons */}
         {item.rentalDetails?.additionalServices && (
           <div className={styles.extrasSection}>
-            <h3>Extras & Add-ons</h3>
+            <h3>🎁 Extras & Add-ons</h3>
             <div className={styles.extrasGrid}>
               {item.rentalDetails.additionalServices.map((extra, idx) => (
                 <label key={idx} className={styles.extraOption}>
@@ -384,10 +501,10 @@ export default function TransportationDetailsPage() {
           </div>
         )}
 
-        {/* Booking Summary */}
+        {/* Booking Summary - Sticky */}
         {selectedVehicle && (
           <div className={styles.bookingSummary}>
-            <h3>Booking Summary</h3>
+            <h3>💳 Booking Summary</h3>
             <div className={styles.summaryBreakdown}>
               <div className={styles.summaryRow}>
                 <span>Vehicle rental ({rentalDays} days)</span>
@@ -406,7 +523,7 @@ export default function TransportationDetailsPage() {
             </div>
             
             <button className={styles.bookNowBtn}>
-              <FaCar /> Reserve Now
+              <FaCar /> Reserve Now - ${totalPrice.toFixed(2)}
             </button>
           </div>
         )}
