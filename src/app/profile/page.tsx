@@ -13,6 +13,7 @@ import { GroupDetailsSection, GroupDetailsForm } from "./sections/GroupDetailsSe
 import { BudgetSection, BudgetForm } from "./sections/BudgetSection";
 import { FoodPreferencesSection, FoodPreferencesForm, MustDoActivitiesForm } from "./sections/FoodPreferencesSection";
 import { PrivacySection, PrivacySettingsForm } from "./sections/PrivacySection";
+import { PaymentMethodsSection } from './sections/PaymentMethodsSection';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -183,6 +184,8 @@ export default function ProfilePage() {
         return <FoodPreferencesForm {...formProps} />;
       case 'mustDoActivities':
         return <MustDoActivitiesForm {...formProps} />;
+      case 'payment':
+        return <PaymentMethodsSection />;
       case 'privacySettings':
         return <PrivacySettingsForm {...formProps} />;
       default:
@@ -294,6 +297,7 @@ export default function ProfilePage() {
                     { id: 'group', icon: 'fa-users', label: 'Group Details' },
                     { id: 'budget', icon: 'fa-dollar-sign', label: 'Budget' },
                     { id: 'food', icon: 'fa-utensils', label: 'Food Preferences' },
+                    { id: 'payment', icon: 'fa-credit-card', label: 'Payment Methods' },  
                     { id: 'privacy', icon: 'fa-shield-alt', label: 'Privacy Settings' },
                   ].map((tab) => (
                     <li
@@ -317,6 +321,7 @@ export default function ProfilePage() {
                 {activeTab === "group" && <GroupDetailsSection {...sectionProps} />}
                 {activeTab === "budget" && <BudgetSection {...sectionProps} />}
                 {activeTab === "food" && <FoodPreferencesSection {...sectionProps} />}
+                {activeTab === "payment" && <PaymentMethodsSection {...sectionProps} />}
                 {activeTab === "privacy" && <PrivacySection {...sectionProps} />}
               </div>
             </div>

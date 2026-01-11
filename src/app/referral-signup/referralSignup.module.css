@@ -1,0 +1,183 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formWrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  padding: 50px 40px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 28px;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.header p {
+  font-size: 16px;
+  color: #666;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #0066cc;
+  background-color: #f0f4ff;
+}
+
+.formGroup input::placeholder {
+  color: #999;
+}
+
+.infoBox {
+  background: #f0f4ff;
+  border-left: 4px solid #0066cc;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.infoBox h4 {
+  color: #0066cc;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.infoBox ul {
+  list-style: none;
+  padding: 0;
+}
+
+.infoBox li {
+  color: #333;
+  font-size: 14px;
+  padding: 6px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.infoBox li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #0066cc;
+  font-weight: bold;
+}
+
+.submitButton {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 102, 204, 0.3);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  padding: 12px 16px;
+  background: #fee;
+  color: #c33;
+  border-radius: 8px;
+  border-left: 4px solid #c33;
+  font-size: 14px;
+}
+
+.disclaimer {
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+.successMessage {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 2px solid #86efac;
+}
+
+.successMessage h2 {
+  color: #16a34a;
+  margin-bottom: 15px;
+}
+
+.successMessage p {
+  color: #4b5563;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+@media (max-width: 600px) {
+  .formWrapper {
+    padding: 30px 20px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .formGroup input,
+  .formGroup select {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+}
