@@ -129,31 +129,33 @@ export default function Header() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-  
-      if (!token) {
-        console.error("No auth token found.");
-        return;
-      }
-  
-      await axios.post(
-        "http://localhost:5000/api/users/logout",
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
-  
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userRole");
-      window.location.href = "/login";
-    } catch (error) {
-      console.error("Logout failed", error);
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      console.error("No auth token found.");
+      return;
     }
-  };
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+    await axios.post(
+      `${API_URL}/api/users/logout`,  // ✅ USING ENV VAR
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      }
+    );
+
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
+    window.location.href = "/login";
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   const handleVendorDashboard = () => {
     router.push("/vendor/dashboard");

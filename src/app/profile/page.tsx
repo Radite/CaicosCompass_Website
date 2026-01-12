@@ -321,7 +321,7 @@ export default function ProfilePage() {
                 {activeTab === "group" && <GroupDetailsSection {...sectionProps} />}
                 {activeTab === "budget" && <BudgetSection {...sectionProps} />}
                 {activeTab === "food" && <FoodPreferencesSection {...sectionProps} />}
-                {activeTab === "payment" && <PaymentMethodsSection {...sectionProps} />}
+                {activeTab === "payment" && <PaymentMethodpsSection {...sectionProps} />}
                 {activeTab === "privacy" && <PrivacySection {...sectionProps} />}
               </div>
             </div>

@@ -26,7 +26,7 @@ interface TransportationItem {
 
 // --- CONSTANTS ---
 const MAX_PRICE = 1000;
-const API_BASE_URL = "http://localhost:5000/api/services";
+const API_BASE_URL = "`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services";
 
 const CATEGORIES = ["All", "Car Rental", "Jeep & 4x4 Rental", "Scooter & Moped Rental", "Taxi", "Airport Transfer", "Private VIP Transport", "Ferry", "Flight"];
 const ISLANDS = ["All", "Providenciales", "Grand Turk", "North Caicos", "Middle Caicos", "South Caicos", "Salt Cay"];

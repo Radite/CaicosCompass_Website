@@ -95,7 +95,8 @@ export default function DiningDetailsPage() {
   // Fetch host's email
   const fetchHostEmail = async (hostId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${hostId}/email`);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const response = await fetch(`${API_URL}/api/users/${hostId}/email`);
       if (response.ok) {
         const data = await response.json();
         setHostEmail(data.email);

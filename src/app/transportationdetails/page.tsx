@@ -68,7 +68,7 @@ export default function TransportationDetailsPage() {
 
   const fetchTransportationDetails = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/services/type/transportations/${id}`);
+      const response = await axios.get(``${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services/type/transportations/${id}`);
       setItem(response.data);
       
       // Set default dates

@@ -104,7 +104,8 @@ const [paymentIntentId, setPaymentIntentId] = useState<string>(''); // ADD THIS
                 discount: referralDiscount
             });
 
-            fetch('http://localhost:5000/api/payments/create-payment-intent', {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+fetch(`${API_URL}/api/payments/create-payment-intent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ bookingData: finalBookingData }),

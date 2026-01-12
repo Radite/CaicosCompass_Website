@@ -85,7 +85,7 @@ export default function WellnessSpaPage() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:5000/api/services/type/wellnessspas")
+      .get("`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services/type/wellnessspas")
       .then((res) => {
         setItems(res.data);
         setFilteredItems(res.data);

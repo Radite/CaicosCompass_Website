@@ -32,7 +32,7 @@ const ServiceReviews = ({ serviceId }) => {
       }
 
       const response = await axios.get(
-        `http://localhost:5000/api/reviews/service/${serviceId}?${params}`
+        ``${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`reviews/service/${serviceId}?${params}`
       );
 
       if (response.data.success) {
@@ -58,7 +58,7 @@ const ServiceReviews = ({ serviceId }) => {
       }
 
       await axios.post(
-        `http://localhost:5000/api/reviews/${reviewId}/helpful`,
+        ``${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`reviews/${reviewId}/helpful`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` }

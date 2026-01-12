@@ -17,16 +17,18 @@ export default function useDining() {
   });
 
   // Fetch dining data
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/services/type/dinings")
-      .then((res) => {
-        setDiningItems(res.data);
-        setFilteredItems(res.data);
-      })
-      .catch((err) => console.error("Error fetching dining data:", err))
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  
+  axios
+    .get(`${API_URL}/api/services/type/dinings`)  // ✅ USING ENV VAR
+    .then((res) => {
+      setDiningItems(res.data);
+      setFilteredItems(res.data);
+    })
+    .catch((err) => console.error("Error fetching dining data:", err))
+    .finally(() => setLoading(false));
+}, []);
 
   // Apply filters whenever filters change
   useEffect(() => {

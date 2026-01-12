@@ -41,7 +41,7 @@ export default function Wishlist() {
       return;
     }
 
-    fetch("http://localhost:5000/api/favorites-wishlist?type=wishlist", {
+    fetch("`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`favorites-wishlist?type=wishlist", {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,

@@ -12,7 +12,7 @@ export interface Activity {
 
 export const fetchActivities = async (): Promise<Activity[]> => {
   try {
-    const res = await fetch("http://localhost:5000/api/services/type/activities");
+    const res = await fetch("`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services/type/activities");
     if (!res.ok) throw new Error("Failed to fetch activities");
     return await res.json();
   } catch (err) {

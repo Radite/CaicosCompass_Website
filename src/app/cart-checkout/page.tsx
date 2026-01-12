@@ -97,7 +97,7 @@ function CartCheckoutContent() {
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/referral/verify-code/${referralCode.toUpperCase().trim()}`,
+`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/referral/verify-code/${referralCode.toUpperCase().trim()}`,
         { method: 'GET' }
       );
 
@@ -184,7 +184,8 @@ function CartCheckoutContent() {
       
       console.log('Client: Sending this data to server:', JSON.stringify(cartData, null, 2));
 
-      fetch('http://localhost:5000/api/payments/create-cart-payment-intent', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+fetch(`${API_URL}/api/payments/create-cart-payment-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cartData),

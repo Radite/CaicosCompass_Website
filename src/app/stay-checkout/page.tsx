@@ -141,7 +141,7 @@ export default function StayCheckoutPage() {
         console.log('Sending booking data to backend:', backendBookingData);
 
         // Create the Payment Intent using the unified backend
-        const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
+        const response = await fetch('`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`payments/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ bookingData: backendBookingData }),

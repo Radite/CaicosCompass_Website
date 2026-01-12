@@ -89,17 +89,22 @@ export default function DiningPage() {
   const priceRanges = ["All", "$", "$$", "$$$", "$$$$"];
   const islands = ["All", "Providenciales", "Grand Turk", "North Caicos", "Middle Caicos", "South Caicos", "Salt Cay"];
 
-  useEffect(() => {
-    setLoading(true);
-    axios
-      .get("http://localhost:5000/api/services/type/dinings")
-      .then((res) => {
-        setItems(res.data);
-        setFilteredItems(res.data);
-      })
-      .catch((err) => console.error("Error fetching dining data:", err))
-      .finally(() => setLoading(false));
-  }, []);
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+useEffect(() => {
+  setLoading(true);
+
+  axios
+    .get(`${API_URL}/api/services/type/dinings`)
+    .then((res) => {
+      setItems(res.data);
+      setFilteredItems(res.data);
+    })
+    .catch((err) => console.error("Error fetching dining data:", err))
+    .finally(() => setLoading(false));
+}, []);
+
 
   const applyFilters = () => {
     let updated = [...items];

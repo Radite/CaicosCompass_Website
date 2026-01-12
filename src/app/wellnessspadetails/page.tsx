@@ -475,7 +475,7 @@ const showToast = (message: string, type: 'success' | 'error') => {
   // Fetch host's email
   const fetchHostEmail = async (hostId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${hostId}/email`);
+      const response = await fetch(``${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`users/${hostId}/email`);
       if (response.ok) {
         const data = await response.json();
         setHostEmail(data.email);

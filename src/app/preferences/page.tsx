@@ -117,27 +117,39 @@ export default function PreferencesPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  // Fetch current preferences
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setMessage("User not authenticated.");
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+useEffect(() => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    setMessage("User not authenticated.");
+    setLoading(false);
+    return;
+  }
+
+  setLoading(true);
+
+  axios
+    .get(`${API_URL}/api/users/preferences`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => {
+      setPreferences(res.data.preferences);
+    })
+    .catch((err) => {
+      setMessage(
+        err.response?.data?.message || "Failed to load preferences."
+      );
+    })
+    .finally(() => {
       setLoading(false);
-      return;
-    }
-    axios
-      .get("http://localhost:5000/api/users/preferences", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setPreferences(res.data.preferences);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setMessage(err.response?.data?.message || "Failed to load preferences.");
-        setLoading(false);
-      });
-  }, []);
+    });
+}, []);
+
 
   // Update top-level fields
   const handleChange = (
@@ -205,7 +217,8 @@ export default function PreferencesPage() {
       return;
     }
     axios
-      .put("http://localhost:5000/api/users/preferences", preferences, {
+      .put(`${API_URL}/api/users/preferences`, preferences, {
+
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setMessage("Preferences updated successfully."))

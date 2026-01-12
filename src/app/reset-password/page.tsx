@@ -20,7 +20,7 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const email = searchParams.get("email");
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   useEffect(() => {
     // Validate token when component mounts
     const validateToken = async () => {
@@ -32,7 +32,8 @@ export default function ResetPasswordPage() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5000/api/forgot/validate-reset-token`, {
+
+const response = await axios.get(`${API_URL}/api/forgot/validate-reset-token`, {
           params: { token, email }
         });
         
@@ -74,7 +75,7 @@ export default function ResetPasswordPage() {
     
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/forgot/reset-password", {
+const response = await axios.post(`${API_URL}/api/forgot/reset-password`, {
         email,
         token,
         password

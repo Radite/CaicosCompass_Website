@@ -29,7 +29,7 @@ const ReviewForm = ({ serviceId, onSuccess, onCancel }) => {
       const token = localStorage.getItem('token');
       
       const response = await axios.get(
-        `http://localhost:5000/api/reviews/can-review/${serviceId}`,
+        ``${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`reviews/can-review/${serviceId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -101,7 +101,7 @@ const ReviewForm = ({ serviceId, onSuccess, onCancel }) => {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/api/reviews',
+        '`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`reviews',
         payload,
         {
           headers: {

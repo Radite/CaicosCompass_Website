@@ -55,8 +55,8 @@ function ConfirmationContent() {
             try {
                 setMessage(`Waiting for confirmation... (Attempt ${attempts + 1}/${maxAttempts})\nPlease wait while we finalize the details. This shouldn't take long.`);
                 
-                const response = await fetch(`http://localhost:5000/api/bookings/by-payment-intent/${paymentIntentId}`);
-                
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const response = await fetch(`${API_URL}/api/bookings/by-payment-intent/${paymentIntentId}`);                
                 if (response.status === 404 && attempts < maxAttempts) {
                     attempts++;
                     setTimeout(fetchBooking, 2000); // Wait 2 seconds and try again

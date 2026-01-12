@@ -77,7 +77,7 @@ export default function ShoppingPage() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:5000/api/services/type/shoppings")
+      .get("`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services/type/shoppings")
       .then((res) => {
         setShoppingItems(res.data);
         setFilteredItems(res.data);

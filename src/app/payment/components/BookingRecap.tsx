@@ -35,7 +35,8 @@ const BookingRecap: React.FC<BookingRecapProps> = ({ data, guestName, onReferral
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/referral/verify-code/${trimmedCode}`
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/referral/verify-code/${trimmedCode}`
+
             );
             const result = await response.json();
 

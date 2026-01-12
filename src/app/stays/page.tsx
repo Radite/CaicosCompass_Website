@@ -298,7 +298,7 @@ export default function StaysPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:5000/api/services/type/stays');
+        const response = await fetch('`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/`services/type/stays');
         if (!response.ok) {
           throw new Error(`Failed to fetch stays. Status: ${response.status}`);
         }
